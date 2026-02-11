@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto py-12 px-4 fade-in">
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h2 class="text-2xl font-bold mb-2 text-slate-800">📋 내 문의 내역</h2>
+            <p class="text-slate-500">접수하신 문의의 처리 현황입니다.</p>
+        </div>
+        <a href="/support" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition text-sm">
+            + 새 문의 작성
+        </a>
+    </div>
+
+    {% if supports %}
+        <div class="space-y-4">
+            {% for s in supports %}
+            <div id="support-item-{{ s.id }}" class="bg-white p-6 rounded-3xl border shadow-sm border-slate-100">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="px-3 py-1 {% if s.status == '접수완료' %}bg-blue-50 text-blue-600{% else %}bg-green-50 text-green-600{% endif %} text-xs font-bold rounded-full">
+                        {{ s.status }}
+                    </span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-slate-400">
+                            {{ (s.created_at | string).split(' ')[0] }}
+                        </span>
+                        <button type="button" onclick="deleteSupport('{{ s.id }}')" class="text-xs text-red-400 hover:text-red-600 font-medium cursor-pointer">삭제</button>
+                    </div>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">{{ s.title }}</h3>
+                <div class="p-4 bg-slate-50 rounded-2xl text-slate-600 text-sm whitespace-pre-wrap leading-relaxed">
+                    {{ s.content }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+            <p class="text-slate-400">아직 접수한 문의 내역이 없습니다.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function deleteSupport(supportId) {
+    if (!confirm('정말 이 문의를 삭제하시겠습니까?')) return;
+
+    fetch(`/delete_support/${supportId}`, {
+        method: 'POST',
+        // 세션 유지를 위해 필요한 경우 headers 추가 가능
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('네트워크 응답 에러');
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const item = document.getElementById(`support-item-${supportId}`);
+            if (item) {
+                item.style.transition = '0.3s';
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    item.remove();
+                    // 모든 항목 삭제 시 화면 갱신
+                    if (document.querySelectorAll('[id^="support-item-"]').length === 0) {
+                        location.reload(); 
+                    }
+                }, 300);
+            }
+        } else {
+            alert('삭제 실패: ' + (data.message || '권한이 없거나 오류가 발생했습니다.'));
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('삭제 처리 중 오류가 발생했습니다.');
+    });
+}
+</script>
+{% endblock %}

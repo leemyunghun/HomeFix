@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .signup-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 420px; margin: 50px auto; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #555; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    input:focus { outline: none; border-color: #2d64f3; box-shadow: 0 0 5px rgba(45,100,243,0.2); }
+    
+    /* 중복확인 버튼 스타일 */
+    .id-check-row { display: flex; gap: 8px; }
+    .check-btn { width: 120px; background: #333; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+    .check-btn:hover { background: #555; }
+    #id-check-msg { font-size: 11px; margin-top: 5px; display: block; }
+
+    .submit-btn { width: 100%; padding: 15px; background-color: #2d64f3; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 10px; }
+    .submit-btn:hover { background-color: #1a4fd4; }
+</style>
+
+<div class="signup-container fade-in">
+    <h2 class="text-center text-2xl font-bold mb-6 text-slate-800">회원가입</h2>
+    <form action="/signup" method="POST" id="signupForm">
+        <div class="form-group">
+            <label>이름</label>
+            <input type="text" name="name" placeholder="실명을 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label>아이디</label>
+            <div class="id-check-row">
+                <input type="text" id="userid" name="userid" placeholder="아이디를 입력하세요" required>
+                <button type="button" class="check-btn" onclick="checkDuplicateId()">중복 확인</button>
+            </div>
+            <span id="id-check-msg"></span>
+        </div>
+        <div class="form-group">
+            <label>비밀번호</label>
+            <input type="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label>이메일</label>
+            <input type="email" name="email" placeholder="example@mail.com" required>
+        </div>
+        <div class="form-group">
+            <label>생년월일</label>
+            <input type="date" name="birthdate" required>
+        </div>
+        <div class="form-group">
+            <label>휴대폰번호</label>
+            <input type="tel" name="phone" placeholder="010-0000-0000" required>
+        </div>
+        <button type="submit" class="submit-btn">가입하기</button>
+    </form>
+    <div class="text-center mt-6 text-sm text-gray-500">
+        이미 계정이 있으신가요? <a href="/login" class="text-blue-600 font-bold ml-1">로그인</a>
+    </div>
+</div>
+
+<script>
+    let isIdChecked = false;
+
+    function checkDuplicateId() {
+        const userid = document.getElementById('userid').value;
+        const msg = document.getElementById('id-check-msg');
+
+        if (!userid) {
+            alert('아이디를 입력해주세요.');
+            return;
+        }
+
+        fetch('/check_id', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userid: userid })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.exists) {
+                msg.innerText = '이미 사용 중인 아이디입니다.';
+                msg.style.color = '#e53e3e'; // red
+                isIdChecked = false;
+            } else {
+                msg.innerText = '사용 가능한 아이디입니다.';
+                msg.style.color = '#38a169'; // green
+                isIdChecked = true;
+            }
+        });
+    }
+
+    // 아이디 입력값이 바뀌면 다시 중복확인 하도록 설정
+    document.getElementById('userid').addEventListener('input', () => {
+        isIdChecked = false;
+        document.getElementById('id-check-msg').innerText = '';
+    });
+
+    // 폼 제출 시 체크
+    document.getElementById('signupForm').onsubmit = function(e) {
+        if (!isIdChecked) {
+            alert('아이디 중복 확인을 진행해주세요.');
+            e.preventDefault();
+            return false;
+        }
+    };
+</script>
+{% endblock %}
