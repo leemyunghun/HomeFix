@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-20 px-4 fade-in">
+    <div class="space-y-8">
+        <div class="border-b border-slate-200 pb-8 text-center">
+            <span class="inline-block bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1 rounded-full mb-4">Privacy Policy</span>
+            <h1 class="text-3xl font-black text-slate-900 mb-2">개인정보처리방침</h1>
+            <p class="text-slate-500 text-sm">홈픽스는 사용자의 데이터를 소중히 보호합니다.</p>
+        </div>
+
+        <div class="bg-blue-50/50 p-6 rounded-[2rem] border border-blue-100 mb-10">
+            <h3 class="font-bold text-blue-900 mb-2">핵심 요약</h3>
+            <p class="text-sm text-blue-800 leading-relaxed">
+                홈픽스는 최적의 수리 가이드를 위해 <strong>입력한 고장 증상</strong>과 <strong>위치 정보</strong>를 수집합니다. 수집된 데이터는 오직 서비스 제공 및 AI 성능 개선을 위해서만 사용되며, 동의 없이 제3자에게 제공되지 않습니다.
+            </p>
+        </div>
+
+        <section class="space-y-8 text-slate-600">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900 mb-3">1. 수집하는 개인정보 항목</h2>
+                <p>회사는 서비스 제공을 위해 아래 정보를 수집합니다.</p>
+                <ul class="list-disc pl-5 mt-2 space-y-1">
+                    <li>필수항목: 이메일, 닉네임, 수리 요청 증상</li>
+                    <li>선택항목: 현 위치 정보 (공구 대여소 매칭용)</li>
+                </ul>
+            </div>
+
+            <div>
+                <h2 class="text-xl font-bold text-slate-900 mb-3">2. 개인정보의 이용 목적</h2>
+                <p>수집된 개인정보는 다음 목적 이외의 용도로 이용되지 않습니다.</p>
+                <ul class="list-disc pl-5 mt-2 space-y-1">
+                    <li>사용자 맞춤형 AI 수리 솔루션 생성</li>
+                    <li>인근 지역 공구 대여 가능 여부 확인</li>
+                    <li>서비스 품질 개선 및 신규 기능 개발</li>
+                </ul>
+            </div>
+
+            <div>
+                <h2 class="text-xl font-bold text-slate-900 mb-3">3. 개인정보의 파기</h2>
+                <p>회사는 회원 탈퇴 시 또는 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 단, 관계 법령에 의해 보존할 필요가 있는 경우 일정 기간 보관합니다.</p>
+            </div>
+        </section>
+
+        <div class="mt-12 text-center">
+            <a href="/" class="text-blue-600 font-bold hover:underline">홈으로 돌아가기</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

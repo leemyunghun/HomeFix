@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .auth-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 380px; margin: 80px auto; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #555; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    .submit-btn { width: 100%; padding: 15px; background-color: #2d64f3; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+    .submit-btn:hover { background-color: #1a4fd4; }
+</style>
+
+<div class="auth-container fade-in">
+    <h2 class="text-center text-2xl font-bold mb-8 text-slate-800">로그인</h2>
+    <form action="/login" method="POST">
+        <div class="form-group">
+            <label>아이디</label>
+            <input type="text" name="userid" placeholder="아이디를 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label>비밀번호</label>
+            <input type="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        <button type="submit" class="submit-btn">로그인하기</button>
+    </form>
+    <div class="text-center mt-6 text-sm text-gray-500">
+        처음이신가요? <a href="/signup" class="text-blue-600 font-bold ml-1">회원가입</a>
+    </div>
+</div>
+{% endblock %}
