@@ -30,6 +30,29 @@ KAKAO_JS_KEY = os.getenv("KAKAO_JS_KEY", "")
 
 print(f"🚀 HomeFix 서비스 가동 중... 카카오 키: {'로드 완료' if KAKAO_JS_KEY else '미설정'}")
 
+# 후기 데이터를 AI 지식 베이스(Supabase)로 전송하여 학습시키는 함수
+def sync_review_to_ai(review_data):
+    knowledge_text = (
+        f"실제 사용자 수리 후기: {review_data['contractor']} 업체에서 {review_data['item']} 수리를 진행함. "
+        f"지불 비용은 {review_data['cost']}원이며, 사용자 평점은 5점 만점에 {review_data['rating']}점입니다. "
+        f"사용자 상세 의견: {review_data['comment']}"
+    )
+    try:
+        res = client.embeddings.create(input=knowledge_text, model="text-embedding-3-small")
+        embedding = res.data[0].embedding
+        supabase.table("homefix_knowledge").insert({
+            "content": knowledge_text,
+            "metadata": {
+                "source": "user_review", 
+                "contractor": review_data['contractor'], 
+                "rating": review_data['rating']
+            },
+            "embedding": embedding
+        }).execute()
+        print(f"✅ AI 학습 성공: {review_data['contractor']} 데이터 반영됨")
+    except Exception as e:
+        print(f"❌ AI 학습 전송 실패: {e}")
+
 # ✅ 이미지를 GPT가 이해할 수 있는 Base64 형식으로 변환하는 함수
 def encode_image_to_base64(image_file):
     return base64.b64encode(image_file.read()).decode('utf-8')
@@ -58,6 +81,17 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS support
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, userid TEXT, title TEXT, content TEXT, 
                   status TEXT DEFAULT '접수완료', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    # 수리 후기 테이블 (사진 경로 포함)
+    c.execute('''CREATE TABLE IF NOT EXISTS reviews
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                  userid TEXT, 
+                  contractor_name TEXT, 
+                  repair_item TEXT, 
+                  cost INTEGER, 
+                  rating INTEGER, 
+                  comment TEXT, 
+                  image_path TEXT, 
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
 
     # 2. 데이터 자동 로드 (파일이 있을 때만 실행)
     c.execute("SELECT COUNT(*) FROM resources")
@@ -110,23 +144,74 @@ def get_db_connection():
 def inject_user():
     return dict(user_info=session.get('user'))
 
+@app.route('/review')
+def review_page():
+    conn = get_db_connection()
+    reviews = conn.execute('SELECT * FROM reviews ORDER BY created_at DESC').fetchall()
+    conn.close()
+    return render_template('review.html', reviews=reviews)
+
+@app.route('/add_review', methods=['POST'])
+def add_review():
+    if 'user' not in session:
+        return "<script>alert('로그인이 필요합니다.'); history.back();</script>"
+    
+    contractor = request.form.get('contractor_name')
+    item = request.form.get('repair_item')
+    cost = request.form.get('cost')
+    rating = request.form.get('rating')
+    comment = request.form.get('comment')
+    image_file = request.files.get('image')
+    
+    # 이미지 파일 저장 로직
+    filename = ""
+    if image_file and image_file.filename != '':
+        from werkzeug.utils import secure_filename
+        from datetime import datetime
+        filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image_file.filename}")
+        
+        # static/uploads/reviews 폴더가 있어야 함
+        upload_path = os.path.join('static', 'uploads', 'reviews')
+        if not os.path.exists(upload_path):
+            os.makedirs(upload_path)
+        image_file.save(os.path.join(upload_path, filename))
+    
+    # 로컬 DB 저장
+    conn = get_db_connection()
+    conn.execute('''INSERT INTO reviews (userid, contractor_name, repair_item, cost, rating, comment, image_path)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)''', 
+                 (session['user']['userid'], contractor, item, cost, rating, comment, filename))
+    conn.commit()
+    conn.close()
+    
+    # AI 학습 연동 호출
+    sync_review_to_ai({
+        'contractor': contractor, 
+        'item': item, 
+        'cost': cost, 
+        'rating': rating, 
+        'comment': comment
+    })
+    
+    return redirect(url_for('review_page'))
+
 # --- 라우트 정의 ---
 
 @app.route('/')
 def index():
     conn = get_db_connection()
-    recent_fixes = conn.execute('SELECT problem_name FROM history ORDER BY created_at DESC LIMIT 5').fetchall()
-    history_count = conn.execute('SELECT COUNT(*) FROM history').fetchone()[0]
+    # 최근 30일간의 후기 기반 평균 수리 비용 계산 (예: 수전)
+    avg_price = conn.execute('SELECT AVG(cost) FROM reviews').fetchone()[0] or 0
+    # 전체 학습된 지식(후기 + 기존지식) 개수
+    total_knowledge = conn.execute('SELECT COUNT(*) FROM reviews').fetchone()[0] + 1240
     conn.close()
-    
+
     stats = {
-        "total_guides": history_count + 1240,
-        "total_rentals": "실시간", 
-        "popular_tool": "전동 드릴",
-        "speed": "1.2s",
-        "satisfaction": "98%"
+        "avg_price": f"{int(avg_price):,}",
+        "total_knowledge": total_knowledge,
+        "recent_area": "성북구 안암동" # 예시
     }
-    return render_template('index.html', recent_fixes=recent_fixes, stats=stats)
+    return render_template('index.html', stats=stats)
 
 # --- 대여소 및 업체 검색 라우트 (중복되지 않게 이 코드로 교체하세요) ---
 
