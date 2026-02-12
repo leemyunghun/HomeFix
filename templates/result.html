@@ -57,18 +57,25 @@
             <div class="bg-slate-50 rounded-3xl p-8 flex flex-col justify-center text-center">
                 <p class="text-slate-500 mb-6">
                     {% if result_data.risk_level >= 4 %}
-                        위험 수치가 높습니다. 안전을 위해 전문가에게 맡기시는 건 어떨까요?
+                        <strong class="text-red-600 block mb-2">⚠️ 직접 수리 불가</strong>
+                        위험도가 매우 높은 작업입니다. 사고 예방을 위해 반드시 전문가의 도움을 받으세요.
                     {% else %}
-                        직접 하기 어렵거나 공구가 필요하신가요?
+                        직접 하기 어렵거나 공구가 필요하신가요? 홈픽스가 도와드릴게요.
                     {% endif %}
                 </p>
+
                 <button onclick="location.href='/expert'" 
-                        class="w-full py-5 rounded-2xl font-bold transition shadow-lg mb-4 
-                        {% if result_data.risk_level >= 4 %} bg-red-600 hover:bg-red-700 text-white scale-105 shadow-red-200
-                        {% else %} bg-slate-900 hover:bg-black text-white {% endif %}">
+                        class="w-full py-5 rounded-2xl font-bold transition shadow-lg 
+                        {% if result_data.risk_level >= 4 %} bg-red-600 hover:bg-red-700 text-white scale-105 shadow-red-200 mb-0
+                        {% else %} bg-slate-900 hover:bg-black text-white mb-4 {% endif %}">
                     👨‍🔧 전문 업체 매칭받기
                 </button>
-                <button onclick="location.href='/rental'" class="w-full border border-blue-600 text-blue-600 py-3 rounded-2xl text-sm font-bold hover:bg-blue-50 transition">📍 근처 대여소 찾기</button>
+
+                {% if result_data.risk_level <= 3 %}
+                <button onclick="location.href='/rental'" class="w-full border border-blue-600 text-blue-600 py-3 rounded-2xl text-sm font-bold hover:bg-blue-50 transition">
+                    📍 근처 대여소 찾기
+                </button>
+                {% endif %}
             </div>
         </div>
     </div>

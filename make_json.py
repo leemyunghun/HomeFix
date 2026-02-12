@@ -1,89 +1,133 @@
 import json
 import os
-import xml.etree.ElementTree as ET
+import pandas as pd
+import unicodedata
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+def normalize_caseless(text):
+    """한글 자모음 분리 및 인코딩 통합 (NFC 정규화)"""
+    if not text: return ""
+    text = unicodedata.normalize('NFC', text)
+    return text.replace(" ", "").replace("+", "").replace("_", "").lower()
+
+def find_file_smart(target_name, folder_files):
+    """폴더 내 파일 목록에서 유사한 이름을 찾아 반환"""
+    norm_target = normalize_caseless(target_name)
+    target_base = os.path.splitext(norm_target)[0]
+    
+    for f in folder_files:
+        norm_f = normalize_caseless(f)
+        if norm_target == norm_f or target_base in norm_f:
+            return f
+    return None
+
 def make_homefix_json():
     final_data = []
-    folder = "homefix/"
+    data_folder = "homefix" 
     
-    pdf_files = [
-        (folder + "★공동주택 보수공사 길라잡이(책자발간본)★.pdf", "보수공사 길라잡이"),
-        (folder + "경기도 공동주택관리매뉴얼 현황.pdf", "공동주택관리 매뉴얼")
+    if not os.path.exists(data_folder):
+        print(f"❌ '{data_folder}' 폴더를 찾을 수 없습니다.")
+        return
+
+    all_files = os.listdir(data_folder)
+    print(f"✅ '{data_folder}' 폴더 내 파일 {len(all_files)}개 탐지됨.")
+
+    # 1. PDF 대상 목록
+    pdf_targets = [
+        ("집수리 팁(3) 집수리 지원.pdf", "집수리 행정 지원 가이드"),
+        ("(최종본)+세면대+안전사고+주의보_보도자료.pdf", "소비자원 세면대 안전주의보"),
+        ("250325_가정+내+안전사고+관련+소비자안전주의보_보도자료.pdf", "가정 내 안전사고 주의보"),
+        ("붙임_「2023 공동주택관리 매뉴얼」 파일(PDF).pdf", "2023 공동주택관리 매뉴얼"),
+        ("알기쉬운 집수리 길라잡이.pdf", "집수리 길라잡이"),
+        ("자가용전기설비검사업무적용 핸드북 (2022년).PDF", "전기설비 검사 핸드북"),
+        ("제17회 공동주택관리 열린강좌 교재(공동주택 장기수선계획 및 시설물 안전관리).pdf", "시설물 안전관리 교재"),
+        ("집수리 매뉴얼.pdf", "서울시 집수리 매뉴얼")
     ]
-    xml_filename = folder + "한국소비자원_품목별 피해구제 사례_20220331.xml"
+    
+    # 2. CSV 대상 목록
+    csv_targets = [
+        ("집수리 성공기.csv", "서울시 집수리 성공기"),
+        ("집수리 성공기 첨부내용.csv", "성공기 상세 내용"),
+        ("서울시 집수리닷컴 공지사항.csv", "서울시 집수리 공지"),
+        ("서울시 집수리 시공업체 정보.csv", "서울시 시공업체 정보")
+    ]
 
-    # ✅ 청크를 더 작게(500자), 겹침은 더 많이(100자) 설정하여 개수 확보
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100,
-        length_function=len,
-    )
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=600, chunk_overlap=120)
 
-    # --- [섹션 1] PDF 처리 ---
-    for filename, source_name in pdf_files:
-        if os.path.exists(filename):
-            print(f"📖 PDF 처리 중: {filename}")
+    # --- PDF 처리 섹션 ---
+    print("\n--- PDF 파일 처리 시작 ---")
+    for target_name, source_name in pdf_targets:
+        actual_name = find_file_smart(target_name, all_files)
+        if actual_name:
+            file_path = os.path.join(data_folder, actual_name)
             try:
-                loader = PyPDFLoader(filename)
+                loader = PyPDFLoader(file_path)
                 pages = loader.load()
-                
-                # 텍스트가 거의 없는 페이지는 스캔본일 수 있음
                 split_docs = text_splitter.split_documents(pages)
-                
                 for doc in split_docs:
-                    content = doc.page_content.strip()
-                    if len(content) > 20: # 최소 글자수 완화
+                    final_data.append({
+                        "content": doc.page_content.strip(),
+                        "metadata": {"source": source_name, "type": "pdf", "file": actual_name}
+                    })
+                print(f"📖 PDF 매칭 성공: [{actual_name}]")
+            except Exception as e:
+                print(f"   ❌ PDF 처리 에러 ({actual_name}): {e}")
+
+    # --- CSV 처리 섹션 ---
+    print("\n--- CSV 파일 처리 시작 ---")
+    for target_name, source_name in csv_targets:
+        actual_name = find_file_smart(target_name, all_files)
+        if actual_name:
+            file_path = os.path.join(data_folder, actual_name)
+            
+            df = None
+            # 인코딩 오류 방지를 위한 다중 시도
+            for enc in ['utf-8-sig', 'cp949', 'euc-kr', 'utf-8']:
+                try:
+                    df = pd.read_csv(file_path, encoding=enc)
+                    break
+                except:
+                    continue
+            
+            if df is not None:
+                print(f"📊 CSV 매칭 성공: [{actual_name}]")
+                count = 0
+                for _, row in df.iterrows():
+                    # ✅ [중요] 시공업체 정보일 경우 검색용 메타데이터 별도 구성
+                    if "시공업체" in source_name:
+                        # 업체명이나 주소가 빈 값인 경우 건너뜀
+                        if pd.isna(row.get('업체명')) or pd.isna(row.get('업체주소')):
+                            continue
+                            
                         final_data.append({
-                            "content": content,
+                            "content": f"업체명: {row.get('업체명')} | 주요분야: {row.get('주요시공분야')}",
                             "metadata": {
                                 "source": source_name,
-                                "type": "pdf"
+                                "type": "csv",
+                                "category": "expert",  # ✅ 검색 필터용 키
+                                "name": str(row.get('업체명', '')),
+                                "location": str(row.get('업체주소', '')),
+                                "contact": str(row.get('업체연락처', '정보없음'))
                             }
                         })
-                print(f"   -> 현재 누적 조각 수: {len(final_data)}개")
-            except Exception as e:
-                print(f"❌ PDF 에러: {e}")
+                    else:
+                        # 일반 수리 성공기 등 텍스트 데이터 처리
+                        row_text = " | ".join([f"{col}: {val}" for col, val in row.items() if pd.notna(val)])
+                        final_data.append({
+                            "content": f"[{source_name}] {row_text}",
+                            "metadata": {"source": source_name, "type": "csv", "file": actual_name}
+                        })
+                    count += 1
+                print(f"   ✅ {count}건 처리 완료")
+            else:
+                print(f"   ❌ CSV 로드 실패 (인코딩 확인 필요): {actual_name}")
 
-    # --- [섹션 2] XML 처리 (와일드카드 방식) ---
-    if os.path.exists(xml_filename):
-        print(f"📂 XML 강제 추출 중: {xml_filename}")
-        try:
-            # 소비자원 XML 인코딩 이슈 대응을 위해 바이트로 읽기
-            with open(xml_filename, 'rb') as f:
-                xml_data = f.read()
-            root = ET.fromstring(xml_data)
-            
-            # 태그 이름을 몰라도 모든 하위 노드를 뒤져서 텍스트를 가져옵니다.
-            # 보통 <사례명>, <내용>, <결과> 등이 들어있는 부모 태그를 찾습니다.
-            xml_count = 0
-            # 공공데이터 XML의 흔한 구조인 'record', 'list', 'item', 'row' 모두 뒤지기
-            for entry in root.iter():
-                # 데이터가 담긴 노드인지 판단 (자식 노드가 2개 이상 있는 경우를 데이터 행으로 간주)
-                if len(entry) >= 2:
-                    # 해당 노드 안의 모든 텍스트를 합칩니다.
-                    text_parts = [child.text.strip() for child in entry if child.text]
-                    if text_parts:
-                        combined_text = "[소비자원 사례] " + " | ".join(text_parts)
-                        if len(combined_text) > 50:
-                            final_data.append({
-                                "content": combined_text,
-                                "metadata": {"source": "한국소비자원", "type": "xml"}
-                            })
-                            xml_count += 1
-            
-            print(f"✅ XML 데이터 {xml_count}건 강제 추출 성공!")
-            
-        except Exception as e:
-            print(f"❌ XML 에러: {e}")
-
-    # --- [섹션 3] JSON 저장 ---
-    output_file = 'homefix_data.json'
-    with open(output_file, 'w', encoding='utf-8') as f:
+    # --- JSON 파일 저장 ---
+    with open('homefix_data_final.json', 'w', encoding='utf-8') as f:
         json.dump(final_data, f, ensure_ascii=False, indent=2)
     
-    print(f"\n✨ 최종 완료! 총 {len(final_data)}개의 지식 조각이 저장되었습니다.")
+    print(f"\n🎉 모든 작업 완료! 총 {len(final_data)}개의 조각이 'homefix_data_final.json'에 저장되었습니다.")
 
 if __name__ == "__main__":
     make_homefix_json()
