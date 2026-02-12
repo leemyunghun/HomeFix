@@ -1,40 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-4xl mx-auto py-20 px-4 fade-in">
-    <div class="space-y-8">
-        <div class="border-b border-slate-200 pb-8">
-            <h1 class="text-3xl font-black text-slate-900 mb-2">이용약관</h1>
-            <p class="text-slate-500">시행일자: 2026년 2월 9일</p>
-        </div>
+<div class="max-w-4xl mx-auto py-20 px-4">
+    <div class="text-center mb-16">
+        <span class="text-blue-600 font-bold text-sm tracking-widest uppercase">Terms of Service</span>
+        <h2 class="text-4xl font-bold text-slate-800 mt-2">서비스 이용약관</h2>
+        <div class="w-12 h-1 bg-blue-600 mx-auto mt-4"></div>
+    </div>
 
-        <section class="space-y-6 text-slate-600 leading-relaxed">
-            <div>
-                <h2 class="text-xl font-bold text-slate-900 mb-3">제 1 조 (목적)</h2>
-                <p>본 약관은 홈픽스(이하 "회사")가 제공하는 AI 수리 진단 및 관련 서비스의 이용 조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.</p>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold text-slate-900 mb-3">제 2 조 (AI 서비스의 한계 및 면책)</h2>
-                <ul class="list-disc pl-5 space-y-2">
-                    <li>회사가 제공하는 <strong>AI 진단 결과는 인공지능 알고리즘에 기반한 참고용 가이드</strong>이며, 실제 현장 상황과 다를 수 있습니다.</li>
-                    <li>사용자는 AI의 권고안을 실행하기 전 반드시 안전 수칙을 확인해야 하며, 고위험 작업(전기, 가스 등)은 전문가의 도움을 권장합니다.</li>
-                    <li>회사는 사용자의 자가 수리 과정에서 발생한 신체적 부상, 재산상의 손해에 대해 중과실이 없는 한 책임을 지지 않습니다.</li>
-                </ul>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold text-slate-900 mb-3">제 3 조 (서비스의 제공)</h2>
-                <p>회사는 다음과 같은 서비스를 제공합니다.</p>
-                <ul class="list-disc pl-5 space-y-2">
-                    <li>AI 기반 주택 수리 방법 진단</li>
-                    <li>공구 대여소 정보 제공 및 길 안내</li>
-                    <li>지역 수리 전문가 매칭 서비스</li>
-                </ul>
+    <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-10 text-slate-600">
+        <section>
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-xs">01</span>
+                총칙
+            </h3>
+            <div class="pl-8 space-y-2">
+                <p><strong>제 1 조 (목적)</strong> 본 약관은 HomeFix 팀(이하 "회사")이 운영하는 HomeFix 웹사이트 및 관련 서비스(이하 "서비스")를 이용함에 있어 회사와 이용자의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+                <p><strong>제 2 조 (용어의 정의)</strong> "이용자"란 본 약관에 따라 회사가 제공하는 서비스를 받는 회원 및 비회원을 말합니다.</p>
             </div>
         </section>
 
-        <div class="mt-12 pt-8 border-t border-slate-100 text-center">
-            <button onclick="history.back()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-slate-800 transition">확인했습니다</button>
+        <section>
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-xs">02</span>
+                서비스의 이용 및 제한
+            </h3>
+            <div class="pl-8 space-y-3">
+                <p><strong>제 3 조 (서비스의 종류)</strong> 회사는 이용자에게 AI 진단, 수리 가이드 생성, 위치 기반 업체 탐색 등의 서비스를 제공합니다.</p>
+                <div class="bg-amber-50 p-5 rounded-2xl border border-amber-100 text-amber-800 text-sm">
+                    <strong>⚠️ 중요 고지:</strong> AI 진단 결과는 생성형 AI 모델(GPT)에 기반한 예측 정보로, 실제 주거 환경과 차이가 있을 수 있습니다. 회사는 인적/물적 피해에 대한 보증 책임을 지지 않으며, 고위험 수리 작업은 반드시 면허를 보유한 전문가를 통해 진행하시기 바랍니다.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-xs">03</span>
+                계정 관리 및 보안
+            </h3>
+            <div class="pl-8 space-y-2">
+                <p>이용자는 자신의 ID 및 비밀번호를 관리할 책임이 있으며, 제3자에게 이용하게 해서는 안 됩니다. 부정 이용이 확인될 경우 회사는 서비스 이용을 일시적 또는 영구적으로 제한할 수 있습니다.</p>
+            </div>
+        </section>
+
+        <div class="pt-10 border-t border-slate-50 text-sm text-slate-400">
+            공고일자: 2026년 2월 12일<br>
+            시행일자: 2026년 2월 12일
         </div>
     </div>
 </div>

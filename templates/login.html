@@ -1,12 +1,73 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <style>
-    .auth-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 380px; margin: 80px auto; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #555; }
-    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-    .submit-btn { width: 100%; padding: 15px; background-color: #2d64f3; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-    .submit-btn:hover { background-color: #1a4fd4; }
+    .auth-container {
+        background: white;
+        padding: 40px;
+        border-radius: 30px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        width: 380px;
+        margin: 80px auto;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #555;
+    }
+    input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        box-sizing: border-box;
+        background: #f8fafc;
+        outline: none;
+        transition: all 0.3s;
+    }
+    input:focus {
+        border-color: #2d64f3;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(45, 100, 243, 0.1);
+    }
+    .submit-btn {
+        width: 100%;
+        padding: 15px;
+        background-color: #2d64f3;
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 10px;
+    }
+    .submit-btn:hover {
+        background-color: #1a4fd4;
+    }
+    .auth-footer {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+    .auth-footer a {
+        color: #64748b;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .auth-footer a:hover {
+        color: #2d64f3;
+        text-decoration: underline;
+    }
+    .divider {
+        margin: 0 8px;
+        color: #e2e8f0;
+    }
 </style>
 
 <div class="auth-container fade-in">
@@ -14,15 +75,22 @@
     <form action="/login" method="POST">
         <div class="form-group">
             <label>아이디</label>
-            <input type="text" name="userid" placeholder="아이디를 입력하세요" required>
+            <input type="text" name="userid" placeholder="아이디를 입력하세요" required />
         </div>
         <div class="form-group">
             <label>비밀번호</label>
-            <input type="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            <input type="password" name="password" placeholder="비밀번호를 입력하세요" required />
         </div>
         <button type="submit" class="submit-btn">로그인하기</button>
     </form>
-    <div class="text-center mt-6 text-sm text-gray-500">
+
+    <div class="auth-footer">
+        <a href="/find-id">아이디 찾기</a>
+        <span class="divider">|</span>
+        <a href="/reset-password">비밀번호 찾기</a>
+    </div>
+
+    <div class="text-center mt-6 pt-6 border-t border-slate-50 text-sm text-gray-500">
         처음이신가요? <a href="/signup" class="text-blue-600 font-bold ml-1">회원가입</a>
     </div>
 </div>
