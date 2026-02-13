@@ -4,6 +4,7 @@ import sqlite3
 import math
 import pandas as pd
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from datetime import datetime
 from openai import OpenAI
 from supabase import create_client
 from dotenv import load_dotenv
@@ -29,6 +30,31 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 KAKAO_JS_KEY = os.getenv("KAKAO_JS_KEY", "")
 
 print(f"🚀 HomeFix 서비스 가동 중... 카카오 키: {'로드 완료' if KAKAO_JS_KEY else '미설정'}")
+
+def format_time_ago(db_time_str):
+    try:
+        # 1. DB 시간 파싱 (SQLite는 UTC 기준)
+        if '.' in db_time_str:
+            dt = datetime.strptime(db_time_str, '%Y-%m-%d %H:%M:%S.%f')
+        else:
+            dt = datetime.strptime(db_time_str, '%Y-%m-%d %H:%M:%S')
+
+        # 2. [핵심 수정] 현재 시간도 UTC로 가져와서 비교해야 9시간 차이가 안 남
+        now = datetime.utcnow()
+        
+        diff = now - dt
+        seconds = diff.total_seconds()
+        
+        # 미래 시간으로 잘못 계산될 경우 방지
+        if seconds < 0: seconds = 0
+        
+        if seconds < 60: return "방금 전"
+        if seconds < 3600: return f"{int(seconds // 60)}분 전"
+        if seconds < 86400: return f"{int(seconds // 3600)}시간 전"
+        return f"{int(seconds // 86400)}일 전"
+    except Exception as e:
+        print(f"Time Error: {e}")
+        return "방금 전"
 
 # 후기 데이터를 AI 지식 베이스(Supabase)로 전송하여 학습시키는 함수
 def sync_review_to_ai(review_data):
@@ -200,18 +226,31 @@ def add_review():
 @app.route('/')
 def index():
     conn = get_db_connection()
-    # 최근 30일간의 후기 기반 평균 수리 비용 계산 (예: 수전)
-    avg_price = conn.execute('SELECT AVG(cost) FROM reviews').fetchone()[0] or 0
-    # 전체 학습된 지식(후기 + 기존지식) 개수
+    
+    # 1. 통계 데이터
+    avg_price_row = conn.execute('SELECT AVG(cost) FROM reviews').fetchone()
+    avg_price = avg_price_row[0] if avg_price_row and avg_price_row[0] else 0
     total_knowledge = conn.execute('SELECT COUNT(*) FROM reviews').fetchone()[0] + 1240
+    
+    # 2. 실시간 수리 내역
+    recent_rows = conn.execute('SELECT problem_name, created_at FROM history ORDER BY created_at DESC LIMIT 10').fetchall()
     conn.close()
+
+    # 3. 데이터 가공 (위치 정보 삭제)
+    recent_fixes = []
+    for row in recent_rows:
+        recent_fixes.append({
+            "problem_name": row['problem_name'],
+            "time_ago": format_time_ago(row['created_at']), # 시간 계산 함수는 유지
+            "status": "진단 완료"
+        })
 
     stats = {
         "avg_price": f"{int(avg_price):,}",
-        "total_knowledge": total_knowledge,
-        "recent_area": "성북구 안암동" # 예시
+        "total_knowledge": total_knowledge
     }
-    return render_template('index.html', stats=stats)
+    
+    return render_template('index.html', stats=stats, recent_fixes=recent_fixes)
 
 # --- 대여소 및 업체 검색 라우트 (중복되지 않게 이 코드로 교체하세요) ---
 
@@ -549,26 +588,61 @@ def find_id():
 def reset_password():
     if request.method == 'POST':
         uid = request.form.get('userid')
-        name = request.form.get('name')
-        email = request.form.get('email')
+        current_pw = request.form.get('current_password')
+        email = request.form.get('email') # 이메일 추가
         new_pw = request.form.get('new_password')
         
         conn = get_db_connection()
-        user = conn.execute('SELECT id FROM users WHERE userid = ? AND name = ? AND email = ?', 
-                           (uid, name, email)).fetchone()
+        # 아이디와 이메일이 동시에 일치하는 사용자를 찾음
+        user = conn.execute('SELECT * FROM users WHERE userid = ? AND email = ?', (uid, email)).fetchone()
         
-        if user:
-            # 기존 회원가입 시 사용한 해싱 방식과 동일하게 저장
+        # 1. 사용자가 존재하고, 이메일이 맞으며, 기존 비밀번호도 맞는지 확인
+        if user and check_password_hash(user['password'], current_pw):
+            # 2. 모든 조건 충족 시 새 비밀번호로 업데이트
             hashed_pw = generate_password_hash(new_pw)
             conn.execute('UPDATE users SET password = ? WHERE id = ?', (hashed_pw, user['id']))
             conn.commit()
             conn.close()
-            return "<script>alert('비밀번호가 성공적으로 변경되었습니다.'); location.href='/login';</script>"
+            return "<script>alert('본인 인증 완료! 비밀번호가 성공적으로 변경되었습니다.'); location.href='/login';</script>"
         else:
             conn.close()
-            return "<script>alert('정보가 일치하지 않습니다.'); history.back();</script>"
+            return "<script>alert('입력하신 정보(아이디/이메일/기존 비밀번호)가 일치하지 않습니다.'); history.back();</script>"
             
     return render_template('reset_password.html')
+# 주소를 /change-password 로 바꿔서 충돌을 피합니다.
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    if 'user' not in session:
+        return redirect('/login')
+
+    # 1. 폼 데이터 받기
+    current_pw = request.form.get('current_password')
+    new_pw = request.form.get('new_password')
+    confirm_pw = request.form.get('confirm_password')
+    
+    userid = session['user']['userid']
+
+    # 2. 새 비밀번호 일치 여부 확인
+    if new_pw != confirm_pw:
+        return "<script>alert('새 비밀번호 확인이 일치하지 않습니다.'); history.back();</script>"
+
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE userid = ?', (userid,)).fetchone()
+
+    # 3. [핵심] 기존 비밀번호가 일치하는지 검증
+    if user and check_password_hash(user['password'], current_pw):
+        # 인증 성공 시 새 비밀번호 해싱 및 저장
+        new_hashed_pw = generate_password_hash(new_pw)
+        conn.execute('UPDATE users SET password = ? WHERE userid = ?', (new_hashed_pw, userid))
+        conn.commit()
+        conn.close()
+        
+        # 보안을 위해 세션 비우고 재로그인 유도
+        session.clear()
+        return "<script>alert('비밀번호가 안전하게 변경되었습니다. 다시 로그인해주세요.'); location.href='/login';</script>"
+    else:
+        conn.close()
+        return "<script>alert('현재 사용 중인 비밀번호가 일치하지 않습니다.'); history.back();</script>"
 
 @app.route('/logout')
 def logout():
