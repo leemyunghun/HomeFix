@@ -205,8 +205,6 @@ init_db()
 def inject_user():
     return dict(user_info=session.get('user'))
 
-# --- [리뷰 관련 라우트] ---
-
 @app.route('/review')
 def review_page():
     conn = get_db_connection()
@@ -214,6 +212,17 @@ def review_page():
     cursor.execute('SELECT * FROM reviews ORDER BY created_at DESC')
     reviews = cursor.fetchall()
     conn.close()
+
+    # 🛡️ [수정] HTML에서 에러가 나지 않도록 파이썬에서 미리 날짜 변환 처리
+    for r in reviews:
+        if r.get('created_at'):
+            # 만약 데이터가 datetime 객체라면 -> 문자열("2025-10-24")로 변환
+            if isinstance(r['created_at'], datetime):
+                r['created_at'] = r['created_at'].strftime('%Y-%m-%d')
+            # 만약 문자열이라면 -> 앞 10글자만 자르기
+            else:
+                r['created_at'] = str(r['created_at'])[:10]
+
     return render_template('review.html', reviews=reviews)
 
 @app.route('/add_review', methods=['POST'])
@@ -231,24 +240,33 @@ def add_review():
     filename = ""
     if image_file and image_file.filename != '':
         from werkzeug.utils import secure_filename
+        # 파일명 충돌 방지를 위해 시간 정보 추가
         filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image_file.filename}")
+        
+        # 저장 폴더가 없으면 자동 생성
         upload_path = os.path.join('static', 'uploads', 'reviews')
         if not os.path.exists(upload_path):
             os.makedirs(upload_path)
+            
         image_file.save(os.path.join(upload_path, filename))
     
     conn = get_db_connection()
     cursor = conn.cursor()
+    # TiDB(MySQL) 쿼리 문법 (%s) 적용
     cursor.execute('''INSERT INTO reviews (userid, contractor_name, repair_item, cost, rating, comment, image_path)
                       VALUES (%s, %s, %s, %s, %s, %s, %s)''', 
                    (session['user']['userid'], contractor, item, cost, rating, comment, filename))
     conn.commit()
     conn.close()
     
-    sync_review_to_ai({
-        'contractor': contractor, 'item': item, 'cost': cost, 
-        'rating': rating, 'comment': comment
-    })
+    # AI 지식 학습 연동 (에러가 나도 리뷰 등록은 되도록 try-except 처리 권장)
+    try:
+        sync_review_to_ai({
+            'contractor': contractor, 'item': item, 'cost': cost, 
+            'rating': rating, 'comment': comment
+        })
+    except Exception as e:
+        print(f"⚠️ AI 학습 연동 실패 (리뷰는 저장됨): {e}")
     
     return redirect(url_for('review_page'))
 
@@ -305,7 +323,7 @@ def rental_page():
             params = [search_term, search_term, search_term]
             cursor.execute(sql, params)
         else:
-            cursor.execute(sql + " LIMIT 15")
+            cursor.execute(sql + "ORDER BY RAND() LIMIT 3")
         
         rentals = cursor.fetchall()
     except Exception as e:
@@ -331,7 +349,7 @@ def expert_matching():
             sql += " AND (name LIKE %s OR location LIKE %s OR description LIKE %s) ORDER BY name ASC"
             cursor.execute(sql, [search_term, search_term, search_term])
         else:
-            cursor.execute(sql + " LIMIT 15")
+            cursor.execute(sql + " ORDER BY RAND() LIMIT 3")
             
         experts = cursor.fetchall()
     except Exception as e:
@@ -681,4 +699,4 @@ def terms(): return render_template('terms.html')
 def privacy(): return render_template('privacy.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
