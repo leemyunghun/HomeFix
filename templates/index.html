@@ -1,7 +1,37 @@
 {% extends "base.html" %} {% block content %}
-<div class="space-y-20 pb-20">
-    <section class="relative bg-gradient-to-b from-blue-50 to-white pt-20 pb-32 px-4">
-        <div class="max-w-5xl mx-auto text-center space-y-8 fade-in">
+
+<style>
+    /* 전체 페이지 스크롤 스냅 활성화 */
+    html {
+        scroll-snap-type: y mandatory; /* y축 방향으로 강제 스냅 */
+        scroll-behavior: smooth; /* 부드러운 이동 */
+    }
+    
+    /* 각 섹션 공통 스타일: 화면 꽉 채우기 & 스냅 지점 지정 */
+    .snap-section {
+        scroll-snap-align: start; /* 섹션 시작점에 맞춤 */
+        min-height: 100vh;        /* 최소 높이를 화면 전체로 */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;  /* 내용 수직 중앙 정렬 */
+        padding-top: 4rem;        /* 상단 네비게이션 바 고려한 여백 */
+        padding-bottom: 4rem;
+    }
+
+    /* 푸터는 내용이 적으므로 중앙 정렬 제외 */
+    .snap-footer {
+        scroll-snap-align: start;
+        min-height: 50vh; /* 푸터는 반 정도만 차지해도 됨 (취향에 따라 100vh 가능) */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+</style>
+
+<div class="w-full overflow-hidden">
+    
+    <section class="snap-section relative bg-gradient-to-b from-blue-50 to-white px-4">
+        <div class="max-w-5xl mx-auto text-center space-y-8 fade-in w-full">
             <div class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-blue-100 text-blue-600 text-sm font-bold mx-auto">
                 <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-ping"></span>
                 실시간 AI 수리 어드바이저 가동 중
@@ -70,391 +100,227 @@
                 </div>
                 {% endif %}
             </div>
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-slate-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            </div>
         </div>
     </section>
-    <section class="max-w-6xl mx-auto px-4 py-20 border-b border-slate-100">
-    <div class="text-center mb-12">
-        <span class="text-blue-600 font-bold text-sm tracking-wider uppercase mb-2 block">Process</span>
-        <h2 class="text-3xl font-black text-slate-900">홈픽스는 이렇게 해결합니다</h2>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-        <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-100 -z-10"></div>
-
-        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
-            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-blue-100">
-                1
+    <section class="snap-section max-w-6xl mx-auto px-4 border-b border-slate-100">
+        <div class="w-full">
+            <div class="text-center mb-16">
+                <span class="text-blue-600 font-bold text-sm tracking-wider uppercase mb-2 block">Process</span>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900">홈픽스는 이렇게 해결합니다</h2>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-3">촬영 & 업로드</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">
-                고장 난 부위를 사진으로 찍거나<br>증상을 글로 적어주세요.
-            </p>
-        </div>
 
-        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
-            <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-purple-100">
-                2
-            </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-3">AI 즉시 분석</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">
-                AI가 고장 원인을 분석하고<br>최적의 수리 방법을 제시합니다.
-            </p>
-        </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-100 -z-10"></div>
 
-        <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
-            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-emerald-100">
-                3
-            </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-3">해결 & 대여</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">
-                필요한 공구를 근처에서 대여하거나<br>전문가와 연결해 드립니다.
-            </p>
-        </div>
-    </div>
-</section>
-
-    <section class="max-w-6xl mx-auto px-4 mb-24">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="lg:col-span-2 flex flex-col gap-6">
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2.5rem] p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[240px]">
-                <div class="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500">
-                    <span class="text-[10rem]">🛠️</span>
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-blue-100">1</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">촬영 & 업로드</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">고장 난 부위를 사진으로 찍거나<br>증상을 글로 적어주세요.</p>
                 </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-blue-300 backdrop-blur-sm border border-white/5">
-                            Smart Solution
-                        </span>
+
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-purple-100">2</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">AI 즉시 분석</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">AI가 고장 원인을 분석하고<br>최적의 수리 방법을 제시합니다.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-emerald-100">3</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">해결 & 대여</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">필요한 공구를 근처에서 대여하거나<br>전문가와 연결해 드립니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="snap-section max-w-6xl mx-auto px-4">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2.5rem] p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[240px]">
+                    <div class="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500">
+                        <span class="text-[10rem]">🛠️</span>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-black mb-4 leading-tight">
-                        AI 진단 & 공구 매칭
-                    </h3>
-                    <p class="text-slate-400 text-lg font-medium leading-relaxed max-w-md">
-                        "진단은 AI에게, 공구는 내 집 앞에서."<br/>
-                        수리의 시작과 끝을 데이터로 연결합니다.
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-blue-300 backdrop-blur-sm border border-white/5">Smart Solution</span>
+                        </div>
+                        <h3 class="text-3xl md:text-4xl font-black mb-4 leading-tight">AI 진단 & 공구 매칭</h3>
+                        <p class="text-slate-400 text-lg font-medium leading-relaxed max-w-md">"진단은 AI에게, 공구는 내 집 앞에서."<br/>수리의 시작과 끝을 데이터로 연결합니다.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[2.5rem] p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[240px]">
+                    <div class="absolute right-4 bottom-[-20px] opacity-20 group-hover:translate-x-2 transition-transform duration-500">
+                        <span class="text-[10rem]">🔬</span>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-blue-100 backdrop-blur-sm border border-white/5">Engineering Lab</span>
+                        </div>
+                        <h3 class="text-3xl md:text-4xl font-black mb-4 leading-tight">포토 리포트 솔루션</h3>
+                        <p class="text-blue-100/80 text-lg font-medium leading-relaxed max-w-md">사진 한 장으로 분석하는<br/>가장 안전하고 정확한 수리 가이드.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+                <div class="bg-blue-600 rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <svg width="100" height="100" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.45l8.27 14.55H3.73L12 5.45z"/></svg>
+                    </div>
+                    <p class="text-blue-100 text-sm mb-1 font-bold">실시간 AI 학습 지식</p>
+                    <h4 class="text-4xl font-black">{{ stats.total_knowledge }}건</h4>
+                    <p class="text-blue-200 text-xs mt-2 flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        지금도 학습 중
                     </p>
                 </div>
-            </div>
 
-            <div class="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[2.5rem] p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[240px]">
-                <div class="absolute right-4 bottom-[-20px] opacity-20 group-hover:translate-x-2 transition-transform duration-500">
-                    <span class="text-[10rem]">🔬</span>
-                </div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-blue-100 backdrop-blur-sm border border-white/5">
-                            Engineering Lab
-                        </span>
+                <div class="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden flex-1 min-h-[300px]">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                            <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            실시간 진단
+                        </h3>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-black mb-4 leading-tight">
-                        포토 리포트 솔루션
-                    </h3>
-                    <p class="text-blue-100/80 text-lg font-medium leading-relaxed max-w-md">
-                        사진 한 장으로 분석하는<br/>
-                        가장 안전하고 정확한 수리 가이드.
-                    </p>
+                    <div class="space-y-3 overflow-y-auto max-h-[300px] pr-2 scrollbar-hide">
+                        {% if recent_fixes %} 
+                            {% for fix in recent_fixes %}
+                            <div class="group flex items-center justify-between text-slate-300 bg-white/5 p-4 rounded-2xl border border-white/5 hover:bg-white/10 hover:border-blue-500/30 transition-all cursor-default">
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-slate-500 mb-1">{{ fix['time_ago'] }}</span>
+                                    <span class="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
+                                        {{ fix['problem_name'] }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %} 
+                        {% else %}
+                            <div class="h-full flex flex-col items-center justify-center text-slate-600 italic py-10">
+                                <span class="text-2xl mb-2">👋</span>
+                                첫 번째 수리 주인공이<br>되어보세요!
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none"></div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="flex flex-col gap-6">
-            
-            <div class="bg-blue-600 rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
-                    <svg width="100" height="100" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.45l8.27 14.55H3.73L12 5.45z"/></svg>
+    <section class="snap-section max-w-6xl mx-auto px-4">
+        <div class="w-full">
+            <div class="text-center mb-16 space-y-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">제공하는 서비스</h2>
+                <p class="text-slate-500">집수리의 시작부터 끝까지 홈픽스가 동행합니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+                <a href="/rental" class="service-card group border-slate-100">
+                    <div class="icon-circle bg-orange-50 text-orange-600 group-hover:bg-orange-600">🛠️</div>
+                    <h3 class="text-xl font-bold mb-4 text-slate-800">근처 공구 대여소</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        비싼 공구, 사지 말고 빌려 쓰세요!<br>
+                        우리 동네 주민센터 등 가까운<br>
+                        무료 공구 대여소를 찾아드립니다.
+                    </p>
+                </a>
+
+                <a href="/expert" class="service-card group border-slate-100">
+                    <div class="icon-circle bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600">👷</div>
+                    <h3 class="text-xl font-bold mb-4 text-slate-800">수리 업체 정보</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        직접 하기 힘든 큰 공사인가요?<br>
+                        평점 좋은 우리 동네 수리 기사님을<br>
+                        투명한 정보와 함께 연결해 드립니다.
+                    </p>
+                </a>
+
+                <a href="/review" class="service-card group border-blue-100 bg-blue-50/30">
+                    <div class="icon-circle bg-purple-50 text-purple-600 group-hover:bg-purple-600">📝</div>
+                    <h3 class="text-xl font-bold mb-4 text-slate-800">수리 후기 게시판</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        다른 사람들의 후기 경험을 들어보세요!<br>
+                        남겨주신 소중한 후기는 AI가 학습하여<br>
+                        더 똑똑한 해결책을 제시합니다.
+                    </p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="snap-footer bg-slate-50 border-t border-slate-200 py-16">
+        <div class="max-w-6xl mx-auto px-6 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16">
+                <div class="md:col-span-4 space-y-4">
+                    <h3 class="text-2xl font-black text-blue-600 tracking-tighter">HomeFix</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
+                        AI 기술로 주거 공간의 불편함을<br />
+                        가장 빠르고 스마트하게 해결합니다.<br>
+                        안전한 수리 생활의 시작, 홈픽스.
+                    </p>
                 </div>
-                <p class="text-blue-100 text-sm mb-1 font-bold">실시간 AI 학습 지식</p>
-                <h4 class="text-4xl font-black">{{ stats.total_knowledge }}건</h4>
-                <p class="text-blue-200 text-xs mt-2 flex items-center gap-1">
-                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    지금도 학습 중
+
+                <div class="md:col-span-3">
+                    <h4 class="font-bold text-slate-900 mb-5">고객지원</h4>
+                    <ul class="space-y-3 text-sm text-slate-500 mb-6">
+                        <li><a href="/support" class="hover:text-blue-600 transition-colors">고객센터</a></li>
+                        <li><a href="/terms" class="hover:text-blue-600 transition-colors">이용 약관</a></li>
+                        <li><a href="/privacy" class="hover:text-blue-600 transition-colors font-semibold">개인정보처리방침</a></li>
+                    </ul>
+                    <div class="text-sm text-slate-500 space-y-1">
+                        <p><span class="font-bold text-slate-700">운영시간</span> 평일 09:00 ~ 18:00</p>
+                        <p><span class="font-bold text-slate-700">문의</span> support@homefix.com</p>
+                    </div>
+                </div>
+
+                <div class="md:col-span-3">
+                    <h4 class="font-bold text-slate-900 mb-5">비즈니스</h4>
+                    <div class="space-y-3 text-sm text-slate-500">
+                        <div>
+                            <span class="block font-bold text-slate-700 mb-0.5">개발자</span>
+                            이명훈, 유진현, 전진우
+                        </div>
+                        <div>
+                            <span class="block font-bold text-slate-700 mb-0.5">운영 기관</span>
+                            SMUNIVERSE
+                        </div>
+                        <div>
+                            <span class="block font-bold text-slate-700 mb-0.5">주소</span>
+                            서울특별시 서초구 동작대로 132<br>안석빌딩 9층
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-slate-400 text-xs text-center md:text-left">
+                    © 2026 HomeFix Inc. All rights reserved.
+                </p>
+                <p class="text-slate-400 text-xs text-center md:text-right flex items-center gap-1">
+                    <span>⚠️ 본 서비스는 AI 가이드를 제공하며, 실제 수리 시 안전 수칙을 준수해야 합니다.</span>
                 </p>
             </div>
-
-            <div class="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden flex-1 min-h-[300px]">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-white font-bold text-lg flex items-center gap-2">
-                        <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        실시간 진단
-                    </h3>
-                </div>
-
-                <div class="space-y-3 overflow-y-auto max-h-[300px] pr-2 scrollbar-hide">
-                    {% if recent_fixes %} 
-                        {% for fix in recent_fixes %}
-                        <div class="group flex items-center justify-between text-slate-300 bg-white/5 p-4 rounded-2xl border border-white/5 hover:bg-white/10 hover:border-blue-500/30 transition-all cursor-default">
-                            <div class="flex flex-col">
-                                <span class="text-xs text-slate-500 mb-1">{{ fix['time_ago'] }}</span>
-                                <span class="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
-                                    {{ fix['problem_name'] }}
-                                </span>
-                            </div>
-                        </div>
-                        {% endfor %} 
-                    {% else %}
-                        <div class="h-full flex flex-col items-center justify-center text-slate-600 italic py-10">
-                            <span class="text-2xl mb-2">👋</span>
-                            첫 번째 수리 주인공이<br>되어보세요!
-                        </div>
-                    {% endif %}
-                </div>
-                
-                <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none"></div>
-            </div>
-            
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="max-w-6xl mx-auto px-4 pb-20">
-    <div class="text-center mb-16 space-y-4">
-        <h2 class="text-3xl font-bold text-slate-900">제공하는 서비스</h2>
-        <p class="text-slate-500">집수리의 시작부터 끝까지 홈픽스가 동행합니다.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
-        
-        <a href="/rental" class="service-card group border-slate-100">
-            <div class="icon-circle bg-orange-50 text-orange-600 group-hover:bg-orange-600">🛠️</div>
-            <h3 class="text-xl font-bold mb-4 text-slate-800">근처 공구 대여소</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">
-                비싼 공구, 사지 말고 빌려 쓰세요!<br>
-                우리 동네 주민센터 등 가까운<br>
-                무료 공구 대여소를 찾아드립니다.
-            </p>
-        </a>
-
-        <a href="/expert" class="service-card group border-slate-100">
-            <div class="icon-circle bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600">👷</div>
-            <h3 class="text-xl font-bold mb-4 text-slate-800">수리 업체 정보</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">
-                직접 하기 힘든 큰 공사인가요?<br>
-                평점 좋은 우리 동네 수리 기사님을<br>
-                투명한 정보와 함께 연결해 드립니다.
-            </p>
-        </a>
-
-        <a href="/review" class="service-card group border-blue-100 bg-blue-50/30">
-            <div class="icon-circle bg-purple-50 text-purple-600 group-hover:bg-purple-600">📝</div>
-            <h3 class="text-xl font-bold mb-4 text-slate-800">수리 후기 게시판</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">
-                다른 사람들의 후기 경험을 들어보세요!<br>
-                남겨주신 소중한 후기는 AI가 학습하여<br>
-                더 똑똑한 해결책을 제시합니다.
-            </p>
-        </a>
-    </div>
-</section>
-
-<style>
-    /* 1. 서비스 카드: 가로폭 고정 및 중앙 정렬의 핵심 */
-    .service-card {
-        background-color: white;
-        padding: 2.5rem; /* p-10 */
-        border-radius: 3rem; /* rounded-[3rem] */
-        border: 1px solid #f1f5f9; /* border-slate-100 */
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow-sm */
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        width: 100%;
-        max-width: 360px; /* ✅ 가로폭 고정으로 세로로 길어짐 방지 */
-        min-height: 380px; /* ✅ 카드 높이 통일 */
-        text-decoration: none; /* 링크 밑줄 제거 */
-        margin: 0 auto; /* 부모 그리드 내 중앙 배치 */
-    }
-
-    /* 호버 효과 */
-    .service-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-
-    /* 2. 아이콘 박스: 둥근 사각형 디자인 */
-    .icon-circle {
-        width: 5rem; /* w-20 */
-        height: 5rem; /* h-20 */
-        border-radius: 1.5rem; /* rounded-3xl */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.25rem; /* text-4xl */
-        margin-bottom: 2rem; /* mb-8 */
-        transition: all 0.5s ease;
-        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* shadow-inner */
-    }
-
-    /* 호버 시 아이콘 배경색 변경 (각 카드의 색상에 맞춰 적용) */
-    .service-card:hover .icon-circle {
-        color: white;
-    }
-    
-    /* 각 서비스별 호버 배경색 지정 */
-    .service-card:nth-child(1):hover .icon-circle { background-color: #ea580c; } /* 주황 */
-    .service-card:nth-child(2):hover .icon-circle { background-color: #059669; } /* 초록 */
-    .service-card:nth-child(3):hover .icon-circle { background-color: #9333ea; } /* 보라 */
-
-    /* 3. 텍스트 디테일 */
-    .service-card h3 {
-        color: #1e293b;
-        font-weight: 900;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .service-card p {
-        color: #64748b;
-        line-height: 1.625;
-        font-size: 0.875rem;
-    }
-    
-</style>
 </div>
 
-<script>
-    // 사진 파일 선택 시 이름 표시
-    function updateFileName(input) {
-        const status = document.getElementById('fileStatus');
-        const nameDisplay = document.getElementById('fileNameDisplay');
-        if (input.files && input.files[0]) {
-            nameDisplay.innerText = input.files[0].name;
-            status.classList.remove('hidden');
-        }
-    }
-
-    // 파일 선택 취소
-    function removeFile() {
-        const input = document.getElementById('imageInput');
-        const status = document.getElementById('fileStatus');
-        input.value = "";
-        status.classList.add('hidden');
-    }
-
-    async function processStart() {
-        const input = document.getElementById('problemInput').value;
-        const imageInput = document.getElementById('imageInput');
-        
-        // ✅ 텍스트 혹은 사진 중 하나라도 있으면 진행
-        if (!input && !(imageInput.files && imageInput.files[0])) {
-            return alert('증상을 입력하시거나 사진을 첨부해주세요.');
-        }
-        
-        const btn = document.getElementById('diagBtn');
-        const originalText = btn.innerText;
-        btn.innerText = '분석 중...';
-        btn.disabled = true;
-
-        try {
-            const fd = new FormData();
-            fd.append('problem', input);
-            
-            // 사진 파일이 있으면 전송 데이터에 추가
-            if (imageInput.files && imageInput.files[0]) {
-                fd.append('image', imageInput.files[0]);
-            }
-
-            const res = await fetch('/diagnose', { method: 'POST', body: fd });
-            const data = await res.json();
-
-            if (data.status === 'invalid') {
-                alert(data.message || '수리 관련 증상을 자세히 입력해주세요.');
-                btn.innerText = originalText;
-                btn.disabled = false;
-            } else {
-                location.href = '/result';
-            }
-        } catch (e) {
-            alert('서버 연결에 실패했습니다.');
-            btn.innerText = originalText;
-            btn.disabled = false;
-        }
-    }
-</script>
-
-<footer class="bg-slate-50 border-t border-slate-200 pt-16 pb-12">
-    <div class="max-w-6xl mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16">
-            
-            <div class="md:col-span-4 space-y-4">
-                <h3 class="text-2xl font-black text-blue-600 tracking-tighter">HomeFix</h3>
-                <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
-                    AI 기술로 주거 공간의 불편함을<br />
-                    가장 빠르고 스마트하게 해결합니다.<br>
-                    안전한 수리 생활의 시작, 홈픽스.
-                </p>
-            </div>
-
-            <div class="md:col-span-2">
-                <h4 class="font-bold text-slate-900 mb-5">서비스</h4>
-                <ul class="space-y-3 text-sm text-slate-500">
-                    <li><a href="/rental" class="hover:text-blue-600 transition-colors">공구 대여소 찾기</a></li>
-                    <li><a href="/expert" class="hover:text-blue-600 transition-colors">전문가 매칭</a></li>
-                    <li><a href="/review" class="hover:text-blue-600 transition-colors">수리 후기 게시판</a></li>
-                </ul>
-            </div>
-
-            <div class="md:col-span-3">
-                <h4 class="font-bold text-slate-900 mb-5">고객지원</h4>
-                <ul class="space-y-3 text-sm text-slate-500 mb-6">
-                    <li><a href="/support" class="hover:text-blue-600 transition-colors">고객센터</a></li>
-                    <li><a href="/terms" class="hover:text-blue-600 transition-colors">이용 약관</a></li>
-                    <li><a href="/privacy" class="hover:text-blue-600 transition-colors font-semibold">개인정보처리방침</a></li>
-                </ul>
-                
-                <div class="text-sm text-slate-500 space-y-1">
-                    <p><span class="font-bold text-slate-700">운영시간</span> 평일 09:00 ~ 18:00</p>
-                    <p><span class="font-bold text-slate-700">문의</span> support@homefix.com</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3">
-                <h4 class="font-bold text-slate-900 mb-5">비즈니스</h4>
-                <div class="space-y-3 text-sm text-slate-500">
-                    <div>
-                        <span class="block font-bold text-slate-700 mb-0.5">개발자</span>
-                        이명훈, 유진현, 전진우
-                    </div>
-                    <div>
-                        <span class="block font-bold text-slate-700 mb-0.5">운영 기관</span>
-                        SMUNIVERSE
-                    </div>
-                    <div>
-                        <span class="block font-bold text-slate-700 mb-0.5">주소</span>
-                        서울특별시 서초구 동작대로 132<br>안석빌딩 9층
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-slate-400 text-xs text-center md:text-left">
-                © 2026 HomeFix Inc. All rights reserved.
-            </p>
-            <p class="text-slate-400 text-xs text-center md:text-right flex items-center gap-1">
-                <span>⚠️ 본 서비스는 AI 가이드를 제공하며, 실제 수리 시 안전 수칙을 준수해야 합니다.</span>
-            </p>
-        </div>
-    </div>
-</footer>
 <div id="loadingOverlay" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-white/80 backdrop-blur-sm transition-opacity"></div>
-    
     <div class="relative flex flex-col items-center justify-center h-full fade-in">
         <div class="relative w-24 h-24 mb-8">
             <div class="absolute inset-0 bg-blue-500 rounded-full opacity-20 animate-ping"></div>
             <div class="absolute inset-2 bg-blue-500 rounded-full opacity-40 animate-pulse"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-4xl">
-                🤖
-            </div>
+            <div class="absolute inset-0 flex items-center justify-center text-4xl">🤖</div>
         </div>
-
         <h3 class="text-2xl font-black text-slate-800 mb-2">AI 진단 중...</h3>
         <p class="text-slate-500 font-medium animate-pulse">
-            증상을 분석하고 해결책을 찾고 있습니다.<br>
-            잠시만 기다려주세요.
+            증상을 분석하고 해결책을 찾고 있습니다.<br>잠시만 기다려주세요.
         </p>
     </div>
 </div>
@@ -478,24 +344,21 @@
         status.classList.add('hidden');
     }
 
-    // [수정된 부분] 진단 시작 함수
+    // 진단 시작 함수
     async function processStart() {
         const input = document.getElementById('problemInput').value;
         const imageInput = document.getElementById('imageInput');
         
-        // 유효성 검사
         if (!input && !(imageInput.files && imageInput.files[0])) {
             return alert('증상을 입력하시거나 사진을 첨부해주세요.');
         }
 
-        // 1. 로딩 오버레이 표시 (화면을 덮음)
         const overlay = document.getElementById('loadingOverlay');
         overlay.classList.remove('hidden');
 
         try {
             const fd = new FormData();
             fd.append('problem', input);
-            
             if (imageInput.files && imageInput.files[0]) {
                 fd.append('image', imageInput.files[0]);
             }
@@ -504,28 +367,62 @@
             const data = await res.json();
 
             if (data.status === 'invalid') {
-                // 실패 시 로딩 끄고 알림
                 overlay.classList.add('hidden');
                 alert(data.message || '수리 관련 증상을 자세히 입력해주세요.');
             } else {
-                // 성공 시 결과 페이지 이동
                 location.href = '/result';
             }
         } catch (e) {
-            // 에러 시 로딩 끄고 알림
             overlay.classList.add('hidden');
             alert('서버 연결에 실패했습니다.');
         }
     }
 </script>
+
 <style>
-    /* 스크롤바 숨기기 (기능은 유지됨) */
-    .scrollbar-hide {
-        -ms-overflow-style: none; /* IE, Edge */
-        scrollbar-width: none; /* Firefox */
+    /* 서비스 카드 스타일 */
+    .service-card {
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 3rem;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        max-width: 360px;
+        min-height: 380px;
+        text-decoration: none;
+        margin: 0 auto;
     }
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, Opera */
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
+    .icon-circle {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.25rem;
+        margin-bottom: 2rem;
+        transition: all 0.5s ease;
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    }
+    .service-card:hover .icon-circle { color: white; }
+    .service-card:nth-child(1):hover .icon-circle { background-color: #ea580c; }
+    .service-card:nth-child(2):hover .icon-circle { background-color: #059669; }
+    .service-card:nth-child(3):hover .icon-circle { background-color: #9333ea; }
+    .service-card h3 { color: #1e293b; font-weight: 900; font-size: 1.5rem; margin-bottom: 1rem; }
+    .service-card p { color: #64748b; line-height: 1.625; font-size: 0.875rem; }
+
+    /* 스크롤바 숨기기 유틸리티 */
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
 </style>
 {% endblock %}

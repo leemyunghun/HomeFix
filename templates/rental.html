@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+{% block content %}
 <div class="max-w-4xl mx-auto py-12 px-4 fade-in">
     <div class="mb-10">
         <form action="/rental" method="GET" class="relative max-w-2xl mx-auto">
@@ -39,52 +40,60 @@
         </div>
 
         <div class="grid gap-3" id="rentalList">
-            {% if rentals %} {% for item in rentals %}
-            <div class="rental-item bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 transition overflow-hidden" 
-                 data-address="{{ item.location }}">
-                 
-                <div class="flex justify-between items-center">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-base text-slate-800">🏠 {{ item.name }}</h4>
-                        <div class="mt-3 flex items-center gap-2 text-blue-600">
-                            <span class="text-xs font-bold bg-blue-50 px-2 py-1 rounded-md">전화문의</span>
-                            <span class="text-xl font-black tracking-tight">
-                                {{ item.contact if item.contact and item.contact != 'None' else "정보없음" }}
-                            </span>
+            {% if rentals %} 
+                {% for item in rentals %}
+                <div class="rental-item bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 transition overflow-hidden" 
+                     data-address="{{ item.location }}">
+                     
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-base text-slate-800">🏠 {{ item.name }}</h4>
+                                <span class="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-lg font-bold">대여소</span>
+                            </div>
+                            
+                            <p class="text-xs text-slate-500 mt-1">
+                                <i class="fas fa-map-marker-alt mr-1"></i> {{ item.location }}
+                            </p>
+
+                            {% if item.contact and item.contact != 'None' and item.contact != '정보없음' %}
+                            <div class="mt-2 text-blue-600 text-sm font-bold">
+                                <i class="fas fa-phone-alt mr-1"></i> {{ item.contact }}
+                            </div>
+                            {% endif %}
                         </div>
-                        <p class="text-xs text-slate-500 mt-1">{{ item.location }}</p>
+
+                        <div class="flex flex-col gap-2 min-w-[110px] items-end ml-4">
+                            {% if item.link and item.link != 'None' and item.link != '' %}
+                            <a
+                                href="{{ item.link }}"
+                                target="_blank"
+                                class="w-full text-center bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black hover:bg-blue-700 transition"
+                            >
+                                🌐 홈페이지
+                            </a>
+                            {% endif %}
+
+                            <button
+                                type="button"
+                                data-location="{{ item.location }}"
+                                data-name="{{ item.name }}"
+                                onclick="showDirectMap(this)"
+                                class="w-full text-center bg-slate-100 text-slate-600 px-3 py-2 rounded-xl text-[10px] font-bold hover:bg-slate-200 transition"
+                            >
+                                📍 위치 확인
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col gap-2 min-w-[110px] items-end ml-4">
-                        {% if item.link and item.link != 'None' and item.link != '' %}
-                        <a
-                            href="{{ item.link }}"
-                            target="_blank"
-                            class="w-full text-center bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black hover:bg-blue-700 transition"
-                        >
-                            🌐 홈페이지 방문
-                        </a>
-                        {% endif %}
-
-                        <button
-                            type="button"
-                            data-location="{{ item.location }}"
-                            data-name="{{ item.name }}"
-                            onclick="showDirectMap(this)"
-                            class="w-full text-center bg-slate-100 text-slate-600 px-3 py-2 rounded-xl text-[10px] font-bold hover:bg-slate-200 transition"
-                        >
-                            📍 위치 확인
-                        </button>
+                    <div class="direct-map-container hidden mt-4 border-t border-slate-100 pt-4">
+                        <div class="w-full h-64 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative">
+                             <div class="map-area w-full h-full"></div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="direct-map-container hidden mt-4 border-t border-slate-100 pt-4">
-                    <div class="w-full h-64 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative">
-                         <div class="map-area w-full h-full"></div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %} {% else %}
+                {% endfor %} 
+            {% else %}
             <div class="text-center py-10 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
                 <p class="text-slate-400 text-sm">
                     {% if request.args.get('query') %} 검색 결과가 없습니다. {% else %} 검색창에 동네 이름을 입력하여 대여소를 찾아보세요. {% endif %}
@@ -94,74 +103,64 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-        <div class="flex items-center justify-between gap-3 mb-6">
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm mt-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
                 <h3 class="text-lg font-bold text-slate-800">🧭 실시간 주변 찾기</h3>
                 <p class="text-xs text-slate-400 mt-1">
                     현재 내 위치를 기준으로 실시간 주민센터 및 대여소를 검색합니다.
                 </p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 w-full md:w-auto">
                 <button
                     onclick="findToolRental()"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition"
+                    class="flex-1 md:flex-none bg-blue-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition"
                 >
                     내 주변 찾기
                 </button>
                 <button
                     onclick="clearNearby()"
-                    class="bg-slate-100 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition"
+                    class="bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-200 transition"
                 >
                     초기화
                 </button>
             </div>
         </div>
-        <div id="nearbyStatus" class="mb-4 text-xs text-blue-600 font-bold"></div>
-        <div
-            id="map"
-            class="w-full rounded-2xl border border-slate-100 overflow-hidden bg-slate-50 shadow-inner"
-            style="height: 400px"
-        ></div>
-        <div id="nearbyResult" class="mt-6 grid gap-3"></div>
+        
+        <div id="nearbySection" class="hidden space-y-6">
+            <div id="nearbyStatus" class="text-xs text-blue-600 font-bold text-center"></div>
+            <div class="bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                <div id="map" class="w-full h-80 rounded-xl overflow-hidden shadow-inner"></div>
+            </div>
+            <div id="nearbyResult" class="grid gap-3"></div>
+        </div>
     </div>
 </div>
 
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key }}&libraries=services"></script>
 
 <script>
-    // [기능 0] 페이지 로드 시 유효하지 않은 주소 카드 삭제
-    window.onload = function() {
-        filterInvalidAddresses();
-    };
+    // [기능 0] 주소 유효성 검사 (기존 로직 유지)
+    window.onload = function() { filterInvalidAddresses(); };
 
     function filterInvalidAddresses() {
         const items = document.querySelectorAll('.rental-item');
         const geocoder = new kakao.maps.services.Geocoder();
         const statusBadge = document.getElementById('filterStatus');
         
-        if(items.length > 0) {
-            statusBadge.classList.remove('hidden'); // '검증 중' 표시
-        }
+        if(items.length > 0) statusBadge.classList.remove('hidden');
 
         let checkedCount = 0;
-
         items.forEach(item => {
             const address = item.getAttribute('data-address');
-            
-            // 주소가 아예 비어있으면 삭제
             if (!address || address.trim() === 'None' || address.trim() === '') {
                 item.remove();
                 checkedCount++;
                 checkFinish();
                 return;
             }
-
-            // 카카오 Geocoder로 주소 유효성 검사
             geocoder.addressSearch(address, function(result, status) {
                 if (status !== kakao.maps.services.Status.OK) {
-                    // 주소를 찾을 수 없으면(Status Not OK) 요소 삭제
-                    // console.log('삭제됨(주소불명):', address); 
                     item.remove();
                 }
                 checkedCount++;
@@ -171,8 +170,7 @@
 
         function checkFinish() {
             if (checkedCount === items.length) {
-                statusBadge.classList.add('hidden'); // 검증 완료 시 배지 숨김
-                // 만약 다 삭제돼서 리스트가 비었다면 안내 메시지 표시 (선택사항)
+                statusBadge.classList.add('hidden');
                 const list = document.getElementById('rentalList');
                 if (list.children.length === 0) {
                    list.innerHTML = '<div class="text-center py-10 text-slate-400">유효한 주소를 가진 대여소가 없습니다.</div>';
@@ -181,11 +179,11 @@
         }
     }
 
-    // [기능 1] 위치 바로 보기 (아코디언)
+    // [기능 1] 위치 바로 보기
     function showDirectMap(btn) {
         const address = btn.getAttribute('data-location');
         const title = btn.getAttribute('data-name');
-        const card = btn.closest('.rental-item'); // 클래스명 변경 반영
+        const card = btn.closest('.rental-item');
         const container = card.querySelector('.direct-map-container');
         const mapArea = card.querySelector('.map-area');
 
@@ -195,32 +193,23 @@
         }
 
         container.classList.remove('hidden');
-
         const geocoder = new kakao.maps.services.Geocoder();
         geocoder.addressSearch(address, function (result, status) {
             if (status === kakao.maps.services.Status.OK) {
                 const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
                 const dMap = new kakao.maps.Map(mapArea, { center: coords, level: 3 });
+                new kakao.maps.Marker({ map: dMap, position: coords });
                 
-                const marker = new kakao.maps.Marker({
-                    map: dMap,
-                    position: coords
+                const iw = new kakao.maps.InfoWindow({
+                    content: `<div style="padding:5px; font-size:12px; font-weight:bold;">${title}</div>`
                 });
-
-                const infowindow = new kakao.maps.InfoWindow({
-                    content: `<div style="padding:5px; font-size:12px; font-weight:bold; color:#1e293b;">${title}</div>`
-                });
-                infowindow.open(dMap, marker);
-
+                iw.open(dMap, new kakao.maps.Marker({ position: coords }));
                 setTimeout(() => dMap.relayout(), 100);
-            } else {
-                alert('정확한 위치를 찾을 수 없습니다.');
-                container.classList.add('hidden');
             }
         });
     }
 
-    // [기능 2] 하단 내 주변 찾기 로직 (기존과 동일)
+    // [기능 2] 실시간 GPS 주변 찾기
     var map, markers = [], infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
 
     function clearNearby() {
@@ -231,7 +220,10 @@
     }
 
     function findToolRental() {
+        const section = document.getElementById('nearbySection');
+        section.classList.remove('hidden');
         clearNearby();
+        
         var statusEl = document.getElementById('nearbyStatus');
         
         if (!navigator.geolocation) {
@@ -314,14 +306,22 @@
 
             var distKm = (place.distance / 1000).toFixed(1);
 
+            // [전문가 페이지와 동일한 카드 디자인 적용]
             html += `
             <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex justify-between items-center shadow-sm">
-                <div>
-                    <b class="text-sm text-slate-800">${place.place_name}</b> 
-                    <span class="text-blue-600 text-[10px] ml-1 font-black">${distKm}km</span><br>
-                    <span class="text-[11px] text-slate-500">${place.address_name}</span>
+                <div class="flex-1 pr-2">
+                    <div class="flex items-center">
+                        <b class="text-sm text-slate-800 truncate">${place.place_name}</b> 
+                        <span class="text-blue-600 text-[10px] ml-2 font-black whitespace-nowrap">${distKm}km</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-1 truncate">${place.road_address_name || place.address_name}</div>
+                    ${place.phone ? `<div class="text-[10px] text-slate-400 mt-0.5"><i class="fas fa-phone mr-1"></i>${place.phone}</div>` : ''}
                 </div>
-                <a href="${place.place_url}" target="_blank" class="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition">지도보기</a>
+                <div class="flex-shrink-0 ml-2">
+                    <a href="${place.place_url}" target="_blank" class="bg-white border border-slate-200 px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition block text-center min-w-[70px]">
+                        지도보기
+                    </a>
+                </div>
             </div>`;
         });
 
