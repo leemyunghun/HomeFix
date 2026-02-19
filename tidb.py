@@ -13,11 +13,41 @@ DB_URL = f"mysql+pymysql://{os.getenv('TIDB_USER')}:{os.getenv('TIDB_PASSWORD')}
 engine = create_engine(DB_URL, connect_args={"ssl": {"ca": None}})
 
 def total_migration():
-    # 1️⃣ [DB 보수] content 컬럼을 LONGTEXT로 확장 (Data too long 에러 해결)
+    # 1️⃣ [DB 보수] 테이블 구조 업데이트 (용량 확장 및 컬럼 추가)
     with engine.connect() as conn:
-        print("🛠️ DB 컬럼 용량 확장 중...")
+        print("🛠️ DB 구조 보수 중...")
+        
+        # [manual_data] 컬럼 확장
         conn.execute(text("ALTER TABLE manual_data MODIFY COLUMN content LONGTEXT"))
+        
+        # [users] role 컬럼 추가
+        try:
+            conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user'"))
+            print("✅ 'users' 테이블에 'role' 컬럼 추가 완료!")
+        except Exception as e:
+            if "Duplicate column name" in str(e): print("ℹ️ 'users.role' 컬럼이 이미 존재합니다.")
+
+        # ✨ [support] 테이블 보수 (에러 해결 핵심 부분)
+        print("🎧 support 테이블 구조 업데이트 중...")
+        try:
+            # answer(답변) 컬럼 추가
+            conn.execute(text("ALTER TABLE support ADD COLUMN answer TEXT"))
+            print("✅ 'support' 테이블에 'answer' 컬럼 추가 완료!")
+        except Exception as e:
+            if "Duplicate column name" in str(e): print("ℹ️ 'support.answer' 컬럼이 이미 존재합니다.")
+
+        try:
+            # status(상태) 컬럼 추가 (기본값 '대기중')
+            conn.execute(text("ALTER TABLE support ADD COLUMN status VARCHAR(20) DEFAULT '대기중'"))
+            print("✅ 'support' 테이블에 'status' 컬럼 추가 완료!")
+        except Exception as e:
+            if "Duplicate column name" in str(e): print("ℹ️ 'support.status' 컬럼이 이미 존재합니다.")
+
+        # 관리자 권한 부여
+        conn.execute(text("UPDATE users SET role = 'admin' WHERE userid = 'jhdbwlsgus'"))
+        
         conn.commit()
+        print("✅ DB 기초 보수가 완료되었습니다.")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(current_dir, 'homefix')
@@ -42,10 +72,7 @@ def total_migration():
             print(f"❌ PDF 에러 ({file_name}): {e}")
 
     # 3️⃣ [업체 및 대여소 CSV 자동 탐색]
-    # 폴더 내의 모든 CSV를 훑어서 업체(expert)와 대여소 데이터를 분류합니다.
     csv_files = [f for f in os.listdir(target_dir) if f.lower().endswith('.csv')]
-    
-    # 컬럼명 매핑 사전 (다양한 CSV 형식을 하나로 통합)
     mapping = {
         'name': ['업체명', '공구대여소', '공구대여소명', '명칭', '기관명'],
         'location': ['업체주소', '도로명주소', '도로명 주소', '소재지도로명주소', '도로명'],
@@ -58,7 +85,6 @@ def total_migration():
     for csv_name in csv_files:
         path = os.path.join(target_dir, csv_name)
         try:
-            # 인코딩 해결
             df_raw = None
             for enc in ['cp949', 'utf-8-sig', 'utf-8']:
                 try: df_raw = pd.read_csv(path, encoding=enc); break
@@ -66,10 +92,7 @@ def total_migration():
             
             if df_raw is None: continue
 
-            # 카테고리 판별
             category = 'expert' if '업체' in csv_name else '대여소'
-            
-            # 매핑 로직
             final_df = pd.DataFrame()
             final_df['category'] = [category] * len(df_raw)
             
@@ -80,17 +103,14 @@ def total_migration():
                 else:
                     final_df[key if key != 'desc' else 'description'] = None
 
-            # DB 전송
             final_df.to_sql("resources", con=engine, if_exists='append', index=False)
             print(f"✅ CSV 성공: {csv_name} ({len(final_df)}건)")
-            
         except Exception as e:
             print(f"❌ CSV 에러 ({csv_name}): {e}")
 
     # 4️⃣ [JSON 데이터 복구]
-    # 파일 위치를 target_dir와 current_dir 모두 확인합니다.
     json_path = next((p for p in [os.path.join(current_dir, 'homefix_data_final.json'), 
-                                 os.path.join(target_dir, 'homefix_data_final.json')] if os.path.exists(p)), None)
+                                os.path.join(target_dir, 'homefix_data_final.json')] if os.path.exists(p)), None)
     
     if json_path:
         try:
@@ -100,7 +120,6 @@ def total_migration():
             rental_list = []
             for item in data:
                 meta = item.get('metadata', {})
-                # 필터링 조건 완화 (대여 글자 포함 시)
                 if '대여' in meta.get('source', '') or '대여' in meta.get('name', ''):
                     rental_list.append({
                         'category': '대여소',

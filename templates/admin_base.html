@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홈픽스 - 관리자 센터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col transition-all">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <a href="/" class="text-xl font-black text-white tracking-tighter hover:text-blue-400 transition">
+                HOME FIX <span class="text-xs text-blue-500 ml-1">ADMIN</span>
+            </a>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto text-sm font-medium">
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-chart-pie w-5"></i> 대시보드
+            </a>
+            <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-users w-5"></i> 회원 관리
+            </a>
+            <a href="/admin/history" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-clipboard-list w-5"></i> 진단 내역
+            </a>
+            <a href="/admin/experts" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                <i class="fas fa-hard-hat w-5"></i> 업체 관리
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <a href="/" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-400 hover:text-white transition">
+                <i class="fas fa-arrow-left"></i> 메인 서비스로 돌아가기
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10">
+            <h1 class="font-bold text-slate-700">관리자 제어판</h1>
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                    👑 최고 관리자 계정
+                </span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</body>
+</html>

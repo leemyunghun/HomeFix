@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-5xl mx-auto py-12 px-4 fade-in">
+    <div class="mb-10">
+        <h2 class="text-3xl font-black text-slate-800">🛠️ 고객문의 통합 관리</h2>
+        <p class="text-slate-500 mt-2">사용자들이 남긴 모든 문의를 확인하고 답변을 등록합니다.</p>
+    </div>
+
+    <div class="space-y-6">
+        {% for s in supports %}
+        <div class="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold {{ 'bg-blue-100 text-blue-600' if s.status == '답변완료' else 'bg-amber-100 text-amber-600' }}">
+                        {{ s.status or '대기중' }}
+                    </span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-2">{{ s.title }}</h3>
+                    <p class="text-xs text-slate-400 mt-1">작성자: {{ s.userid }} | 일시: {{ s.created_at }}</p>
+                </div>
+            </div>
+            
+            <div class="bg-slate-50 rounded-2xl p-5 text-slate-700 text-sm mb-6 whitespace-pre-line">
+                {{ s.content }}
+            </div>
+
+            {% if s.answer %}
+            <div class="border-t border-slate-100 pt-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+                    <span class="text-sm font-bold text-slate-800">등록된 답변</span>
+                </div>
+                <p class="text-sm text-slate-600 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                    {{ s.answer }}
+                </p>
+            </div>
+            {% else %}
+            <form action="/admin/support/answer/{{ s.id }}" method="POST" class="border-t border-slate-100 pt-6">
+                <textarea name="answer" placeholder="사용자에게 전달할 답변을 입력하세요..." required
+                    class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none text-sm mb-3"></textarea>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-700 transition">
+                        답변 등록하기
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
