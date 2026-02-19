@@ -221,7 +221,144 @@
                 </div>
             </div>
         </div>
+        
     </section>
+    <div class="max-w-6xl mx-auto px-4 mt-8 mb-10 relative group" id="banner-container">
+    
+    <div class="overflow-hidden rounded-[2rem] shadow-xl relative">
+        <div class="flex transition-transform duration-500 ease-in-out" id="banner-slider">
+            
+            <a href="/notice/2" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 shrink-0">
+                <div class="absolute -right-10 -bottom-20 w-48 h-48 bg-yellow-300 opacity-20 rounded-full blur-2xl"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between px-10 py-8 md:py-10">
+                    <div class="text-white mb-6 md:mb-0">
+                        <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[11px] font-bold tracking-wider mb-3 backdrop-blur-sm border border-white/30">🚀 정식 런칭</span>
+                        <h3 class="text-2xl md:text-3xl font-black tracking-tight mb-2">
+                집수리의 새로운 기준, <span class="text-yellow-300">홈픽스 정식 런칭!</span>
+            </h3>
+                        <p class="text-orange-100 text-sm md:text-base font-medium">AI 진단부터 우리 동네 검증된 업체 매칭까지 한 번에 해결하세요.</p>
+                    </div>
+                    <div class="text-6xl drop-shadow-lg transform hover:scale-110 transition duration-300">✨</div>
+                </div>
+            </a>
+            <a href="notice/30001" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shrink-0">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between px-10 py-8 md:py-10">
+                    <div class="text-white mb-6 md:mb-0">
+                        <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[11px] font-bold tracking-wider mb-3 backdrop-blur-sm border border-white/30">🎉 EVENT</span>
+                        <h3 class="text-2xl md:text-3xl font-black tracking-tight mb-2">OPEN EVENT 시공 업체 <span class="text-yellow-300">10% 할인!</span></h3>
+                        <p class="text-blue-100 text-sm md:text-base font-medium">내 주변 업체를 확인하고 저렴하게 수리해보세요.</p>
+                    </div>
+                    <div class="text-6xl drop-shadow-lg transform hover:scale-110 hover:rotate-12 transition duration-300">🧰</div>
+                </div>
+            </a>
+
+            <a href="/review" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-teal-500 to-emerald-600 shrink-0">
+                <div class="absolute left-10 -top-10 w-40 h-40 bg-white opacity-20 rounded-full blur-2xl"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between px-10 py-8 md:py-10">
+                    <div class="text-white mb-6 md:mb-0">
+                        <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[11px] font-bold tracking-wider mb-3 backdrop-blur-sm border border-white/30">🎁 포인트 팡팡</span>
+                        <h3 class="text-2xl md:text-3xl font-black tracking-tight mb-2">생생한 수리 후기 남기고 <span class="text-yellow-300">포인트 받자!</span></h3>
+                        <p class="text-teal-100 text-sm md:text-base font-medium">AI가 후기를 학습하여 모두의 지식이 됩니다.</p>
+                    </div>
+                    <div class="text-6xl drop-shadow-lg transform hover:-rotate-12 transition duration-300">📝</div>
+                </div>
+            </a>
+
+        </div>
+
+        <button id="prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-20">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button id="next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-20">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            <button class="dot-indicator w-4 h-2 rounded-full bg-white/90 transition-all" data-index="0"></button>
+            <button class="dot-indicator w-2 h-2 rounded-full bg-white/40 transition-all" data-index="1"></button>
+            <button class="dot-indicator w-2 h-2 rounded-full bg-white/40 transition-all" data-index="2"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slider = document.getElementById('banner-slider');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const dots = document.querySelectorAll('.dot-indicator');
+        
+        let currentIndex = 0;
+        const totalSlides = 3; // 슬라이드 개수
+        let autoSlideInterval;
+
+        // 슬라이드 이동 함수
+        function updateSlider() {
+            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            // 점(Indicator) 모양 업데이트
+            dots.forEach((dot, index) => {
+                if (index === currentIndex) {
+                    dot.classList.remove('bg-white/40', 'w-2');
+                    dot.classList.add('bg-white/90', 'w-4'); // 현재 점은 길고 밝게
+                } else {
+                    dot.classList.remove('bg-white/90', 'w-4');
+                    dot.classList.add('bg-white/40', 'w-2'); // 나머지는 작고 투명하게
+                }
+            });
+        }
+
+        // 다음 슬라이드
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateSlider();
+        }
+
+        // 이전 슬라이드
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+            updateSlider();
+        }
+
+        // 버튼 클릭 이벤트
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // a 태그 이동 방지
+            nextSlide();
+            resetAutoSlide(); // 내가 누르면 자동 이동 타이머 초기화
+        });
+        
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prevSlide();
+            resetAutoSlide();
+        });
+
+        // 점 클릭 이벤트
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentIndex = index;
+                updateSlider();
+                resetAutoSlide();
+            });
+        });
+
+        // 5초마다 자동 슬라이드
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(nextSlide, 5000);
+        }
+
+        // 타이머 리셋
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+
+        // 시작!
+        startAutoSlide();
+    });
+</script>
 
     <section class="snap-section max-w-6xl mx-auto px-4">
         <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">

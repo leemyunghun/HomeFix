@@ -32,23 +32,23 @@
                     <td class="px-6 py-5 text-slate-500">{{ user[4] }}</td>
                     
                     <td class="px-6 py-5 text-center">
-                        {% if user[5] == 'Pending_Delete' %}
-                        <div class="flex flex-col items-center">
-                            <span class="px-2 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded-md">탈퇴대기</span>
-                            <span class="text-[9px] text-slate-400 mt-1">{{ user[6] }}</span>
-                        </div>
-                        {% else %}
-                        <span class="px-2 py-0.5 bg-green-50 text-green-500 text-[10px] font-bold rounded-md">활동중</span>
-                        {% endif %}
-                    </td>
+    {% if user[5] == 'Deleted' %}
+    <div class="flex flex-col items-center">
+        <span class="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded-md">탈퇴됨</span>
+        <span class="text-[9px] text-slate-400 mt-1" title="30일 보관 기한">{{ (user[6]|string)[:10] if user[6] else '' }} 부터</span>
+    </div>
+    {% else %}
+    <span class="px-2 py-0.5 bg-green-50 text-green-500 text-[10px] font-bold rounded-md">활동중</span>
+    {% endif %}
+</td>
 
-                    <td class="px-6 py-5 text-right">
-                        {% if user[5] == 'Pending_Delete' %}
-                        <button onclick="requestRestore('{{ user[2] }}')" class="px-4 py-1.5 border border-blue-100 text-blue-500 font-bold text-[10px] rounded-lg hover:bg-blue-500 hover:text-white transition">탈퇴 취소</button>
-                        {% else %}
-                        <button onclick="requestSoftDelete('{{ user[2] }}')" class="px-4 py-1.5 border border-red-100 text-red-400 font-bold text-[10px] rounded-lg hover:bg-red-500 hover:text-white transition">계정탈퇴</button>
-                        {% endif %}
-                    </td>
+<td class="px-6 py-5 text-right">
+    {% if user[5] == 'Deleted' %}
+    <button onclick="requestRestore('{{ user[2] }}')" class="px-4 py-1.5 border border-blue-100 text-blue-500 font-bold text-[10px] rounded-lg hover:bg-blue-500 hover:text-white transition">계정 복구</button>
+    {% else %}
+    <button onclick="requestSoftDelete('{{ user[2] }}')" class="px-4 py-1.5 border border-red-100 text-red-400 font-bold text-[10px] rounded-lg hover:bg-red-500 hover:text-white transition">강제 탈퇴</button>
+    {% endif %}
+</td>
                 </tr>
                 {% endfor %}
             </tbody>
