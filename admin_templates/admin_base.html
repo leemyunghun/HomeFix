@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeFix Admin | 관제센터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans">
+    <div class="fixed w-64 h-full bg-slate-900 text-white p-6 shadow-xl">
+        <h1 class="text-xl font-black mb-10 text-blue-400">🏠 HomeFix Admin</h1>
+        
+        <nav class="space-y-4">
+            <a href="/" class="block py-2.5 px-4 rounded transition hover:bg-slate-800 {% if request.path == '/' %}bg-blue-600 text-white shadow-lg{% else %}text-slate-400{% endif %}">
+                📊 대시보드
+            </a>
+            
+            <a href="/users" class="block py-2.5 px-4 rounded transition hover:bg-slate-800 {% if request.path == '/users' %}bg-blue-600 text-white shadow-lg{% else %}text-slate-400{% endif %}">
+                👥 회원 관리
+            </a>
+            
+            
+            <a href="#" class="block py-2.5 px-4 rounded hover:bg-slate-800 transition text-slate-400">🔧 업체 인증</a>
+            
+            <a href="/history" class="block py-2.5 px-4 rounded transition hover:bg-slate-800 {% if request.path == '/history' %}bg-blue-600 text-white shadow-lg{% else %}text-slate-400{% endif %}">
+                 📊 진단 로그
+            </a>
+        </nav>
+
+        <div class="absolute bottom-10 left-6 text-[10px] text-slate-500 font-mono">
+            <p>SERVER: TiDB Cloud</p>
+            <p>TEAM: HomeFix</p>
+        </div>
+    </div>
+
+    <div class="ml-64 p-10 min-h-screen">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h2 class="text-3xl font-bold text-slate-800">👥 회원 관리 시스템</h2>
+            <p class="text-slate-500 mt-2 text-sm">홈픽스 가입 유저의 상세 정보와 탈퇴 유예 상태를 관리합니다.</p>
+        </div>
+        <p class="text-2xl font-black text-blue-600">{{ users|length }}명</p>
+    </div>
+
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden text-sm">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b">
+                <tr>
+                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px]">이름</th>
+                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px]">아이디 / 이메일</th>
+                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px]">연락처</th>
+                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px] text-center">상태</th>
+                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px] text-right">관리</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                {% for user in users %}
+                {# 인덱스 순서: 1:name, 2:userid, 3:email, 4:phone, 5:status, 6:deleted_at #}
+                <tr class="hover:bg-slate-50 transition {% if user[5] == 'Pending_Delete' %}opacity-50 bg-slate-50{% endif %}">
+                    <td class="px-6 py-5 font-bold text-slate-700">{{ user[1] }}</td>
+                    <td class="px-6 py-5">
+                        <div class="text-slate-700 font-medium">{{ user[2] }}</div>
+                        <div class="text-slate-400 text-[11px]">{{ user[3] }}</div>
+                    </td>
+                    <td class="px-6 py-5 text-slate-500">{{ user[4] }}</td>
+                    
+                    <td class="px-6 py-5 text-center">
+                        {% if user[5] == 'Pending_Delete' %}
+                        <div class="flex flex-col items-center">
+                            <span class="px-2 py-0.5 bg-red-50 text-red-500 text-[10px] font-bold rounded-md">탈퇴대기</span>
+                            <span class="text-[9px] text-slate-400 mt-1">{{ user[6] }}</span>
+                        </div>
+                        {% else %}
+                        <span class="px-2 py-0.5 bg-green-50 text-green-500 text-[10px] font-bold rounded-md">활동중</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="px-6 py-5 text-right">
+                        {% if user[5] == 'Pending_Delete' %}
+                        <button onclick="requestRestore('{{ user[2] }}')" class="px-4 py-1.5 border border-blue-100 text-blue-500 font-bold text-[10px] rounded-lg hover:bg-blue-500 hover:text-white transition">탈퇴 취소</button>
+                        {% else %}
+                        <button onclick="requestSoftDelete('{{ user[2] }}')" class="px-4 py-1.5 border border-red-100 text-red-400 font-bold text-[10px] rounded-lg hover:bg-red-500 hover:text-white transition">계정탈퇴</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 탈퇴 취소 (복구) 함수
+    function requestRestore(userId) {
+        if(confirm(`${userId}님을 정상 회원으로 복구하시겠습니까?`)) {
+            // [체크] 파이썬 route와 동일한 경로인지 확인하세요: /restore_user/<string:user_id>
+            fetch(`/restore_user/${userId}`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') { 
+                    alert(data.message);
+                    location.reload(); 
+                } else {
+                    alert('복구 실패: ' + data.message);
+                }
+            })
+            .catch(err => alert('통신 오류가 발생했습니다.'));
+        }
+    }
+
+    // 계정 탈퇴 함수
+    function requestSoftDelete(userId) {
+        if(confirm(`${userId}님을 탈퇴 처리하시겠습니까?`)) {
+            fetch(`/delete_user/${userId}`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') { 
+                    alert(data.message);
+                    location.reload(); 
+                } else {
+                    alert('처리 실패: ' + data.message);
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

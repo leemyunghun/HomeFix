@@ -1,0 +1,29 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-slate-800 mb-8">📊 AI 진단 로그</h2>
+
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden text-sm">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b">
+                <tr>
+                    <th class="px-8 py-5 text-slate-400 font-bold uppercase text-[11px]">일시</th>
+                    <th class="px-8 py-5 text-slate-400 font-bold uppercase text-[11px]">사용자</th>
+                    <th class="px-8 py-5 text-slate-400 font-bold uppercase text-[11px]">유형</th>
+                    <th class="px-8 py-5 text-slate-400 font-bold uppercase text-[11px]">진단 결과</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                {% for log in logs_list %}
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-8 py-5 text-slate-400">{{ log[1] }}</td> <td class="px-8 py-5 font-bold text-slate-700">{{ log[2] }}</td> <td class="px-8 py-5">
+                        <span class="px-2 py-0.5 bg-blue-50 text-blue-600 font-bold rounded-md text-[10px]">
+                            {{ log[3] }} </span>
+                    </td>
+                    <td class="px-8 py-5 text-slate-600 truncate max-w-md">{{ log[4] }}</td> </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
