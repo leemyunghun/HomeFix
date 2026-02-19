@@ -407,7 +407,25 @@ def diagnose():
                 context = "\n\n".join([f"[{doc['metadata'].get('source')}] {doc['content']}" for doc in documents])
 
         ai_query = user_input if user_input else "사진 속의 집수리 문제를 분석하고 해결책을 제시해줘."
-        text_content = f"당신은 집수리 전문가입니다. \n\n[학습 지식]\n{context}\n\n[사용자 입력]\n{ai_query}\n\n[답변 형식 JSON]\n{{\"problem_name\": \"제목\", \"risk_level\": 1, \"estimated_cost\": \"비용\", \"warning\": \"주의사항\", \"steps\": [\"단계\"], \"tools\": [\"도구\"], \"sources\": \"{', '.join(sources)}\"}}"
+        
+        # ✨ 수정된 부분: AI에게 집수리 외 질문 차단 규칙을 강력하게 부여
+        text_content = f"""당신은 '홈픽스'의 집수리 전문 AI입니다. 
+
+[🚨 절대 규칙 🚨]
+사용자의 질문이나 사진이 집수리, 인테리어, 가구 조립, 설비, 공구 사용 등과 전혀 관련 없는 일상 대화, IT, 프로그래밍, 타 분야의 질문이라면 절대 진단하지 말고 무조건 아래 JSON 형태로 거절 메시지를 보내세요.
+
+{{"problem_name": "진단 불가", "risk_level": 1, "estimated_cost": "-", "warning": "저는 집수리 전문 AI입니다. 집수리 관련 질문만 답변이 가능합니다.", "steps": ["입력하신 내용은 집수리와 관련이 없습니다.", "집수리에 관련된 문제나 사진을 다시 입력해 주세요."], "tools": [], "sources": ""}}
+
+사용자 입력이 집수리와 관련된 내용일 경우에만 아래 지식을 바탕으로 정상적인 진단을 내리세요.
+
+[학습 지식]
+{context}
+
+[사용자 입력]
+{ai_query}
+
+[정상 답변 형식 JSON]
+{{"problem_name": "제목", "risk_level": 1, "estimated_cost": "비용", "warning": "주의사항", "steps": ["단계"], "tools": ["도구"], "sources": "{', '.join(sources)}"}}"""
 
         messages_content = [{"type": "text", "text": text_content}]
         if has_image:
@@ -473,6 +491,10 @@ def login():
         cursor.close(); conn.close()
         
         if user and check_password_hash(user['password'], pw):
+            # 💡 핵심: 탈퇴된 계정인지 확인
+            if user.get('status') == 'Deleted':
+                return "<script>alert('탈퇴 처리된 계정입니다.'); history.back();</script>"
+                
             session['user'] = user
             return redirect(url_for('index'))
         return "<script>alert('틀린 정보입니다.'); history.back();</script>"
@@ -494,6 +516,7 @@ def signup():
         finally: cursor.close(); conn.close()
     return render_template('signup.html')
 
+
 @app.route('/find-id', methods=['GET', 'POST'])
 def find_id():
     if request.method == 'POST':
@@ -511,15 +534,19 @@ def reset_password():
     if request.method == 'POST':
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+        # 1. 아이디와 이메일로 유저 찾기
         cursor.execute('SELECT * FROM users WHERE userid = %s AND email = %s', (request.form.get('userid'), request.form.get('email')))
         user = cursor.fetchone()
-        if user and check_password_hash(user['password'], request.form.get('current_password')):
+        
+        # ✨ 2. 핵심 수정: current_password 검사를 없애고, user가 존재하기만 하면 바로 통과!
+        if user:
             cursor.execute('UPDATE users SET password = %s WHERE id = %s', (generate_password_hash(request.form.get('new_password')), user['id']))
             conn.commit(); cursor.close(); conn.close()
             return "<script>alert('비밀번호가 성공적으로 변경되었습니다.'); location.href='/login';</script>"
         else:
             cursor.close(); conn.close()
-            return "<script>alert('정보 불일치'); history.back();</script>"
+            return "<script>alert('아이디 또는 이메일 정보가 일치하지 않습니다.'); history.back();</script>"
+            
     return render_template('reset_password.html')
 
 @app.route('/change_password', methods=['POST'])
@@ -690,11 +717,14 @@ def admin_delete_user(user_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # 💡 핵심: 상태를 'Deleted'로 바꾸어 즉시 로그인 불가 처리
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute("UPDATE users SET status = 'Pending_Delete', deleted_at = %s WHERE userid = %s", (now, user_id))
+        cursor.execute("UPDATE users SET status = 'Deleted', deleted_at = %s WHERE userid = %s", (now, user_id))
         conn.commit()
         cursor.close(); conn.close()
-        return jsonify({"result": "success", "message": "30일 유예 기간 설정 완료"})
+        
+        return jsonify({"result": "success", "message": "즉시 탈퇴 처리되었습니다. (데이터는 30일 후 자동 파기)"})
     except Exception as e: return jsonify({"result": "fail", "message": str(e)})
 
 @app.route('/admin/history')
