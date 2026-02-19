@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>홈픽스 - 통합 수리 솔루션</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        background-color: #f5f7fa;
+      }
+      .fade-in {
+        animation: fadeIn 0.4s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="bg-white border-b sticky top-0 z-50">
+      <div
+        class="max-w-5xl mx-auto px-4 h-16 flex justify-between items-center"
+      >
+        <a
+          href="/"
+          class="text-2xl font-extrabold text-blue-600 tracking-tighter"
+          >HOME FIX</a
+        >
+        <div class="flex gap-4 items-center">
+          {% if user_info %}
+          <span class="text-sm font-medium"><b>{{ user_info.name }}</b>님</span>
+          <a
+            href="/myinfo"
+            class="text-xs text-blue-500 font-bold hover:underline"
+            >내 정보</a
+          >
+          <a href="/logout" class="text-xs text-slate-400 hover:text-slate-600"
+            >로그아웃</a
+          >
+          {% else %}
+          <a href="/login" class="text-sm font-medium text-slate-600">로그인</a>
+          <a
+            href="/signup"
+            class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:bg-blue-700 transition"
+            >회원가입</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <main>{% block content %}{% endblock %}</main>
+  </body>
+</html>
