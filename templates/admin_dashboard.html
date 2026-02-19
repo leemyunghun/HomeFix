@@ -1,0 +1,18 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<h2 class="text-3xl font-bold mb-10 text-slate-800">시스템 통합 현황</h2>
+<div class="grid grid-cols-3 gap-6 mb-10">
+    <div class="bg-white p-8 rounded-3xl border shadow-sm">
+        <p class="text-xs font-bold text-slate-400">총 사용자</p>
+        <h3 class="text-4xl font-black mt-2">{{ total_users }}</h3>
+    </div>
+    <div class="bg-white p-8 rounded-3xl border shadow-sm text-blue-600">
+        <p class="text-xs font-bold text-blue-400">AI 진단 로그</p>
+        <h3 class="text-4xl font-black mt-2">{{ total_diagnoses }}</h3>
+    </div>
+    <div class="bg-white p-8 rounded-3xl border shadow-sm text-red-600">
+        <p class="text-xs font-bold text-red-400">미응답 문의</p>
+        <h3 class="text-4xl font-black mt-2">{{ pending_support }}</h3>
+    </div>
+</div>
+{% endblock %}
