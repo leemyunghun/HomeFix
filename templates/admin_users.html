@@ -4,7 +4,7 @@
         <div>
             <h2 class="text-3xl font-bold text-slate-800">👥 회원 관리 시스템</h2>
             <p class="text-slate-500 mt-2 text-sm">
-                홈픽스 가입 유저의 상세 정보, 보유 포인트 및 실시간 접속 상태를 관리합니다.
+                홈픽스 가입 유저의 상세 정보, 보유 포인트 및 실시간 접속/가입 승인 상태를 관리합니다.
             </p>
         </div>
         <p class="text-2xl font-black text-blue-600">{{ users|length }}명</p>
@@ -24,26 +24,26 @@
             </thead>
             <tbody class="divide-y">
                 {% for user in users %}
-                <tr
-                    class="hover:bg-slate-50 transition {% if user.status == 'Deleted' %}opacity-50 bg-slate-50{% endif %}"
-                >
+                <tr class="hover:bg-slate-50 transition {% if user.status == 'Deleted' %}opacity-50 bg-slate-50{% endif %}">
                     <td class="px-6 py-5">
                         <div class="flex items-center gap-2">
-                            <span
-                                class="w-2.5 h-2.5 rounded-full {% if user.is_online == '온라인' %} bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse {% else %} bg-slate-300 {% endif %}"
-                            >
-                            </span>
+                            <span class="w-2.5 h-2.5 rounded-full {% if user.is_online == '온라인' %} bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse {% else %} bg-slate-300 {% endif %}"></span>
                             <span class="font-bold text-slate-700 text-base">{{ user.name }}</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded border 
+                                {% if user.role == 'expert' %} bg-emerald-50 text-emerald-600 border-emerald-200
+                                {% elif user.role == 'landlord' %} bg-purple-50 text-purple-600 border-purple-200
+                                {% else %} bg-slate-100 text-slate-500 border-slate-200 {% endif %}">
+                                {% if user.role == 'expert' %}업체
+                                {% elif user.role == 'landlord' %}임대인
+                                {% else %}일반{% endif %}
+                            </span>
                         </div>
                         <div class="mt-1 flex flex-col">
-                            <span
-                                class="text-[10px] font-bold {% if user.is_online == '온라인' %}text-green-600{% else %}text-slate-400{% endif %}"
-                            >
+                            <span class="text-[10px] font-bold {% if user.is_online == '온라인' %}text-green-600{% else %}text-slate-400{% endif %}">
                                 {{ user.is_online }}
                             </span>
                             <span class="text-[9px] text-slate-400">
-                                최근활동: {{ user.last_seen_kst.strftime('%Y-%m-%d %H:%M') if user.last_seen_kst else
-                                '기록 없음' }}
+                                최근활동: {{ user.last_seen_kst.strftime('%Y-%m-%d %H:%M') if user.last_seen_kst else '기록 없음' }}
                             </span>
                         </div>
                     </td>
@@ -55,61 +55,50 @@
                     <td class="px-6 py-5 text-slate-500">{{ user.phone }}</td>
 
                     <td class="px-6 py-5 text-right">
+                        {% if user.approval_status != 'pending' %}
                         <form action="/admin/update_points" method="POST" class="flex items-center justify-end gap-2">
                             <input type="hidden" name="userid" value="{{ user.userid }}" />
                             <div class="relative">
-                                <input
-                                    type="number"
-                                    name="points"
-                                    value="{{ user.points if user.points else 0 }}"
-                                    class="w-24 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-indigo-600 text-right focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                                />
-                                <span
-                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium"
-                                    >P</span
-                                >
+                                <input type="number" name="points" value="{{ user.points if user.points else 0 }}" class="w-24 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-indigo-600 text-right focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">P</span>
                             </div>
-                            <button
-                                type="submit"
-                                class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold hover:bg-slate-700 transition active:scale-95 shadow-sm"
-                            >
-                                수정
-                            </button>
+                            <button type="submit" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold hover:bg-slate-700 transition active:scale-95 shadow-sm">수정</button>
                         </form>
+                        {% endif %}
                     </td>
 
                     <td class="px-6 py-5 text-center">
                         {% if user.status == 'Deleted' %}
                         <div class="flex flex-col items-center">
-                            <span class="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded-md"
-                                >탈퇴됨</span
-                            >
-                            <span class="text-[9px] text-slate-400 mt-1" title="30일 보관 기한"
-                                >{{ (user.deleted_at|string)[:10] if user.deleted_at else '' }} 부터</span
-                            >
+                            <span class="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded-md">탈퇴됨</span>
+                            <span class="text-[9px] text-slate-400 mt-1" title="30일 보관 기한">{{ (user.deleted_at|string)[:10] if user.deleted_at else '' }} 부터</span>
                         </div>
+                        {% elif user.approval_status == 'pending' %}
+                        <span class="px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md animate-pulse">승인 대기</span>
                         {% else %}
-                        <span class="px-2 py-0.5 bg-blue-50 text-blue-500 text-[10px] font-bold rounded-md"
-                            >정상 계정</span
-                        >
+                        <span class="px-2 py-0.5 bg-blue-50 text-blue-500 text-[10px] font-bold rounded-md">정상 계정</span>
                         {% endif %}
                     </td>
 
                     <td class="px-6 py-5 text-right">
                         {% if user.status == 'Deleted' %}
-                        <button
-                            onclick="requestRestore('{{ user.userid }}')"
-                            class="px-4 py-1.5 border border-blue-100 text-blue-500 font-bold text-[10px] rounded-lg hover:bg-blue-500 hover:text-white transition"
-                        >
-                            계정 복구
-                        </button>
+                        <button onclick="requestRestore('{{ user.userid }}')" class="px-4 py-1.5 border border-blue-100 text-blue-500 font-bold text-[10px] rounded-lg hover:bg-blue-500 hover:text-white transition">계정 복구</button>
+                        
+                        {% elif user.approval_status == 'pending' %}
+                        <div class="flex flex-col items-end gap-1.5">
+                            <div class="flex gap-1">
+                                {% if user.idcard_file %}<a href="{{ user.idcard_file }}" target="_blank" class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded hover:bg-slate-200">신분증</a>{% endif %}
+                                {% if user.bizreg_file %}<a href="{{ user.bizreg_file }}" target="_blank" class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded hover:bg-slate-200">사업자등록증</a>{% endif %}
+                                {% if user.estate_file %}<a href="{{ user.estate_file }}" target="_blank" class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded hover:bg-slate-200">등기부등본</a>{% endif %}
+                            </div>
+                            <div class="flex gap-1 mt-1">
+                                <button onclick="requestApprove('{{ user.userid }}')" class="px-3 py-1.5 bg-blue-500 text-white font-bold text-[10px] rounded-lg hover:bg-blue-600 shadow-sm transition">가입 승인</button>
+                                <button onclick="requestReject('{{ user.userid }}')" class="px-3 py-1.5 bg-red-500 text-white font-bold text-[10px] rounded-lg hover:bg-red-600 shadow-sm transition">거절</button>
+                            </div>
+                        </div>
+                        
                         {% else %}
-                        <button
-                            onclick="requestSoftDelete('{{ user.userid }}')"
-                            class="px-4 py-1.5 border border-red-100 text-red-400 font-bold text-[10px] rounded-lg hover:bg-red-500 hover:text-white transition"
-                        >
-                            강제 탈퇴
-                        </button>
+                        <button onclick="requestSoftDelete('{{ user.userid }}')" class="px-4 py-1.5 border border-red-100 text-red-400 font-bold text-[10px] rounded-lg hover:bg-red-500 hover:text-white transition">강제 탈퇴</button>
                         {% endif %}
                     </td>
                 </tr>
@@ -120,53 +109,50 @@
 </div>
 
 <script>
-    // 탈퇴 취소 (복구) 함수
-
+    // 기존 함수들 (requestRestore, requestSoftDelete) 유지
     function requestRestore(userId) {
         if (confirm(`${userId}님을 정상 회원으로 복구하시겠습니까?`)) {
-            fetch(`/admin/restore_user/${userId}`, {
-                method: 'POST',
-
-                headers: { 'Content-Type': 'application/json' },
-            })
-                .then((res) => res.json())
-
-                .then((data) => {
-                    if (data.result === 'success') {
-                        alert(data.message);
-
-                        location.reload();
-                    } else {
-                        alert('복구 실패: ' + data.message);
-                    }
-                })
-
-                .catch((err) => alert('통신 오류가 발생했습니다.'));
+            fetch(`/admin/restore_user/${userId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result === 'success') { alert(data.message); location.reload(); } 
+                    else { alert('복구 실패: ' + data.message); }
+                }).catch(err => alert('통신 오류가 발생했습니다.'));
         }
     }
 
-    // 계정 탈퇴 함수
-
     function requestSoftDelete(userId) {
         if (confirm(`${userId}님을 탈퇴 처리하시겠습니까?`)) {
-            fetch(`/admin/delete_user/${userId}`, {
-                method: 'POST',
+            fetch(`/admin/delete_user/${userId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result === 'success') { alert(data.message); location.reload(); } 
+                    else { alert('처리 실패: ' + data.message); }
+                }).catch(err => alert('통신 오류가 발생했습니다.'));
+        }
+    }
 
-                headers: { 'Content-Type': 'application/json' },
-            })
-                .then((res) => res.json())
+    // ✨ 신규 가입 승인 함수
+    function requestApprove(userId) {
+        if (confirm(`${userId}님의 가입 서류를 확인했으며, 정상 회원으로 승인하시겠습니까?`)) {
+            fetch(`/admin/approve_user/${userId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result === 'success') { alert('승인 완료되었습니다.'); location.reload(); } 
+                    else { alert('승인 실패: ' + data.message); }
+                }).catch(err => alert('통신 오류가 발생했습니다.'));
+        }
+    }
 
-                .then((data) => {
-                    if (data.result === 'success') {
-                        alert(data.message);
-
-                        location.reload();
-                    } else {
-                        alert('처리 실패: ' + data.message);
-                    }
-                })
-
-                .catch((err) => alert('통신 오류가 발생했습니다.'));
+    // ✨ 신규 가입 거절(삭제) 함수
+    function requestReject(userId) {
+        if (confirm(`${userId}님의 가입을 거절하시겠습니까? (서류 미비 등)\n거절 시 해당 계정은 즉시 삭제됩니다.`)) {
+            fetch(`/admin/reject_user/${userId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result === 'success') { alert('가입이 거절 및 삭제되었습니다.'); location.reload(); } 
+                    else { alert('거절 실패: ' + data.message); }
+                }).catch(err => alert('통신 오류가 발생했습니다.'));
         }
     }
 </script>

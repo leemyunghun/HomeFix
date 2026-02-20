@@ -2,6 +2,7 @@ import os
 import json
 import pandas as pd
 import mysql.connector
+import uuid
 from mysql.connector import Error
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from datetime import datetime, timedelta
@@ -10,6 +11,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import base64
 from io import BytesIO
 
@@ -574,31 +576,124 @@ def login():
         cursor.close(); conn.close()
         
         if user and check_password_hash(user['password'], pw):
-            # 💡 핵심: 탈퇴된 계정인지 확인
+            # 💡 기존 로직: 탈퇴된 계정인지 확인
             if user.get('status') == 'Deleted':
                 return "<script>alert('탈퇴 처리된 계정입니다.'); history.back();</script>"
+            
+            # ✨ 신규 로직: 업체/임대인 가입 승인 대기 상태 확인
+            if user.get('approval_status') == 'pending':
+                return "<script>alert('가입 서류 심사 중입니다. 관리자 승인 후 서비스 이용이 가능합니다.'); history.back();</script>"
                 
             session['user'] = user
             return redirect(url_for('index'))
+            
         return "<script>alert('틀린 정보입니다.'); history.back();</script>"
     return render_template('login.html')
+
+# ✨ 파일이 저장될 폴더 경로 설정 (app.py 상단 라우트들 위에 적어주세요)
+UPLOAD_FOLDER = 'static/uploads/documents'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True) # 폴더가 없으면 자동으로 생성
+
+# ==========================================
+# 관리자: 가입 승인 처리 API
+# ==========================================
+@app.route('/admin/approve_user/<userid>', methods=['POST'])
+def approve_user(userid):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # DB의 approval_status를 'pending'에서 'approved'로 변경합니다.
+        cursor.execute("UPDATE users SET approval_status = 'approved' WHERE userid = %s", (userid,))
+        conn.commit()
+        
+        return jsonify({'result': 'success', 'message': '승인이 완료되었습니다.'})
+    except Exception as e:
+        return jsonify({'result': 'fail', 'message': str(e)})
+    finally:
+        cursor.close()
+        conn.close()
+
+# ==========================================
+# 관리자: 가입 거절(삭제) 처리 API
+# ==========================================
+@app.route('/admin/reject_user/<userid>', methods=['POST'])
+def reject_user(userid):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # 서류 미비 등으로 거절 시 해당 계정을 DB에서 완전히 삭제합니다.
+        cursor.execute("DELETE FROM users WHERE userid = %s", (userid,))
+        conn.commit()
+        
+        return jsonify({'result': 'success', 'message': '가입이 거절 및 삭제되었습니다.'})
+    except Exception as e:
+        return jsonify({'result': 'fail', 'message': str(e)})
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         d = request.form
+        f = request.files # ✨ 폼에서 전송된 파일 데이터 가져오기
+        
         hashed_pw = generate_password_hash(d['password'])
+        role = d.get('role', 'user') # 역할 가져오기 (기본값 'user')
+        
+        # 💡 핵심: 역할에 따른 승인 상태 설정
+        approval_status = 'pending' if role in ['expert', 'landlord'] else 'approved'
+        
+        # 안전하게 파일을 저장하고 경로를 반환하는 내부 함수
+        def save_file(file_obj, userid):
+            if file_obj and file_obj.filename:
+                ext = file_obj.filename.rsplit('.', 1)[-1].lower()
+                # 해킹 방지 및 중복 방지를 위해 고유한 파일명 생성 (예: myid_a1b2c3d4.jpg)
+                filename = f"{userid}_{uuid.uuid4().hex[:8]}.{ext}"
+                filepath = os.path.join(UPLOAD_FOLDER, filename)
+                file_obj.save(filepath)
+                return f"/{filepath}" # DB에 저장될 웹 접근 경로 (/static/...)
+            return None
+
+        # 업로드된 파일들 저장
+        idcard_path = save_file(f.get('idcard_file'), d['userid'])
+        bizreg_path = save_file(f.get('bizreg_file'), d['userid'])
+        estate_path = save_file(f.get('estate_file'), d['userid'])
+
+        # 생년월일 빈 값 처리 (업체/임대인은 폼에서 생년월일이 없으므로 NULL 처리)
+        birthdate = d.get('birthdate')
+        if not birthdate:
+            birthdate = None
+
         conn = get_db_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute('INSERT INTO users (name, userid, password, email, birthdate, phone) VALUES (%s, %s, %s, %s, %s, %s)',
-                           (d['name'], d['userid'], hashed_pw, d['email'], d['birthdate'], d['phone']))
+            # ✨ DB INSERT 쿼리 확장
+            cursor.execute('''
+                INSERT INTO users 
+                (name, userid, password, email, birthdate, phone, role, idcard_file, bizreg_file, estate_file, approval_status) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                d['name'], d['userid'], hashed_pw, d['email'], birthdate, d['phone'], 
+                role, idcard_path, bizreg_path, estate_path, approval_status
+            ))
             conn.commit()
-            return "<script>alert('가입 성공!'); location.href='/login';</script>"
-        except Exception as e: return f"<script>alert('오류 발생: {e}'); history.back();</script>"
-        finally: cursor.close(); conn.close()
+            
+            # 💡 가입 유형에 따라 알림 메시지 다르게 띄우기
+            if approval_status == 'pending':
+                msg = '가입 서류가 접수되었습니다. 관리자 승인 후 로그인 가능합니다.'
+            else:
+                msg = '가입 성공!'
+                
+            return f"<script>alert('{msg}'); location.href='/login';</script>"
+        except Exception as e: 
+            return f"<script>alert(`오류 발생: {e}`); history.back();</script>"
+        finally: 
+            cursor.close(); conn.close()
+            
     return render_template('signup.html')
-
 
 @app.route('/find-id', methods=['GET', 'POST'])
 def find_id():

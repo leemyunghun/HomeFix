@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    .signup-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 420px; margin: 50px auto; }
+    .signup-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 460px; margin: 50px auto; }
     .form-group { margin-bottom: 15px; }
     label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #555; }
-    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    input[type="text"], input[type="password"], input[type="email"], input[type="date"], input[type="tel"], input[type="file"] { 
+        width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; 
+    }
     input:focus { outline: none; border-color: #2d64f3; box-shadow: 0 0 5px rgba(45,100,243,0.2); }
     
     /* 중복확인 버튼 스타일 */
@@ -13,17 +15,45 @@
     .check-btn:hover { background: #555; }
     #id-check-msg { font-size: 11px; margin-top: 5px; display: block; }
 
-    .submit-btn { width: 100%; padding: 15px; background-color: #2d64f3; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 10px; }
+    .submit-btn { width: 100%; padding: 15px; background-color: #2d64f3; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 10px; font-size: 16px;}
     .submit-btn:hover { background-color: #1a4fd4; }
+
+    /* 역할 선택 라디오 버튼 스타일 */
+    .role-selector { display: flex; gap: 10px; margin-bottom: 25px; }
+    .role-label { flex: 1; cursor: pointer; }
+    .role-input { display: none; }
+    .role-box { 
+        border: 2px solid #ddd; border-radius: 10px; padding: 15px 10px; text-align: center; 
+        font-weight: bold; color: #666; transition: all 0.2s; font-size: 13px;
+    }
+    .role-input:checked + .role-box { border-color: #2d64f3; background-color: #eff4ff; color: #2d64f3; }
 </style>
 
 <div class="signup-container fade-in">
     <h2 class="text-center text-2xl font-bold mb-6 text-slate-800">회원가입</h2>
-    <form action="/signup" method="POST" id="signupForm">
-        <div class="form-group">
-            <label>이름</label>
-            <input type="text" name="name" placeholder="실명을 입력하세요" required>
+    
+    <form action="/signup" method="POST" id="signupForm" enctype="multipart/form-data">
+        
+        <div class="role-selector">
+            <label class="role-label">
+                <input type="radio" name="role" value="user" class="role-input" checked onchange="toggleFields()">
+                <div class="role-box">일반 회원</div>
+            </label>
+            <label class="role-label">
+                <input type="radio" name="role" value="expert" class="role-input" onchange="toggleFields()">
+                <div class="role-box">수리 업체</div>
+            </label>
+            <label class="role-label">
+                <input type="radio" name="role" value="landlord" class="role-input" onchange="toggleFields()">
+                <div class="role-box">임대인</div>
+            </label>
         </div>
+
+        <div class="form-group">
+            <label id="name-label">이름</label>
+            <input type="text" name="name" id="name-input" placeholder="실명을 입력하세요" required>
+        </div>
+        
         <div class="form-group">
             <label>아이디</label>
             <div class="id-check-row">
@@ -32,30 +62,52 @@
             </div>
             <span id="id-check-msg"></span>
         </div>
+        
         <div class="form-group">
             <label>비밀번호</label>
             <input type="password" name="password" placeholder="비밀번호를 입력하세요" required>
         </div>
+        
         <div class="form-group">
             <label>이메일</label>
             <input type="email" name="email" placeholder="example@mail.com" required>
         </div>
-        <div class="form-group">
+        
+        <div class="form-group" id="phone-group">
+            <label id="phone-label">휴대폰번호</label>
+            <input type="tel" name="phone" id="phone-input" placeholder="010-0000-0000" required>
+        </div>
+
+        <div class="form-group" id="birthdate-group">
             <label>생년월일</label>
-            <input type="date" name="birthdate" required>
+            <input type="date" name="birthdate" id="birthdate-input" required>
         </div>
-        <div class="form-group">
-            <label>휴대폰번호</label>
-            <input type="tel" name="phone" placeholder="010-0000-0000" required>
+
+        <div class="form-group" id="idcard-group" style="display: none;">
+            <label>신분증 사본</label>
+            <input type="file" name="idcard_file" id="idcard-input" accept="image/*,.pdf">
         </div>
+
+        <div class="form-group" id="bizreg-group" style="display: none;">
+            <label>사업자등록증</label>
+            <input type="file" name="bizreg_file" id="bizreg-input" accept="image/*,.pdf">
+        </div>
+
+        <div class="form-group" id="estate-group" style="display: none;">
+            <label>부동산 등기부등본</label>
+            <input type="file" name="estate_file" id="estate-input" accept="image/*,.pdf">
+        </div>
+
         <button type="submit" class="submit-btn">가입하기</button>
     </form>
+    
     <div class="text-center mt-6 text-sm text-gray-500">
         이미 계정이 있으신가요? <a href="/login" class="text-blue-600 font-bold ml-1">로그인</a>
     </div>
 </div>
 
 <script>
+    // ... 기존 아이디 중복 확인(checkDuplicateId) 및 폼 제출 검증 로직은 그대로 유지 ...
     let isIdChecked = false;
 
     function checkDuplicateId() {
@@ -74,14 +126,13 @@
         })
         .then(res => res.json())
         .then(data => {
-            // ✨ 핵심 수정 부분: data.exists 대신 data.result === 'exists' 로 확인
             if (data.result === 'exists') {
                 msg.innerText = '이미 사용 중인 아이디입니다.';
-                msg.style.color = '#e53e3e'; // 빨간색
+                msg.style.color = '#e53e3e';
                 isIdChecked = false;
             } else {
                 msg.innerText = '사용 가능한 아이디입니다.';
-                msg.style.color = '#38a169'; // 초록색
+                msg.style.color = '#38a169';
                 isIdChecked = true;
             }
         })
@@ -91,13 +142,11 @@
         });
     }
 
-    // 아이디 입력값이 바뀌면 다시 중복확인 하도록 설정
     document.getElementById('userid').addEventListener('input', () => {
         isIdChecked = false;
         document.getElementById('id-check-msg').innerText = '';
     });
 
-    // 폼 제출 시 체크
     document.getElementById('signupForm').onsubmit = function(e) {
         if (!isIdChecked) {
             alert('아이디 중복 확인을 진행해주세요.');
@@ -105,5 +154,65 @@
             return false;
         }
     };
+
+    // ✨ 핵심: 역할에 따라 폼 항목을 보이거나 숨기고 required 속성 변경
+    function toggleFields() {
+        const role = document.querySelector('input[name="role"]:checked').value;
+        
+        // 라벨 엘리먼트
+        const nameLabel = document.getElementById('name-label');
+        const phoneLabel = document.getElementById('phone-label');
+        
+        // 그룹 컨테이너 엘리먼트
+        const birthGroup = document.getElementById('birthdate-group');
+        const idcardGroup = document.getElementById('idcard-group');
+        const bizregGroup = document.getElementById('bizreg-group');
+        const estateGroup = document.getElementById('estate-group');
+
+        // 입력 엘리먼트 (required 속성 제어용)
+        const nameInput = document.getElementById('name-input');
+        const phoneInput = document.getElementById('phone-input');
+        const birthInput = document.getElementById('birthdate-input');
+        const idcardInput = document.getElementById('idcard-input');
+        const bizregInput = document.getElementById('bizreg-input');
+        const estateInput = document.getElementById('estate-input');
+
+        if (role === 'user') {
+            nameLabel.innerText = '이름';
+            nameInput.placeholder = '실명을 입력하세요';
+            phoneLabel.innerText = '휴대폰번호';
+            
+            // 일반 회원: 생년월일 표시, 파일 업로드 숨김
+            birthGroup.style.display = 'block'; birthInput.required = true;
+            idcardGroup.style.display = 'none'; idcardInput.required = false;
+            bizregGroup.style.display = 'none'; bizregInput.required = false;
+            estateGroup.style.display = 'none'; estateInput.required = false;
+
+        } else if (role === 'expert') {
+            nameLabel.innerText = '업체명';
+            nameInput.placeholder = '등록된 업체명을 입력하세요';
+            phoneLabel.innerText = '업체 전화번호';
+            
+            // 전문가: 생년월일/등기 숨김, 신분증/사업자등록증 표시
+            birthGroup.style.display = 'none'; birthInput.required = false;
+            idcardGroup.style.display = 'block'; idcardInput.required = true;
+            bizregGroup.style.display = 'block'; bizregInput.required = true;
+            estateGroup.style.display = 'none'; estateInput.required = false;
+
+        } else if (role === 'landlord') {
+            nameLabel.innerText = '이름 (또는 법인명)';
+            nameInput.placeholder = '건물주 성함 또는 법인명을 입력하세요';
+            phoneLabel.innerText = '휴대폰번호';
+            
+            // 임대인: 생년월일 숨김, 파일 업로드 모두 표시
+            birthGroup.style.display = 'none'; birthInput.required = false;
+            idcardGroup.style.display = 'block'; idcardInput.required = true;
+            bizregGroup.style.display = 'block'; bizregInput.required = true;
+            estateGroup.style.display = 'block'; estateInput.required = true;
+        }
+    }
+
+    // 페이지 로드 시 초기 상태 세팅
+    toggleFields();
 </script>
 {% endblock %}
