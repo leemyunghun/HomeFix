@@ -1,156 +1,221 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <style>
     /* 기본 배경 및 폰트 */
-    .review-page { background-color: #ffffff; min-height: 100vh; font-family: 'Pretendard', sans-serif; color: #334155; }
-    
-    /* 가운데 정렬을 위한 컨테이너 */
-    .centered-container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+    .review-page {
+        background-color: #ffffff;
+        min-height: 100vh;
+        font-family: 'Pretendard', sans-serif;
+        color: #334155;
+    }
 
-    /* 후기 작성 폼 - 둥글고 입체감 있게 */
-    .write-card {
-        background: #f8fafc; border-radius: 30px; padding: 40px;
-        border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        margin-bottom: 60px;
+    /* 가운데 정렬을 위한 컨테이너 */
+    .centered-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
     }
-    .form-input { 
-        border: 1px solid #e2e8f0; border-radius: 15px; padding: 14px 20px; 
-        width: 100%; font-size: 15px; background: white; transition: all 0.3s;
-    }
-    .form-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
-    .btn-submit { 
-        background: #1e293b; color: white; border-radius: 15px; padding: 15px 40px;
-        font-weight: 700; transition: all 0.3s; border: none;
-    }
-    .btn-submit:hover { background: #334155; transform: translateY(-2px); }
 
     /* 후기 리스트 - 집닥 스타일 + 둥근 모서리 */
-    .review-item { 
-        padding: 40px 0; border-bottom: 1px solid #f1f5f9; 
-        display: flex; gap: 30px; align-items: flex-start;
+    .review-item {
+        padding: 40px 0;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
     }
-    .review-content { flex: 1; }
-    .review-title { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin-bottom: 12px; }
-    .review-text { font-size: 1rem; color: #64748b; line-height: 1.7; margin-bottom: 20px; }
-    
+    .review-content {
+        flex: 1;
+    }
+    .review-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 12px;
+    }
+    .review-text {
+        font-size: 1rem;
+        color: #64748b;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
     /* 태그 - 둥글고 연하게 */
-    .info-tag { 
-        background: #f1f5f9; color: #64748b; padding: 6px 16px; 
-        border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-right: 8px;
+    .info-tag {
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-right: 8px;
+        display: inline-block;
+        margin-bottom: 8px;
     }
-    
+
     /* 이미지 - 큼직하고 둥글게 */
-    .review-img-wrapper { 
-        width: 320px; height: 200px; border-radius: 20px; 
-        overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    .review-img-wrapper {
+        width: 320px;
+        height: 200px;
+        border-radius: 20px;
+        overflow: hidden;
+        flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
-    .review-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .review-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
     /* 하단 메타 정보 */
-    .review-meta { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
-    .star-orange { color: #f97316; font-weight: 800; font-size: 1.1rem; }
-    .star-icons { color: #f97316; margin-right: 5px; }
-    .user-name { font-weight: 700; color: #1e293b; }
-    .date-text { color: #94a3b8; }
+    .review-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+        flex-wrap: wrap;
+    }
+    .star-orange {
+        color: #f97316;
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+    .star-icons {
+        color: #f97316;
+        margin-right: 5px;
+    }
+    .user-name {
+        font-weight: 700;
+        color: #1e293b;
+    }
+    .date-text {
+        color: #94a3b8;
+    }
 
-    .more-link { color: #3b82f6; font-weight: 700; cursor: pointer; border: none; background: none; margin-top: 10px; }
+    .more-link {
+        color: #3b82f6;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        background: none;
+        margin-top: 10px;
+        padding: 0;
+    }
+    .more-link:hover {
+        text-decoration: underline;
+    }
 
     /* 모바일 대응 */
     @media (max-width: 768px) {
-        .review-item { flex-direction: column-reverse; }
-        .review-img-wrapper { width: 100%; height: 220px; }
+        .review-item {
+            flex-direction: column-reverse;
+        }
+        .review-img-wrapper {
+            width: 100%;
+            height: 220px;
+        }
     }
 </style>
 
-<div class="review-page">
-    <div class="centered-container pt-5">
-        <div class="text-center mb-5">
-            <h5 class="fw-bold">총 <span style="color:#3b82f6;">{{ reviews|length }}</span>개의 이웃 후기가 있습니다</h5>
+<div class="review-page py-10">
+    <div class="centered-container">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-black text-slate-800 mb-3">이웃들의 리얼 수리 후기</h1>
+            <p class="text-slate-500 font-medium">
+                총 <span class="text-blue-600 font-bold">{{ reviews|length }}</span>개의 소중한 후기가 AI 지식으로
+                활용되고 있습니다.
+            </p>
         </div>
 
-        <section class="write-card shadow-sm">
-            <h4 class="fw-bold mb-4 text-center">✍️ 당신의 수리 경험을 들려주세요</h4>
-            <form action="/add_review" method="post" enctype="multipart/form-data" class="row g-3">
-                <div class="col-md-4"><input type="text" name="contractor_name" class="form-input" placeholder="어떤 업체였나요?" required></div>
-                <div class="col-md-4"><input type="text" name="repair_item" class="form-input" placeholder="수리 부분이 어딘가요?" required></div>
-                <div class="col-md-4"><input type="number" name="cost" class="form-input" placeholder="비용 (원 단위)" required></div>
-                <div class="col-md-6">
-                    <label class="small text-slate-500 mb-1 ml-2">만족도 별점</label>
-                    <select name="rating" class="form-input" required>
-                        <option value="5">⭐⭐⭐⭐⭐ 5.0 (완벽해요! 강력 추천)</option>
-                        <option value="4">⭐⭐⭐⭐ 4.0 (만족스러워요)</option>
-                        <option value="3">⭐⭐⭐ 3.0 (보통이에요)</option>
-                        <option value="2">⭐⭐ 2.0 (조금 아쉬워요)</option>
-                        <option value="1">⭐ 1.0 (비추천합니다)</option>
-                    </select>
-                    
-                </div>
-                <div class="col-md-6"><input type="file" name="image" class="form-input" accept="image/*"></div>
-                <div class="col-12"><textarea name="comment" class="form-input" rows="3" placeholder="기사님은 친절하셨나요? AI가 학습할 수 있게 자세히 적어주세요!"></textarea></div>
-                <div class="col-12 text-center mt-4">
-                    <button type="submit" class="btn-submit">후기 등록하고 AI 학습시키기</button>
-                </div>
-            </form>
-        </section>
-
-        <div class="review-list">
-    {% for review in reviews %}
-    <article class="review-item">
-        <div class="review-content {% if not review.image_path %}w-100{% endif %}">
-            <h3 class="review-title">{{ review.repair_item }}</h3>
-            
-            <div class="comment-area">
-                <p class="review-text mb-0" data-full-text="{{ review.comment }}">
-                    {{ review.comment }}
+        <div
+            class="bg-indigo-50 border border-indigo-100 rounded-3xl p-8 mb-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm"
+        >
+            <div>
+                <h4 class="text-lg font-bold text-indigo-900 mb-1">후기 남기고 포인트 받기! 🪙</h4>
+                <p class="text-sm text-indigo-700">
+                    허위 리뷰 방지를 위해 <span class="font-bold">내 정보 > 진단 히스토리</span>에서만 후기 작성이
+                    가능합니다.
                 </p>
             </div>
-
-            <div class="tags-group my-3">
-                <span class="info-tag">수리업체</span>
-                <span class="info-tag">{{ review.contractor_name }}</span>
-                <span class="info-tag">{{ "{:,}".format(review.cost) }}원</span>
-            </div>
-
-            <div class="review-meta">
-                <span class="star-orange">{{ review.rating }}.0</span>
-                <span class="star-icons">{{ "★" * review.rating }}{{ "☆" * (5 - review.rating) }}</span>
-                <span class="user-name">{{ review.userid[:1] }}** 고객님</span>
-                <span class="date-text">| {{ review.created_at[:10] }}</span>
-            </div>
+            <a
+                href="/myinfo"
+                class="shrink-0 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
+            >
+                내 진단 내역 보러가기 →
+            </a>
         </div>
 
-        {% if review.image_path %}
-        <div class="review-img-wrapper">
-            <img src="{{ url_for('static', filename='uploads/reviews/' + review.image_path) }}" alt="리뷰사진">
+        <div class="review-list">
+            {% if reviews %} {% for review in reviews %}
+            <article class="review-item">
+                <div class="review-content {% if not review.image_path %}w-full{% endif %}">
+                    <h3 class="review-title">{{ review.repair_item }}</h3>
+
+                    <div class="comment-area">
+                        <p class="review-text" data-full-text="{{ review.comment }}">{{ review.comment }}</p>
+                    </div>
+
+                    <div class="tags-group mb-4">
+                        <span class="info-tag"
+                            ><i class="fas fa-tools mr-1 opacity-50"></i> {{ review.contractor_name }}</span
+                        >
+                        <span class="info-tag"
+                            ><i class="fas fa-won-sign mr-1 opacity-50"></i> {{ "{:,}".format(review.cost) }}원</span
+                        >
+                    </div>
+
+                    <div class="review-meta">
+                        <span class="star-orange">{{ review.rating }}.0</span>
+                        <span class="star-icons">
+                            {% for _ in range(review.rating) %}★{% endfor %}{% for _ in range(5 - review.rating) %}☆{%
+                            endfor %}
+                        </span>
+                        <span class="user-name">{{ review.userid[:1] }}** 고객님</span>
+                        <span class="date-text">| {{ review.created_at }}</span>
+                    </div>
+                </div>
+
+                {% if review.image_path %}
+                <div class="review-img-wrapper">
+                    <img
+                        src="{{ url_for('static', filename='uploads/reviews/' + review.image_path) }}"
+                        alt="리뷰사진"
+                    />
+                </div>
+                {% endif %}
+            </article>
+            {% endfor %} {% else %}
+            <div class="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                <span class="text-5xl opacity-50 block mb-4">📭</span>
+                <h3 class="text-xl font-bold text-slate-700 mb-2">아직 등록된 후기가 없습니다.</h3>
+                <p class="text-slate-500">첫 번째 리뷰어가 되어 포인트를 받아보세요!</p>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
-    </article>
-    {% endfor %}
-</div>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const charLimit = 150; 
+    document.addEventListener('DOMContentLoaded', function () {
+        const charLimit = 150;
         const comments = document.querySelectorAll('.review-text');
 
-        comments.forEach(el => {
+        comments.forEach((el) => {
             const originalText = el.getAttribute('data-full-text');
             if (originalText && originalText.length > charLimit) {
-                const truncatedText = originalText.substring(0, charLimit) + "...";
+                const truncatedText = originalText.substring(0, charLimit) + '...';
                 el.innerText = truncatedText;
 
                 const btn = document.createElement('button');
-                btn.innerText = "더보기";
-                btn.className = "more-link";
-                btn.onclick = function() {
-                    if (btn.innerText === "더보기") {
+                btn.innerText = '더보기';
+                btn.className = 'more-link block mt-2 text-sm';
+                btn.onclick = function () {
+                    if (btn.innerText === '더보기') {
                         el.innerText = originalText;
-                        btn.innerText = "접기";
+                        btn.innerText = '접기';
                     } else {
                         el.innerText = truncatedText;
-                        btn.innerText = "더보기";
+                        btn.innerText = '더보기';
                     }
                 };
                 el.parentNode.appendChild(btn);
