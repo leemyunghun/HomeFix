@@ -1,6 +1,6 @@
 {% extends "base.html" %} 
 {% block content %}
-<div class="max-w-4xl mx-auto py-12 px-4 fade-in">
+<div class="max-w-4xl mx-auto py-12 px-4 fade-in relative">
     <div class="mb-10 text-center">
         <h2 class="text-3xl font-bold text-slate-800">👷 우리동네 인증 수리 업체</h2>
         <p class="text-slate-500 mt-2">서울시 공식 인증 업체와 내 주변 전문가를 실시간으로 찾아보세요.</p>
@@ -71,6 +71,22 @@
                         </div>
                     </div>
 
+                    <div class="mt-4 pt-4 border-t border-slate-100 text-right">
+                        {% if user_info %}
+                            <button 
+                                onclick="openReserveModal(this)" 
+                                data-expert="{{ ex['name'] }}" 
+                                data-points="{{ user_info.get('points', 0) }}"
+                                class="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition shadow-md active:scale-95">
+                                할인 예약하기 🪙
+                            </button>
+                        {% else %}
+                            <a href="/login" class="inline-flex items-center gap-2 bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-700 transition shadow-md">
+                                로그인하고 예약하기
+                            </a>
+                        {% endif %}
+                    </div>
+
                     <div class="direct-map-container hidden mt-4 border-t border-slate-100 pt-4">
                         <div class="w-full h-64 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative">
                              <div class="map-area w-full h-full"></div>
@@ -120,12 +136,77 @@
     </div>
 </div>
 
+<div id="reserveModal" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
+        
+        <button onclick="closeReserveModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <h2 class="text-2xl font-black mb-1 text-slate-800">전문가 수리 예약</h2>
+        <p class="text-xs text-slate-500 mb-6">보유하신 포인트를 사용하여 결제 금액을 할인받으세요.</p>
+        
+        <form action="/reserve_expert" method="POST" class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">예약할 업체</label>
+                <input type="text" id="modal_expert_name" name="expert_name" readonly 
+                       class="w-full px-5 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-700 font-bold focus:outline-none text-sm">
+            </div>
+            
+            <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl flex justify-between items-center">
+                <span class="text-sm font-bold text-indigo-900">내 보유 포인트</span>
+                <span class="text-xl font-black text-indigo-600">
+                    <span id="modal_my_points">0</span> <span class="text-sm font-medium">P</span>
+                </span>
+            </div>
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">사용할 포인트 입력</label>
+                <div class="relative">
+                    <input type="number" name="use_points" id="use_points_input" min="0" value="0"
+                           class="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-bold transition">
+                    <button type="button" onclick="useAllPoints()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-slate-700 transition">전액사용</button>
+                </div>
+                <p class="text-[11px] text-red-400 mt-2 ml-1">* 포인트는 1P당 1원으로 환산되어 현장 시공비에서 차감됩니다.</p>
+            </div>
+            
+            <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-indigo-600 transition-colors shadow-lg mt-4 text-lg">
+                포인트 적용하고 예약하기
+            </button>
+        </form>
+    </div>
+</div>
+
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key }}&libraries=services"></script>
 
 <script>
     var map, markers = [], infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
 
-    // 1. 개별 업체 위치보기 (아코디언)
+    // ✨ [추가됨] 예약 팝업 관련 스크립트
+let currentMyPoints = 0;
+
+function openReserveModal(btnElement) {
+    // 버튼에 안전하게 숨겨둔 데이터를 꺼내옵니다.
+    const expertName = btnElement.getAttribute('data-expert');
+    const myPoints = parseInt(btnElement.getAttribute('data-points'), 10);
+
+    document.getElementById('modal_expert_name').value = expertName;
+    document.getElementById('modal_my_points').innerText = myPoints.toLocaleString();
+    document.getElementById('use_points_input').max = myPoints;
+    currentMyPoints = myPoints;
+    
+    document.getElementById('reserveModal').classList.remove('hidden');
+}
+
+    function useAllPoints() {
+        document.getElementById('use_points_input').value = currentMyPoints;
+    }
+
+    function closeReserveModal() {
+        document.getElementById('reserveModal').classList.add('hidden');
+    }
+
+    // 기존 개별 업체 위치보기 (아코디언)
     function showDirectMap(btn) {
         const address = btn.getAttribute('data-location');
         const title = btn.getAttribute('data-name');
@@ -152,7 +233,6 @@
                 });
                 iw.open(dMap, marker);
                 
-                // 지도 깨짐 방지
                 setTimeout(() => dMap.relayout(), 100);
                 setTimeout(() => dMap.setCenter(coords), 150);
             } else {
@@ -162,7 +242,7 @@
         });
     }
 
-    // 2. 초기화 함수
+    // 초기화 함수
     function clearNearby() {
         document.getElementById('nearbyStatus').innerText = '';
         document.getElementById('nearbyResult').innerHTML = '';
@@ -170,7 +250,7 @@
         markers = [];
     }
 
-    // 3. 실시간 주변 전문가 찾기 (대여소 로직과 동일 디자인)
+    // 실시간 주변 전문가 찾기
     function findExperts() {
         const section = document.getElementById('nearbySection');
         const statusEl = document.getElementById('nearbyStatus');
@@ -193,7 +273,6 @@
             
             map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(lat, lon), level: 4 });
             
-            // 내 위치 마커
             var myMarker = new kakao.maps.Marker({ 
                 position: new kakao.maps.LatLng(lat, lon), 
                 map: map 
@@ -227,7 +306,7 @@
         });
     }
 
-    // 4. 결과 렌더링 (연블루 카드 디자인 적용)
+    // 결과 렌더링
     function renderNearbyResults(data, lat, lon) {
         var statusEl = document.getElementById('nearbyStatus');
         var resultEl = document.getElementById('nearbyResult');
@@ -267,7 +346,6 @@
 
             var distKm = (place.distance / 1000).toFixed(1);
 
-            // ✨ 연블루 톤 디자인 적용
             html += `
             <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex justify-between items-center shadow-sm">
                 <div class="flex-1 pr-2">

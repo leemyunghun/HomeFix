@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-2xl mx-auto py-12 px-4 space-y-8">
+<div class="max-w-2xl mx-auto py-12 px-4 space-y-8 relative">
     
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-[2.5rem] shadow-xl flex justify-between items-center text-white transform hover:-translate-y-1 transition-transform duration-300">
+        <div>
+            <p class="text-blue-100 font-bold mb-1 text-sm opacity-90">사용 가능한 홈픽스 포인트</p>
+            <h3 class="text-4xl font-black tracking-tight drop-shadow-md">
+                {{ "{:,}".format(user_info.get('points', 0)) }} <span class="text-xl font-medium opacity-80">P</span>
+            </h3>
+        </div>
+        <div class="text-6xl drop-shadow-xl animate-bounce-slow">🪙</div>
+    </div>
+
     <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
         <h2 class="text-xl font-bold mb-6 text-slate-800">내 계정 정보</h2>
         <div class="space-y-4 text-sm">
@@ -26,12 +36,36 @@
                         <div class="font-bold text-slate-700">{{ item.problem_name }}</div>
                         <div class="text-xs text-slate-400 mt-1">{{ item.created_at }}</div>
                     </div>
+                    
                     <div class="flex gap-2">
+                        {% if item.problem_name == '진단 불가' %}
+                            <button disabled class="bg-slate-100 text-slate-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border border-slate-200" title="진단에 실패한 내역은 후기를 작성할 수 없습니다.">
+                                작성 불가 🚫
+                            </button>
+                            
+                        {% elif item.problem_name in reviews_dict %}
+                            {% set rev = reviews_dict[item.problem_name] %}
+                            <button 
+                                data-problem="{{ rev.repair_item }}"
+                                data-contractor="{{ rev.contractor_name }}"
+                                data-cost="{{ rev.cost }}"
+                                data-rating="{{ rev.rating }}"
+                                data-comment="{{ rev.comment }}"
+                                onclick="openEditModal(this)" 
+                                class="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition border border-slate-200 shadow-sm">
+                                후기 수정 ✏️
+                            </button>
+                            
+                        {% else %}
+                            <button 
+                                onclick="openReviewModal('{{ item.problem_name }}')" 
+                                class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-600 hover:text-white transition shadow-sm">
+                                후기 쓰기 🪙
+                            </button>
+                        {% endif %}
+                        
                         <a href="/history/{{ item.id }}" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">상세보기</a>
-                        <button 
-                            data-id="{{ item.id }}" 
-                            onclick="deleteHistory(this)" 
-                            class="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">삭제</button>
+                        <button data-id="{{ item.id }}" onclick="deleteHistory(this)" class="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">삭제</button>
                     </div>
                 </div>
                 {% endfor %}
@@ -43,55 +77,37 @@
         {% endif %}
     </div>
 
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 mt-8">
-    <h2 class="text-xl font-bold mb-2 text-slate-800">🔒 비밀번호 변경</h2>
-    <p class="text-xs text-slate-400 mb-6 font-medium">현재 비밀번호를 입력하여 본인 인증을 완료해 주세요.</p>
-    
-    <form action="/change_password" method="POST" class="space-y-5">
-        <div>
-            <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">현재 비밀번호</label>
-            <input 
-                type="password" 
-                name="current_password" 
-                required
-                placeholder="현재 사용 중인 비밀번호"
-                class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-            >
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-xl font-bold mb-2 text-slate-800">🔒 비밀번호 변경</h2>
+        <p class="text-xs text-slate-400 mb-6 font-medium">현재 비밀번호를 입력하여 본인 인증을 완료해 주세요.</p>
+        
+        <form action="/change_password" method="POST" class="space-y-5">
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호</label>
-                <input 
-                    type="password" 
-                    name="new_password" 
-                    required
-                    placeholder="변경할 비밀번호"
-                    class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                >
+                <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">현재 비밀번호</label>
+                <input type="password" name="current_password" required placeholder="현재 사용 중인 비밀번호"
+                    class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
             </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호 확인</label>
-                <input 
-                    type="password" 
-                    name="confirm_password" 
-                    required
-                    placeholder="비밀번호 확인"
-                    class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                >
-            </div>
-        </div>
 
-        <div class="pt-2 text-right">
-            <button 
-                type="submit" 
-                class="bg-slate-900 text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-700 transition-all shadow-md active:scale-95"
-            >
-                본인 인증 및 변경하기
-            </button>
-        </div>
-    </form>
-</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호</label>
+                    <input type="password" name="new_password" required placeholder="변경할 비밀번호"
+                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호 확인</label>
+                    <input type="password" name="confirm_password" required placeholder="비밀번호 확인"
+                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                </div>
+            </div>
+
+            <div class="pt-2 text-right">
+                <button type="submit" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-700 transition-all shadow-md active:scale-95">
+                    본인 인증 및 변경하기
+                </button>
+            </div>
+        </form>
+    </div>
 
     <div class="flex flex-col items-center gap-4 pt-4 border-t border-slate-100">
         <button onclick="location.href='/'" class="text-slate-400 text-sm hover:text-blue-600 transition underline">홈으로 돌아가기</button>
@@ -99,23 +115,73 @@
     </div>
 </div>
 
+<div id="reviewModal" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
+        
+        <button onclick="closeReviewModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <h2 id="modalTitle" class="text-2xl font-black mb-1 text-slate-800">수리 후기 작성</h2>
+        <p id="modalDesc" class="text-xs text-slate-500 mb-6">작성해주신 소중한 후기는 AI의 지식이 됩니다.</p>
+        
+        <form id="reviewForm" action="/add_review" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 항목 (자동입력)</label>
+                <input type="text" id="modal_repair_item" name="repair_item" readonly 
+                       class="w-full px-5 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-500 text-sm focus:outline-none font-bold">
+            </div>
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">시공 업체명</label>
+                <input type="text" id="contractor_name" name="contractor_name" required placeholder="예: 우리동네설비, 직접수리 등" 
+                       class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 비용 (원)</label>
+                    <input type="number" id="cost" name="cost" required placeholder="예: 50000" 
+                           class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">만족도 (1~5점)</label>
+                    <input type="number" id="rating" name="rating" min="1" max="5" required placeholder="5" 
+                           class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">상세 후기</label>
+                <textarea id="comment" name="comment" required rows="3" placeholder="어떤 점이 좋았나요? 수리 과정은 어땠나요?" 
+                          class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm resize-none transition"></textarea>
+            </div>
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 완료 사진 (선택)</label>
+                <input type="file" name="image" accept="image/*" 
+                       class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer">
+            </div>
+            
+            <button id="submitBtn" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-blue-600 transition-colors shadow-lg mt-2 flex justify-center items-center gap-2">
+                후기 등록하고 1,000P 받기 <span class="text-xl">🪙</span>
+            </button>
+        </form>
+    </div>
+</div>
+
 <script>
 async function deleteHistory(btn) {
-    const historyId = btn.getAttribute('data-id'); // HTML에서 ID 추출
+    const historyId = btn.getAttribute('data-id');
     if(!confirm("이 기록을 삭제하시겠습니까?")) return;
     
     try {
         const res = await fetch(`/delete_history/${historyId}`, { method: 'POST' });
         if(res.ok) {
             const el = document.getElementById(`history-${historyId}`);
-            // 부드러운 삭제 애니메이션
             el.style.transform = 'translateX(20px)';
             el.style.opacity = '0';
-            setTimeout(() => {
-                el.remove();
-                // 모든 항목이 삭제되었을 때 '내역 없음' 메시지를 보여주려면 새로고침이 필요할 수 있음
-                // 혹은 JS로 DOM 조작 추가 가능
-            }, 300);
+            setTimeout(() => { el.remove(); }, 300);
         } else {
             alert("삭제에 실패했습니다.");
         }
@@ -132,6 +198,41 @@ async function confirmDeleteAccount() {
             alert("탈퇴 처리에 실패했습니다.");
         }
     }
+}
+
+function openReviewModal(problemName) {
+    document.getElementById('reviewForm').action = "/add_review";
+    document.getElementById('modalTitle').innerText = "수리 후기 작성";
+    document.getElementById('modalDesc').innerText = "작성해주신 소중한 후기는 AI의 지식이 됩니다.";
+    document.getElementById('submitBtn').innerHTML = '후기 등록하고 1,000P 받기 <span class="text-xl">🪙</span>';
+    
+    document.getElementById('modal_repair_item').value = problemName;
+    
+    document.getElementById('contractor_name').value = '';
+    document.getElementById('cost').value = '';
+    document.getElementById('rating').value = '';
+    document.getElementById('comment').value = '';
+    
+    document.getElementById('reviewModal').classList.remove('hidden');
+}
+
+function openEditModal(btn) {
+    document.getElementById('reviewForm').action = "/edit_review";
+    document.getElementById('modalTitle').innerText = "수리 후기 수정";
+    document.getElementById('modalDesc').innerText = "수정된 정보로 다시 업데이트합니다.";
+    document.getElementById('submitBtn').innerHTML = '후기 수정 완료하기 <span class="text-xl">✅</span>';
+
+    document.getElementById('modal_repair_item').value = btn.getAttribute('data-problem');
+    document.getElementById('contractor_name').value = btn.getAttribute('data-contractor');
+    document.getElementById('cost').value = btn.getAttribute('data-cost');
+    document.getElementById('rating').value = btn.getAttribute('data-rating');
+    document.getElementById('comment').value = btn.getAttribute('data-comment');
+
+    document.getElementById('reviewModal').classList.remove('hidden');
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.add('hidden');
 }
 </script>
 {% endblock %}

@@ -4,10 +4,11 @@ import pandas as pd
 import mysql.connector
 from mysql.connector import Error
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from datetime import datetime
+from datetime import datetime, timedelta
 from openai import OpenAI
 from supabase import create_client
 from dotenv import load_dotenv
+from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import base64
 from io import BytesIO
@@ -128,11 +129,26 @@ def init_db():
             id INT AUTO_INCREMENT PRIMARY KEY, userid VARCHAR(255), contractor_name VARCHAR(255), 
             repair_item VARCHAR(255), cost INT, rating INT, comment TEXT, 
             image_path TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS reservations (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                userid VARCHAR(50),
+                expert_name VARCHAR(100),
+                used_points INT DEFAULT 0,
+                status VARCHAR(20) DEFAULT '예약대기',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
         
         try:
             cursor.execute("ALTER TABLE history ADD COLUMN risk_level INT DEFAULT 1")
             cursor.execute("ALTER TABLE history ADD COLUMN warning TEXT")
         except: pass
+
+        try:
+            cursor.execute("ALTER TABLE users ADD COLUMN points INT DEFAULT 0")
+        except: 
+            pass
 
         conn.commit()
 
@@ -206,6 +222,20 @@ def index():
     stats = {"avg_price": f"{int(avg_price):,}", "total_knowledge": total_knowledge}
     return render_template('index.html', stats=stats, recent_fixes=recent_fixes)
 
+@app.before_request
+def update_last_seen():
+    """로그인한 사용자가 페이지를 이동할 때마다 마지막 활동 시간을 기록합니다."""
+    if 'user' in session:
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            # 현재 시간을 DB에 기록
+            cursor.execute("UPDATE users SET last_seen = NOW() WHERE userid = %s", (session['user']['userid'],))
+            conn.commit()
+            cursor.close(); conn.close()
+        except Exception as e:
+            print(f"활동 시간 기록 오류: {e}")
+
 @app.route('/review')
 def review_page():
     conn = get_db_connection()
@@ -244,17 +274,34 @@ def add_review():
     
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # 1. 리뷰 데이터 저장
     cursor.execute('''INSERT INTO reviews (userid, contractor_name, repair_item, cost, rating, comment, image_path)
                       VALUES (%s, %s, %s, %s, %s, %s, %s)''', 
                    (session['user']['userid'], contractor, item, cost, rating, comment, filename))
+    
+    # ✨ 2. 리뷰 작성 보상 포인트 지급 (1,000 포인트)
+    reward_points = 1000
+    cursor.execute('UPDATE users SET points = points + %s WHERE userid = %s', (reward_points, session['user']['userid']))
+    
     conn.commit()
+    cursor.close()
     conn.close()
     
+    # ✨ 3. 화면에 바로 반영되도록 현재 로그인 세션 정보 업데이트
+    if 'points' in session['user']:
+        session['user']['points'] += reward_points
+    else:
+        session['user']['points'] = reward_points
+    session.modified = True
+    
+    # 4. AI 학습 진행
     try:
         sync_review_to_ai({'contractor': contractor, 'item': item, 'cost': cost, 'rating': rating, 'comment': comment})
     except Exception as e: print(f"⚠️ AI 학습 실패: {e}")
     
-    return redirect(url_for('review_page'))
+    # ✨ 5. 단순 redirect 대신, 포인트 지급 완료 알림창을 띄우고 리뷰 페이지로 이동
+    return f"<script>alert('소중한 후기가 등록되어 {reward_points} 포인트가 지급되었습니다!'); location.href='/review';</script>"
 
 @app.route('/rental')
 def rental_page():
@@ -301,6 +348,35 @@ def expert_matching():
     finally:
         cursor.close(); conn.close()
     return render_template('expert.html', experts=experts, query=query, kakao_js_key=KAKAO_JS_KEY)
+
+@app.route('/reserve_expert', methods=['POST'])
+def reserve_expert():
+    if 'user' not in session: return "<script>alert('로그인이 필요합니다.'); location.href='/login';</script>"
+    
+    expert_name = request.form.get('expert_name') # 어떤 업체인지 받아오기
+    raw_points = request.form.get('use_points', '0')
+    use_points = int(raw_points) if raw_points.isdigit() else 0
+    current_points = session['user'].get('points', 0)
+    
+    if use_points > current_points:
+        return "<script>alert('보유 포인트가 부족합니다.'); history.back();</script>"
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # ✨ 1. 예약 내역을 DB에 드디어 저장합니다!
+    cursor.execute("INSERT INTO reservations (userid, expert_name, used_points) VALUES (%s, %s, %s)", 
+                   (session['user']['userid'], expert_name, use_points))
+    
+    # 2. 포인트 차감
+    cursor.execute("UPDATE users SET points = points - %s WHERE userid = %s", (use_points, session['user']['userid']))
+    conn.commit()
+    cursor.close(); conn.close()
+    
+    session['user']['points'] -= use_points
+    session.modified = True
+    
+    return "<script>alert('포인트를 사용하여 할인이 적용된 예약이 접수되었습니다!'); location.href='/myinfo';</script>"
 
 # --- 공지사항 ---
 @app.route('/notice')
@@ -408,15 +484,19 @@ def diagnose():
 
         ai_query = user_input if user_input else "사진 속의 집수리 문제를 분석하고 해결책을 제시해줘."
         
-        # ✨ 수정된 부분: AI에게 집수리 외 질문 차단 규칙을 강력하게 부여
-        text_content = f"""당신은 '홈픽스'의 집수리 전문 AI입니다. 
+        # ✨ 수정된 부분: AI 프롬프트를 전문적이고 체계적으로 고도화
+        text_content = f"""당신은 20년 경력의 베테랑 집수리 및 설비 전문 AI '홈픽스'입니다.
+사용자의 질문이나 사진을 분석하여 원인과 해결책을 정확한 JSON 형태로 진단해 주세요.
 
-[🚨 절대 규칙 🚨]
-사용자의 질문이나 사진이 집수리, 인테리어, 가구 조립, 설비, 공구 사용 등과 전혀 관련 없는 일상 대화, IT, 프로그래밍, 타 분야의 질문이라면 절대 진단하지 말고 무조건 아래 JSON 형태로 거절 메시지를 보내세요.
+[🛠️ 진단 영역 및 예외 처리 가이드]
+1. 허용 (집수리 영역)
+   - 배관/설비(변기 막힘, 싱크대 막힘, 누수 등), 인테리어, 가구 조립, 공구 사용법, 전기/조명 등 주거 공간의 유지보수와 관련된 모든 문제.
+   - 🚨 핵심 규칙: "화장실 변기가 막혔어요", "물이 안 내려가요", "물이 새요"와 같이 짧은 일상적인 증상 호소라도 완벽한 '집수리 영역'입니다. 절대 진단을 거절하지 말고, 가장 흔한 원인과 해결책(예: 뚫어뻥/관통기 사용법 등)을 추론하여 진단하세요.
 
-{{"problem_name": "진단 불가", "risk_level": 1, "estimated_cost": "-", "warning": "저는 집수리 전문 AI입니다. 집수리 관련 질문만 답변이 가능합니다.", "steps": ["입력하신 내용은 집수리와 관련이 없습니다.", "집수리에 관련된 문제나 사진을 다시 입력해 주세요."], "tools": [], "sources": ""}}
-
-사용자 입력이 집수리와 관련된 내용일 경우에만 아래 지식을 바탕으로 정상적인 진단을 내리세요.
+2. 차단 (비관련 영역)
+   - 프로그래밍, IT 기술, 단순 인사말(안녕), 정치, 경제, 요리 등 집수리와 완전히 무관한 주제.
+   - 차단 대상일 경우 무조건 아래 JSON 형태로만 응답하세요:
+   {{"problem_name": "진단 불가", "risk_level": 1, "estimated_cost": "-", "warning": "저는 집수리 전문 AI입니다. 주거 공간의 고장, 수리, 인테리어와 관련된 질문만 답변이 가능합니다.", "steps": ["입력하신 내용은 집수리와 관련이 없습니다.", "수리가 필요한 문제나 사진을 다시 입력해 주세요."], "tools": [], "sources": ""}}
 
 [학습 지식]
 {context}
@@ -424,8 +504,10 @@ def diagnose():
 [사용자 입력]
 {ai_query}
 
+위 가이드를 엄격히 준수하여, 사용자 입력이 '허용' 영역일 경우 아래의 [정상 답변 형식 JSON]에 맞춰 구체적이고 전문적인 답변을 생성하세요.
+
 [정상 답변 형식 JSON]
-{{"problem_name": "제목", "risk_level": 1, "estimated_cost": "비용", "warning": "주의사항", "steps": ["단계"], "tools": ["도구"], "sources": "{', '.join(sources)}"}}"""
+{{"problem_name": "문제 제목 (예: 화장실 변기 막힘)", "risk_level": 1, "estimated_cost": "예상 비용 (예: 셀프 0원 / 전문가 5~10만원)", "warning": "작업 시 주의사항 (예: 무리한 힘을 가하면 배관이 파손될 수 있습니다.)", "steps": ["해결을 위한 상세 단계 1", "단계 2", "단계 3"], "tools": ["필요한 도구명 1", "도구명 2"], "sources": "{', '.join(sources)}"}}"""
 
         messages_content = [{"type": "text", "text": text_content}]
         if has_image:
@@ -437,14 +519,15 @@ def diagnose():
         result['risk_level'] = result.get('risk_level', 1)
         result['warning'] = result.get('warning', '주의사항 없음')
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            'INSERT INTO history (userid, problem_name, steps, tools, estimated_cost, risk_level, warning) VALUES (%s, %s, %s, %s, %s, %s, %s)',
-            (session['user']['userid'], result.get('problem_name', '사진 진단'), json.dumps(result.get('steps', []), ensure_ascii=False), json.dumps(result.get('tools', []), ensure_ascii=False), result.get('estimated_cost', '비용 정보 없음'), result['risk_level'], result['warning'])
-        )
-        conn.commit()
-        cursor.close(); conn.close()
+        if result.get('problem_name') != '진단 불가':
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute(
+                'INSERT INTO history (userid, problem_name, steps, tools, estimated_cost, risk_level, warning) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                (session['user']['userid'], result.get('problem_name', '사진 진단'), json.dumps(result.get('steps', []), ensure_ascii=False), json.dumps(result.get('tools', []), ensure_ascii=False), result.get('estimated_cost', '비용 정보 없음'), result['risk_level'], result['warning'])
+            )
+            conn.commit()
+            cursor.close(); conn.close()
         session['last_result'] = result
         return jsonify(result)
     except Exception as e:
@@ -586,13 +669,71 @@ def result_page():
 
 @app.route('/myinfo')
 def myinfo():
-    if 'user' not in session: return redirect('/login')
+    if 'user' not in session: 
+        return redirect('/login')
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+    
+    # ✨ 1. DB에서 현재 유저의 최신 정보를 다시 가져옵니다 (포인트 동기화 핵심!)
+    cursor.execute("SELECT * FROM users WHERE userid = %s", (session['user']['userid'],))
+    fresh_user_info = cursor.fetchone()
+    
+    # ✨ 2. 세션에 저장된 유저 정보도 최신 정보로 업데이트해 줍니다.
+    session['user'] = fresh_user_info
+    session.modified = True
+    
+    # 3. 내 진단 히스토리 가져오기
     cursor.execute('SELECT * FROM history WHERE userid = %s ORDER BY created_at DESC', (session['user']['userid'],))
     history = cursor.fetchall()
+    
+    # 4. 내가 쓴 후기 목록 가져오기 (수정 버튼용)
+    cursor.execute('SELECT * FROM reviews WHERE userid = %s', (session['user']['userid'],))
+    my_reviews = cursor.fetchall()
+    reviews_dict = {r['repair_item']: r for r in my_reviews}
+    
     cursor.close(); conn.close()
-    return render_template('myinfo.html', history=history)
+    
+    # 렌더링할 때 fresh_user_info를 전달합니다.
+    return render_template('myinfo.html', user_info=fresh_user_info, history=history, reviews_dict=reviews_dict)
+
+@app.route('/edit_review', methods=['POST'])
+def edit_review():
+    if 'user' not in session: return "<script>alert('로그인이 필요합니다.'); history.back();</script>"
+    
+    item = request.form.get('repair_item')
+    contractor = request.form.get('contractor_name')
+    cost = request.form.get('cost')
+    rating = request.form.get('rating')
+    comment = request.form.get('comment')
+    image_file = request.files.get('image')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 이미지가 새로 올라온 경우와 아닌 경우를 나눠서 업데이트
+    if image_file and image_file.filename != '':
+        from werkzeug.utils import secure_filename
+        filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image_file.filename}")
+        upload_path = os.path.join('static', 'uploads', 'reviews')
+        if not os.path.exists(upload_path): os.makedirs(upload_path)
+        image_file.save(os.path.join(upload_path, filename))
+        
+        cursor.execute('''UPDATE reviews 
+                          SET contractor_name=%s, cost=%s, rating=%s, comment=%s, image_path=%s 
+                          WHERE userid=%s AND repair_item=%s''',
+                       (contractor, cost, rating, comment, filename, session['user']['userid'], item))
+    else:
+        cursor.execute('''UPDATE reviews 
+                          SET contractor_name=%s, cost=%s, rating=%s, comment=%s 
+                          WHERE userid=%s AND repair_item=%s''',
+                       (contractor, cost, rating, comment, session['user']['userid'], item))
+                       
+    conn.commit()
+    cursor.close(); conn.close()
+    
+    # 수정 시에는 포인트를 또 주면 안 되므로 포인트 지급 로직 생략!
+    return "<script>alert('후기가 성공적으로 수정되었습니다!'); location.href='/review';</script>"
 
 @app.route('/delete_history/<int:history_id>', methods=['POST'])
 def delete_history(history_id):
@@ -683,19 +824,56 @@ def admin_dashboard_view():
         return render_template('admin_dashboard.html', total_users=total_users, total_diagnoses=total_diagnoses, pending_support=pending_experts, labels=labels, counts=counts)
     except Exception as e:
         return f"대시보드 로드 실패: {e}"
-
+    
 @app.route('/admin/users')
 def admin_user_management():
     if session.get('user', {}).get('role') != 'admin': return redirect('/')
     try:
         conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, name, userid, email, phone, status, deleted_at FROM users ORDER BY id DESC")
+        cursor = conn.cursor(dictionary=True)
+        
+        # ✨ 9시간 차이(UTC)를 보정하고, 상태를 판별하는 쿼리
+        # 1. DATE_ADD(last_seen, INTERVAL 9 HOUR) : DB 시간을 한국 시간으로 변환해서 보여줌
+        # 2. 5분(300초) 이상 차이 나면 '비활성화'
+        query = """
+            SELECT *, 
+            DATE_ADD(last_seen, INTERVAL 9 HOUR) AS last_seen_kst,
+            CASE 
+                WHEN last_seen >= NOW() - INTERVAL 5 MINUTE THEN '온라인'
+                ELSE '오프라인'
+            END AS is_online 
+            FROM users 
+            ORDER BY id DESC
+        """
+        cursor.execute(query)
         users_list = cursor.fetchall()
+        
         cursor.close(); conn.close()
         return render_template('admin_users.html', users=users_list)
     except Exception as e:
         return f"회원관리 로드 실패: {e}"
+
+# ✨ [새로 추가] 관리자가 포인트를 수정했을 때 처리하는 라우트
+@app.route('/admin/update_points', methods=['POST'])
+def admin_update_points():
+    if session.get('user', {}).get('role') != 'admin': 
+        return "<script>alert('권한이 없습니다.'); history.back();</script>"
+    
+    try:
+        target_userid = request.form.get('userid')
+        new_points = int(request.form.get('points', 0))
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("UPDATE users SET points = %s WHERE userid = %s", (new_points, target_userid))
+        conn.commit()
+        
+        cursor.close(); conn.close()
+        
+        return "<script>alert('회원 포인트가 성공적으로 변경되었습니다!'); history.back();</script>"
+    except Exception as e: 
+        return f"<script>alert('포인트 변경 실패: {e}'); history.back();</script>"
 
 @app.route('/admin/restore_user/<string:user_id>', methods=['POST'])
 def admin_restore_user(user_id):
@@ -776,6 +954,64 @@ def admin_support_answer(post_id):
     finally:
         cursor.close(); conn.close()
     return "<script>alert('답변이 등록되었습니다.'); location.href='/admin/support';</script>"
+
+@app.route('/admin/reservations')
+def admin_reservations():
+    if session.get('user', {}).get('role') != 'admin': return redirect('/')
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        # 최신 예약이 위로 오도록 정렬
+        cursor.execute("SELECT * FROM reservations ORDER BY created_at DESC")
+        res_list = cursor.fetchall()
+        cursor.close(); conn.close()
+        
+        return render_template('admin_reservations.html', reservations=res_list)
+    except Exception as e:
+        return f"예약 관리 로드 실패: {e}"
+    
+@app.route('/admin/update_reservation', methods=['POST'])
+def admin_update_reservation():
+    if session.get('user', {}).get('role') != 'admin': 
+        return jsonify({"result": "fail", "message": "권한이 없습니다."})
+    
+    data = request.get_json()
+    res_id = data.get('id')
+    new_status = data.get('status')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # 1. 기존 예약 정보를 가져옵니다.
+        cursor.execute("SELECT userid, used_points, status FROM reservations WHERE id = %s", (res_id,))
+        res_info = cursor.fetchone()
+        
+        if not res_info:
+            return jsonify({"result": "fail", "message": "예약 정보를 찾을 수 없습니다."})
+            
+        # 2. 상태 업데이트
+        cursor.execute("UPDATE reservations SET status = %s WHERE id = %s", (new_status, res_id))
+        
+        # ✨ 3. [핵심] 예약취소로 바꿀 경우 포인트 환불 처리!
+        # 기존 상태가 '예약취소'가 아닐 때만 환불 진행 (중복 환불 방지)
+        if new_status == '예약취소' and res_info['status'] != '예약취소':
+            
+            # 💡 IFNULL(points, 0)을 사용해서, NULL값 에러를 원천 차단합니다!
+            cursor.execute("UPDATE users SET points = IFNULL(points, 0) + %s WHERE userid = %s", 
+                           (res_info['used_points'], res_info['userid']))
+            
+            # 만약 자기 자신의 예약을 취소하는 테스트 중이라면, 내 세션도 즉시 업데이트!
+            if session['user']['userid'] == res_info['userid']:
+                session['user']['points'] = session['user'].get('points', 0) + res_info['used_points']
+                session.modified = True
+                           
+        conn.commit()
+        cursor.close(); conn.close()
+        
+        return jsonify({"result": "success", "message": f"상태가 '{new_status}'(으)로 변경되었으며, 포인트가 환불되었습니다."})
+    except Exception as e:
+        return jsonify({"result": "fail", "message": str(e)})
 
 if __name__ == '__main__':
     # 메인 포트인 5000에서 통합 실행됩니다.
