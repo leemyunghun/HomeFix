@@ -27,6 +27,36 @@
     </div>
 
     <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-xl font-bold mb-6 text-slate-800">💰 포인트 이용 내역</h2>
+        
+        {% if point_logs %}
+        <div class="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+            {% for log in point_logs %}
+            <div class="flex items-center justify-between p-4 rounded-2xl {% if log.amount > 0 %}bg-blue-50/50 border border-blue-100/50{% else %}bg-red-50/50 border border-red-100/50{% endif %}">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-lg {% if log.amount > 0 %}bg-blue-100 text-blue-600{% else %}bg-red-100 text-red-600{% endif %}">
+                        {% if log.amount > 0 %}+{% else %}-{% endif %}
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-700 text-sm">{{ log.description }}</p>
+                        <p class="text-[11px] font-medium text-slate-400 mt-0.5">{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '최근' }}</p>
+                    </div>
+                </div>
+                <div class="text-lg font-black shrink-0 {% if log.amount > 0 %}text-blue-600{% else %}text-red-600{% endif %}">
+                    {% if log.amount > 0 %}+{% endif %}{{ "{:,}".format(log.amount) }} P
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <p class="text-sm font-bold">아직 포인트 이용 내역이 없습니다.</p>
+            <p class="text-xs mt-2">수리 후기를 작성하고 포인트를 모아보세요!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
         <h2 class="text-xl font-bold mb-6 text-slate-800">최근 진단 히스토리</h2>
         {% if history %}
             <div class="space-y-4">
@@ -117,11 +147,9 @@
 
 <div id="reviewModal" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
     <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
-        
         <button onclick="closeReviewModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
-        
         <h2 id="modalTitle" class="text-2xl font-black mb-1 text-slate-800">수리 후기 작성</h2>
         <p id="modalDesc" class="text-xs text-slate-500 mb-6">작성해주신 소중한 후기는 AI의 지식이 됩니다.</p>
         
@@ -131,13 +159,11 @@
                 <input type="text" id="modal_repair_item" name="repair_item" readonly 
                        class="w-full px-5 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-500 text-sm focus:outline-none font-bold">
             </div>
-            
             <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">시공 업체명</label>
                 <input type="text" id="contractor_name" name="contractor_name" required placeholder="예: 우리동네설비, 직접수리 등" 
                        class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
             </div>
-            
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 비용 (원)</label>
@@ -150,19 +176,16 @@
                            class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
                 </div>
             </div>
-            
             <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">상세 후기</label>
                 <textarea id="comment" name="comment" required rows="3" placeholder="어떤 점이 좋았나요? 수리 과정은 어땠나요?" 
                           class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm resize-none transition"></textarea>
             </div>
-            
             <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 완료 사진 (선택)</label>
                 <input type="file" name="image" accept="image/*" 
                        class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer">
             </div>
-            
             <button id="submitBtn" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-blue-600 transition-colors shadow-lg mt-2 flex justify-center items-center gap-2">
                 후기 등록하고 1,000P 받기 <span class="text-xl">🪙</span>
             </button>
@@ -235,4 +258,12 @@ function closeReviewModal() {
     document.getElementById('reviewModal').classList.add('hidden');
 }
 </script>
+
+<style>
+/* 스크롤바 커스텀 (Tailwind와 충돌을 피하기 위한 CSS) */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 8px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends "admin_base.html" %} {% block content %}
 <div class="max-w-6xl mx-auto">
-    <div class="flex justify-between items-end mb-8">
+    <div class="flex justify-between items-end mb-6">
         <div>
             <h2 class="text-3xl font-bold text-slate-800">👥 회원 관리 시스템</h2>
             <p class="text-slate-500 mt-2 text-sm">
@@ -9,6 +9,21 @@
         </div>
         <p class="text-2xl font-black text-blue-600">{{ users|length }}명</p>
     </div>
+
+    <div class="mb-6 flex justify-end">
+    <form action="/admin/users" method="GET" class="flex gap-2 w-full md:w-96 shadow-sm">
+        <input type="text" name="search" value="{{ search_keyword }}" placeholder="회원 이름 검색..." 
+               class="px-4 py-2 border border-slate-200 rounded-lg flex-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        
+        <button type="submit" class="bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-slate-700 transition active:scale-95">
+            검색
+        </button>
+        
+        <a href="/admin/users" class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-200 transition flex items-center justify-center active:scale-95">
+            초기화
+        </a>
+    </form>
+</div>
 
     <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden text-sm">
         <table class="w-full text-left">
@@ -32,9 +47,11 @@
                             <span class="text-[9px] px-1.5 py-0.5 rounded border 
                                 {% if user.role == 'expert' %} bg-emerald-50 text-emerald-600 border-emerald-200
                                 {% elif user.role == 'landlord' %} bg-purple-50 text-purple-600 border-purple-200
+                                {% elif user.role == 'admin' %} bg-blue-50 text-blue-600 border-blue-200
                                 {% else %} bg-slate-100 text-slate-500 border-slate-200 {% endif %}">
                                 {% if user.role == 'expert' %}업체
                                 {% elif user.role == 'landlord' %}임대인
+                                {% elif user.role == 'admin' %}관리자
                                 {% else %}일반{% endif %}
                             </span>
                         </div>
@@ -102,6 +119,19 @@
                         {% endif %}
                     </td>
                 </tr>
+                
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-16 text-center text-slate-500">
+                        <div class="text-4xl mb-4">🔍</div>
+                        {% if search_keyword %}
+                            <p class="text-lg font-bold text-slate-700">"<span class="text-blue-600">{{ search_keyword }}</span>"에 대한 검색 결과가 없습니다.</p>
+                            <p class="text-sm mt-1">이름을 다시 한번 확인해 주세요.</p>
+                        {% else %}
+                            <p class="text-lg font-bold text-slate-700">가입된 회원이 없습니다.</p>
+                        {% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -109,7 +139,7 @@
 </div>
 
 <script>
-    // 기존 함수들 (requestRestore, requestSoftDelete) 유지
+    // 기존 JavaScript 함수들 그대로 유지
     function requestRestore(userId) {
         if (confirm(`${userId}님을 정상 회원으로 복구하시겠습니까?`)) {
             fetch(`/admin/restore_user/${userId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
@@ -132,7 +162,6 @@
         }
     }
 
-    // ✨ 신규 가입 승인 함수
     function requestApprove(userId) {
         if (confirm(`${userId}님의 가입 서류를 확인했으며, 정상 회원으로 승인하시겠습니까?`)) {
             fetch(`/admin/approve_user/${userId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
@@ -144,7 +173,6 @@
         }
     }
 
-    // ✨ 신규 가입 거절(삭제) 함수
     function requestReject(userId) {
         if (confirm(`${userId}님의 가입을 거절하시겠습니까? (서류 미비 등)\n거절 시 해당 계정은 즉시 삭제됩니다.`)) {
             fetch(`/admin/reject_user/${userId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })

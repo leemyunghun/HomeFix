@@ -2,6 +2,21 @@
 {% block content %}
 <div class="max-w-4xl mx-auto py-12 px-4">
 
+    {% if result_data.images %}
+    <div class="mb-8 p-6 bg-white rounded-[2.5rem] border border-blue-50 shadow-lg fade-in">
+        <h3 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">내가 진단 요청한 사진</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {% for img in result_data.images %}
+            <div class="aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm cursor-pointer group"
+                 onclick="openImageModal(this.querySelector('img').src)">
+                <img src="data:image/jpeg;base64,{{ img }}" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     {% if result_data.risk_level %}
     <div class="mb-8 p-6 rounded-[2.5rem] fade-in 
         {% if result_data.risk_level >= 4 %} bg-red-50 border-2 border-red-500 text-red-900
@@ -66,7 +81,7 @@
 
                 <button onclick="location.href='/expert'" 
                         class="w-full py-5 rounded-2xl font-bold transition shadow-lg 
-                        {% if result_data.risk_level >= 4 %} bg-red-600 hover:bg-red-700 text-white scale-105 shadow-red-200 mb-0
+                        {% if result_data.risk_level >= 4 %} bg-red-600 hover:bg-red-700 text-white scale-105 shadow-red-200
                         {% else %} bg-slate-900 hover:bg-black text-white mb-4 {% endif %}">
                     👨‍🔧 전문 업체 매칭받기
                 </button>
@@ -80,4 +95,17 @@
         </div>
     </div>
 </div>
+
+<div id="imageModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center p-4 cursor-zoom-out" onclick="this.classList.add('hidden')">
+    <img id="modalImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl">
+</div>
+
+<script>
+    function openImageModal(src) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        modalImg.src = src;
+        modal.classList.remove('hidden');
+    }
+</script>
 {% endblock %}

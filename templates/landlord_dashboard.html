@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeFix | 임대인 관리 센터</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --hf-primary: #2563eb;
+            --hf-bg: #f8fbff;
+            --hf-text-dark: #1e293b;
+            --hf-text-light: #64748b;
+            --hf-white: #ffffff;
+            --hf-shadow: 0 10px 30px rgba(37, 99, 235, 0.05);
+        }
+
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: var(--hf-bg); 
+            color: var(--hf-text-dark); 
+            margin: 0; padding: 30px; 
+            letter-spacing: -0.02em;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* 상단 네비게이션 */
+        .top-nav {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: var(--hf-white); 
+            padding: 20px 35px; 
+            border-radius: 24px;
+            box-shadow: var(--hf-shadow); 
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .logo-area h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--hf-primary);
+        }
+
+        .btn-total-dashboard {
+            background: var(--hf-text-dark); 
+            color: white; 
+            border: none;
+            padding: 14px 28px; 
+            border-radius: 16px; 
+            cursor: pointer;
+            font-weight: 700; 
+            font-size: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            transition: 0.3s ease;
+        }
+
+        .btn-total-dashboard:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+            background: #000;
+        }
+
+        /* 통계 요약 카드 (2열로 변경) */
+        .report-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 25px; 
+            margin-bottom: 35px; 
+        }
+        
+        .report-card { 
+            background: var(--hf-white); padding: 35px; border-radius: 24px; 
+            box-shadow: var(--hf-shadow); position: relative; overflow: hidden;
+        }
+        
+        .report-card::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
+        }
+        
+        .report-card.blue::before { background: var(--hf-primary); }
+        .report-card.red::before { background: #ef4444; }
+        
+        .report-card label { display: block; font-size: 15px; color: var(--hf-text-light); margin-bottom: 15px; font-weight: 600; }
+        .report-card .value { font-size: 36px; font-weight: 800; }
+
+        /* 수리 일지 테이블 */
+        .log-section { background: var(--hf-white); padding: 40px; border-radius: 30px; box-shadow: var(--hf-shadow); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 18px; color: var(--hf-text-light); font-size: 14px; border-bottom: 2px solid #f1f5f9; }
+        td { padding: 22px 18px; border-bottom: 1px solid #f8fafc; font-size: 15px; }
+        
+        .room-tag { background: #eff6ff; color: var(--hf-primary); padding: 6px 14px; border-radius: 10px; font-weight: 800; }
+        .btn-receipt { 
+            background: #f1f5f9; color: var(--hf-text-light); border: none; 
+            padding: 10px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .btn-receipt:hover { background: var(--hf-primary); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <nav class="top-nav">
+        <div class="logo-area" style="transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+            <a href="/" style="text-decoration: none;">
+                <h3>HomeFix <span style="color: var(--hf-text-light); font-weight: 500; font-size: 16px; margin-left: 10px;">관리 대시보드</span></h3>
+            </a>
+        </div>
+        
+        <button class="btn-total-dashboard" onclick="location.href='/landlord/total_dashboard'">
+            <i class="fa-solid fa-chart-line"></i> 자산 통합 관리
+        </button>
+    </nav>
+
+    <div style="margin-bottom: 30px; padding-left: 10px;">
+        <h2 style="margin: 0; font-size: 28px;">{{ building.building_name }}</h2>
+        <p style="color: var(--hf-text-light); margin-top: 8px;">{{ building.address }}</p>
+    </div>
+
+    <div class="report-grid">
+        <div class="report-card blue">
+            <label>이번 달 수리 현황</label>
+            <div class="value">{{ stats.total_count }}<span style="font-size:20px; font-weight:400; margin-left:8px;">건</span></div>
+        </div>
+        <div class="report-card red">
+            <label>이번 달 지출 비용</label>
+            <div class="value" style="color: #ef4444;">{{ stats.total_cost }}<span style="font-size:20px; font-weight:400; margin-left:8px;">원</span></div>
+        </div>
+    </div>
+
+    <div class="log-section">
+        <div class="section-header">
+            <h4 style="margin:0; font-size:22px;"><i class="fa-solid fa-file-contract" style="color:var(--hf-primary); margin-right:12px;"></i> 상세 유지보수 일지</h4>
+            <button onclick="window.print()" style="background:none; border:none; color:var(--hf-text-light); cursor:pointer;"><i class="fa-solid fa-print"></i> PDF 저장</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>날짜</th>
+                    <th>호실</th>
+                    <th>항목</th>
+                    <th>상태</th>
+                    <th>비용</th>
+                    <th>영수증</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs %}
+                    {% for log in logs %}
+                    <tr>
+                        <td style="color: var(--hf-text-light);">{{ log.created_at }}</td>
+                        <td><span class="room-tag">{{ log.room_number }}호</span></td>
+                        <td style="font-weight: 600;">{{ log.problem_name }}</td>
+                        <td><span style="color: #10b981; font-weight: 700;">● 수리 완료</span></td>
+                        <td style="font-weight: 800;">{{ "{:,}".format(log.cost) }}원</td>
+                        <td><button class="btn-receipt" onclick="window.open('/static/uploads/{{ log.receipt_image }}')">보기</button></td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" style="text-align: center; padding: 60px; color: var(--hf-text-light);">데이터가 존재하지 않습니다.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

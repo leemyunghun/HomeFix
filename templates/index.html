@@ -92,6 +92,7 @@
                                 accept="image/*"
                                 class="hidden"
                                 onchange="updateFileName(this)"
+                                multiple
                             />
                         </label>
 
@@ -123,7 +124,14 @@
                             </svg>
                         </button>
                     </div>
+                    <div id="imagePreviewContainer" class="grid grid-cols-4 gap-2 px-2 hidden">
+                        </div>
 
+                    <div
+                        id="fileStatus"
+                        class="text-sm text-slate-500 font-medium hidden flex items-center justify-center gap-2 animate-fade-in-up"
+                    >
+                        </div>
                     <div
                         id="fileStatus"
                         class="text-sm text-slate-500 font-medium hidden flex items-center justify-center gap-2 animate-fade-in-up"
@@ -167,7 +175,117 @@
             </div>
         </div>
     </section>
+<section class="snap-section bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 px-4 relative flex items-center justify-center overflow-hidden py-20"> <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-blue-600/20 rounded-full blur-[150px] pointer-events-none animate-pulse-slow"></div>
+    
+    <div class="max-w-7xl mx-auto w-full relative z-10">
+        <div class="text-center mb-10 fade-in">
+            <span class="text-blue-300 font-bold text-sm tracking-[0.2em] uppercase mb-3 block drop-shadow-sm">Brand Campaign</span>
+            <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight drop-shadow-lg">
+                홈픽스 <span class="text-blue-400">프리미엄 파트너</span>
+            </h2>
+        </div>
 
+        <div class="relative w-full rounded-[2.5rem] overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.6)] border border-white/10 group h-[500px] md:h-[600px] bg-blue-950"> <div id="ad-slider-track" class="flex h-full transition-transform duration-700 ease-in-out will-change-transform">
+                
+                <div class="w-full h-full shrink-0 relative flex items-center justify-center">
+                    <img 
+                        src="/static/uploads/documents/ad_image.png" 
+                        alt="스마트 IT 비서 광고" 
+                        class="w-full h-full object-contain" 
+                    /> </div>
+
+                 <div class="w-full h-full shrink-0 relative flex items-center justify-center">
+                    <img src="/static/uploads/documents/ad_image2.png" class="w-full h-full object-contain" alt="광고 예시 2">
+                    </div>
+
+                <div class="w-full h-full shrink-0 relative flex items-center justify-center">
+                     <img src="/static/uploads/documents/ad_image1.png" class="w-full h-full object-contain" alt="광고 예시 3">
+                    </div>
+            </div>
+
+            <button id="ad-prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>                  
+            </button>
+            <button id="ad-next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+            </button>
+
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20 bg-black/20 px-4 py-2 rounded-full backdrop-blur-sm">
+                <button class="ad-dot-indicator w-8 h-2.5 rounded-full bg-blue-500 transition-all duration-300" data-index="0"></button>
+                <button class="ad-dot-indicator w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300" data-index="1"></button>
+                <button class="ad-dot-indicator w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300" data-index="2"></button>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const adSliderTrack = document.getElementById('ad-slider-track');
+        const adPrevBtn = document.getElementById('ad-prev-btn');
+        const adNextBtn = document.getElementById('ad-next-btn');
+        const adDots = document.querySelectorAll('.ad-dot-indicator');
+        const slides = adSliderTrack.children;
+        
+        let adCurrentIndex = 0;
+        const adTotalSlides = slides.length;
+        let adAutoSlideInterval;
+
+        // 슬라이드 업데이트 함수
+        function updateAdSlider() {
+            adSliderTrack.style.transform = `translateX(-${adCurrentIndex * 100}%)`;
+            
+            // 인디케이터 업데이트
+            adDots.forEach((dot, index) => {
+                if (index === adCurrentIndex) {
+                    dot.classList.remove('bg-white/40', 'w-2.5', 'hover:bg-white/70');
+                    dot.classList.add('bg-blue-500', 'w-8'); // 활성 점: 길고 파랗게
+                } else {
+                    dot.classList.remove('bg-blue-500', 'w-8');
+                    dot.classList.add('bg-white/40', 'w-2.5', 'hover:bg-white/70'); // 비활성 점: 작고 하얗게
+                }
+            });
+        }
+
+        function nextAdSlide() {
+            adCurrentIndex = (adCurrentIndex + 1) % adTotalSlides;
+            updateAdSlider();
+        }
+
+        function prevAdSlide() {
+            adCurrentIndex = (adCurrentIndex - 1 + adTotalSlides) % adTotalSlides;
+            updateAdSlider();
+        }
+
+        // 이벤트 리스너 등록
+        adNextBtn.addEventListener('click', () => { nextAdSlide(); resetAdAutoSlide(); });
+        adPrevBtn.addEventListener('click', () => { prevAdSlide(); resetAdAutoSlide(); });
+
+        adDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                adCurrentIndex = index;
+                updateAdSlider();
+                resetAdAutoSlide();
+            });
+        });
+
+        // 자동 슬라이드 (4초 간격)
+        function startAdAutoSlide() {
+            adAutoSlideInterval = setInterval(nextAdSlide, 4000);
+        }
+        function resetAdAutoSlide() {
+            clearInterval(adAutoSlideInterval);
+            startAdAutoSlide();
+        }
+
+        startAdAutoSlide(); // 시작
+    });
+</script>
     <section class="snap-section max-w-6xl mx-auto px-4 border-b border-slate-100">
         <div class="w-full">
             <div class="text-center mb-16">
@@ -502,7 +620,7 @@
         <div class="max-w-6xl mx-auto px-6 w-full">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16">
                 <div class="md:col-span-4 space-y-4">
-                    <h3 class="text-2xl font-black text-blue-600 tracking-tighter hover:opacity-80 transition">HOME FIX</h3>
+                    <h3 class="text-2xl font-black text-blue-600 tracking-tighter hover:opacity-80 transition">HomeFix</h3>
                     <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
                         AI 기술로 주거 공간의 불편함을<br />
                         가장 빠르고 스마트하게 해결합니다.<br />
@@ -572,57 +690,111 @@
 </div>
 
 <script>
-    // 사진 파일 선택 시 이름 표시
-    function updateFileName(input) {
-        const status = document.getElementById('fileStatus');
-        const nameDisplay = document.getElementById('fileNameDisplay');
-        if (input.files && input.files[0]) {
-            nameDisplay.innerText = input.files[0].name;
-            status.classList.remove('hidden');
-        }
-    }
+// ✨ 선택된 파일들을 담을 전역 배열 (버퍼 역할)
+let selectedFiles = [];
 
-    // 파일 선택 취소
-    function removeFile() {
-        const input = document.getElementById('imageInput');
-        const status = document.getElementById('fileStatus');
+// 사진 파일 선택 시 배열에 추가하고 미리보기 재생성
+function updateFileName(input) {
+    const status = document.getElementById('fileStatus');
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    
+    if (input.files && input.files.length > 0) {
+        // 새로 선택된 파일들을 전역 배열에 추가
+        const newFiles = Array.from(input.files);
+        selectedFiles = [...selectedFiles, ...newFiles];
+        
+        // 입력창 초기화 (같은 파일을 다시 선택할 수 있도록)
         input.value = '';
+        
+        renderPreviews();
+    }
+}
+
+// ✨ 미리보기와 개별 삭제 버튼을 그리는 핵심 함수
+function renderPreviews() {
+    const status = document.getElementById('fileStatus');
+    const nameDisplay = document.getElementById('fileNameDisplay');
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    
+    previewContainer.innerHTML = '';
+    
+    if (selectedFiles.length > 0) {
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = "relative h-16 w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm group";
+                
+                // 이미지와 개별 삭제(X) 버튼
+                imgWrapper.innerHTML = `
+                    <img src="${e.target.result}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeIndividualFile(${index})" 
+                            class="absolute top-1 right-1 bg-red-500/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors shadow-md backdrop-blur-sm">
+                        ✕
+                    </button>
+                `;
+                previewContainer.appendChild(imgWrapper);
+            }
+            reader.readAsDataURL(file);
+        });
+
+        const count = selectedFiles.length;
+        nameDisplay.innerText = count > 1 ? `${count}개의 파일` : selectedFiles[0].name;
+        status.classList.remove('hidden');
+        previewContainer.classList.remove('hidden');
+    } else {
+        // 파일이 없으면 숨김
         status.classList.add('hidden');
+        previewContainer.classList.add('hidden');
+    }
+}
+
+// ✨ 특정 인덱스의 사진만 삭제
+function removeIndividualFile(index) {
+    selectedFiles.splice(index, 1); // 배열에서 해당 인덱스 제거
+    renderPreviews(); // 다시 그리기
+}
+
+// 전체 삭제 버튼 기능
+function removeFile() {
+    selectedFiles = [];
+    renderPreviews();
+}
+
+// ✨ 진단 시작 시 전역 배열(selectedFiles)의 데이터를 전송하도록 수정
+async function processStart() {
+    const input = document.getElementById('problemInput').value;
+
+    if (!input && selectedFiles.length === 0) {
+        return alert('증상을 입력하시거나 사진을 첨부해주세요.');
     }
 
-    // 진단 시작 함수
-    async function processStart() {
-        const input = document.getElementById('problemInput').value;
-        const imageInput = document.getElementById('imageInput');
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.remove('hidden');
 
-        if (!input && !(imageInput.files && imageInput.files[0])) {
-            return alert('증상을 입력하시거나 사진을 첨부해주세요.');
-        }
+    try {
+        const fd = new FormData();
+        fd.append('problem', input);
+        
+        // ✨ 전역 배열에 담긴 파일들을 FormData에 순차적으로 추가
+        selectedFiles.forEach(file => {
+            fd.append('image', file);
+        });
 
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.classList.remove('hidden');
+        const res = await fetch('/diagnose', { method: 'POST', body: fd });
+        const data = await res.json();
 
-        try {
-            const fd = new FormData();
-            fd.append('problem', input);
-            if (imageInput.files && imageInput.files[0]) {
-                fd.append('image', imageInput.files[0]);
-            }
-
-            const res = await fetch('/diagnose', { method: 'POST', body: fd });
-            const data = await res.json();
-
-            if (data.status === 'invalid') {
-                overlay.classList.add('hidden');
-                alert(data.message || '수리 관련 증상을 자세히 입력해주세요.');
-            } else {
-                location.href = '/result';
-            }
-        } catch (e) {
+        if (data.status === 'invalid') {
             overlay.classList.add('hidden');
-            alert('서버 연결에 실패했습니다.');
+            alert(data.message || '수리 관련 증상을 자세히 입력해주세요.');
+        } else {
+            location.href = '/result';
         }
+    } catch (e) {
+        overlay.classList.add('hidden');
+        alert('서버 연결에 실패했습니다.');
     }
+}
 </script>
 
 <style>
