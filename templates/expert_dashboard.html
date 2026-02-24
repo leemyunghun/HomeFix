@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>HomeFix | 전문가 파트너 센터</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        <style>
+            :root {
+                --hf-primary: #2563eb;
+                --hf-dark-purple: #3f3da1;
+                --hf-bg: #f8fbff;
+                --hf-text-dark: #1e293b;
+                --hf-text-light: #64748b;
+                --hf-white: #ffffff;
+                --hf-shadow: 0 10px 30px rgba(16, 185, 129, 0.05);
+            }
+
+            body {
+                font-family: 'Pretendard', sans-serif;
+                background-color: var(--hf-bg);
+                color: var(--hf-text-dark);
+                margin: 0;
+                padding: 30px;
+            }
+            .container {
+                max-width: 1100px;
+                margin: 0 auto;
+            }
+
+            /* 상단 네비게이션 */
+            .top-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--hf-white);
+                padding: 20px 35px;
+                border-radius: 24px;
+                box-shadow: var(--hf-shadow);
+                margin-bottom: 30px;
+            }
+            .logo-area h3 {
+                margin: 0;
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--hf-primary);
+            }
+
+            /* 통계 요약 카드 */
+            .report-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+                margin-bottom: 35px;
+            }
+            .report-card {
+                background: var(--hf-white);
+                padding: 35px;
+                border-radius: 24px;
+                box-shadow: var(--hf-shadow);
+                position: relative;
+                overflow: hidden;
+            }
+            .report-card::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 8px;
+            }
+            .report-card.income::before {
+                background: #10b981;
+            }
+            .report-card.task::before {
+                background: #f59e0b;
+            }
+
+            .report-card label {
+                display: block;
+                font-size: 15px;
+                color: var(--hf-text-light);
+                margin-bottom: 15px;
+                font-weight: 600;
+            }
+            .report-card .value {
+                font-size: 36px;
+                font-weight: 800;
+            }
+
+            /* 작업 목록 섹션 */
+            .log-section {
+                background: var(--hf-white);
+                padding: 40px;
+                border-radius: 30px;
+                box-shadow: var(--hf-shadow);
+            }
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th {
+                text-align: left;
+                padding: 18px;
+                color: var(--hf-text-light);
+                font-size: 14px;
+                border-bottom: 2px solid #f1f5f9;
+            }
+            td {
+                padding: 22px 18px;
+                border-bottom: 1px solid #f8fafc;
+                font-size: 15px;
+            }
+
+            .status-tag {
+                padding: 6px 12px;
+                border-radius: 10px;
+                font-size: 12px;
+                font-weight: 700;
+                background: #f1f5f9;
+                color: #64748b;
+            }
+            .status-ongoing {
+                background: #fff7ed;
+                color: #f97316;
+            }
+            .status-complete {
+                background: #ecfdf5;
+                color: #10b981;
+            }
+
+            .btn-receipt {
+                background: var(--hf-dark-purple);
+                color: white;
+                border: none;
+                padding: 10px 18px;
+                border-radius: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .btn-receipt:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(63, 61, 161, 0.2);
+            }
+
+            /* 영수증 전송 모달 */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                backdrop-filter: blur(4px);
+            }
+            .modal-content {
+                background: white;
+                width: 450px;
+                margin: 80px auto;
+                padding: 40px;
+                border-radius: 30px;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            }
+            .modal-header h3 {
+                margin: 0 0 10px;
+                font-size: 24px;
+                color: var(--hf-text-dark);
+            }
+            .modal-body label {
+                display: block;
+                margin: 20px 0 10px;
+                font-weight: 700;
+                color: var(--hf-text-dark);
+            }
+            .modal-body input {
+                width: 100%;
+                padding: 14px;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                box-sizing: border-box;
+            }
+            .modal-footer {
+                display: flex;
+                gap: 12px;
+                margin-top: 30px;
+            }
+            .btn-cancel {
+                flex: 1;
+                padding: 15px;
+                background: #f1f5f9;
+                border: none;
+                border-radius: 14px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .btn-submit {
+                flex: 1;
+                padding: 15px;
+                background: var(--hf-dark-purple);
+                color: white;
+                border: none;
+                border-radius: 14px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <nav class="top-nav">
+                <div class="logo-area">
+                    <a href="/" style="text-decoration: none; color: inherit; transition: opacity 0.2s;" 
+                       onmouseover="this.style.opacity='0.7'" 
+                       onmouseout="this.style.opacity='1'">
+                        <h3>
+                            HomeFix
+                            <span style="color: var(--hf-text-light); font-weight: 500; font-size: 16px; margin-left: 10px;">전문가 파트너</span>
+                        </h3>
+                    </a>
+                </div>
+                <div class="user-info"><strong>{{ user_info.name if user_info else '파트너' }}</strong>님</div>
+            </nav>
+
+            <div style="margin-bottom: 30px; padding-left: 10px">
+                <h2 style="margin: 0; font-size: 28px">실시간 수리 오더 관리</h2>
+                <p style="color: var(--hf-text-light); margin-top: 8px">
+                    배정된 일감을 확인하고 수리 완료 후 영수증을 발행하세요.
+                </p>
+            </div>
+
+            <div class="report-grid">
+                <div class="report-card income">
+                    <label>이번 달 총 매출액</label>
+                    <div class="value" style="color: #10b981">
+                        {{ "{:,}".format(stats.total_income) if stats else '0' }}원
+                    </div>
+                </div>
+                <div class="report-card task">
+                    <label>진행 중인 작업</label>
+                    <div class="value">{{ stats.pending_count if stats else '0' }}건</div>
+                </div>
+            </div>
+
+            <div class="log-section">
+                <div class="section-header">
+                    <h4 style="margin: 0; font-size: 20px">
+                        <i class="fa-solid fa-list-check" style="margin-right: 12px; color: var(--hf-primary)"></i>
+                        배정된 수리 목록
+                    </h4>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>요청 일시</th>
+                            <th>건물명/호실</th>
+                            <th>수리 항목</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tasks %} {% for t in tasks %}
+                        <tr>
+                            <td style="color: var(--hf-text-light)">{{ t.created_at }}</td>
+                            <td style="font-weight: 600">{{ t.building_name }} {{ t.room_number }}호</td>
+                            <td>{{ t.problem_name }}</td>
+                            <td>
+                                {% if t.status == '영수증제출' %}
+                                <span class="status-tag status-complete">● 전송완료</span>
+                                {% else %}
+                                <span class="status-tag status-ongoing">● 수리중</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if t.status != '영수증제출' %}
+                                <button
+                                    class="btn-receipt"
+                                    onclick="openReceiptModal('{{ t.id }}', '{{ t.building_name }} {{ t.room_number }}호')"
+                                >
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> 영수증 보내기
+                                </button>
+                                {% else %}
+                                <span style="color: var(--hf-text-light); font-size: 13px">입금 대기 중</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %} {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 60px; color: var(--hf-text-light)">
+                                현재 배정된 새로운 작업이 없습니다.
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="receiptModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>영수증 발행</h3>
+                    <p id="target_building" style="color: var(--hf-text-light); margin: 5px 0 0"></p>
+                </div>
+                <form id="receiptForm" action="/expert/submit_receipt" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" name="order_id" id="modal_order_id" />
+
+                        <label>최종 수리 비용 (원)</label>
+                        <input type="number" name="final_cost" placeholder="실제 청구 금액을 입력하세요" required />
+
+                        <label>수리 완료 사진 / 영수증 첨부</label>
+                        <input type="file" name="receipt_image" accept="image/*" required />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" onclick="closeModal()">취소</button>
+                        <button type="submit" class="btn-submit">임대인에게 전송</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openReceiptModal(orderId, buildingInfo) {
+                document.getElementById('modal_order_id').value = orderId;
+                document.getElementById('target_building').innerText = buildingInfo + ' 수리 건';
+                document.getElementById('receiptModal').style.display = 'block';
+            }
+            function closeModal() {
+                document.getElementById('receiptModal').style.display = 'none';
+            }
+            // 배경 클릭 시 닫기
+            window.onclick = function (event) {
+                if (event.target == document.getElementById('receiptModal')) {
+                    closeModal();
+                }
+            };
+        </script>
+    </body>
+</html>
