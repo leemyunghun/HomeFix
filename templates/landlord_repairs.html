@@ -19,8 +19,10 @@
         th { text-align: left; padding: 15px; color: var(--hf-text-sub); border-bottom: 2px solid #f1f5f9; font-size: 14px; }
         td { padding: 18px 15px; border-bottom: 1px solid #f8fafc; font-size: 15px; }
         .status-badge { padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 12px; display: inline-block; }
-        .btn-view { background: #f1f5f9; border: none; padding: 8px 12px; border-radius: 8px; color: var(--hf-primary); font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-view:hover { background: var(--hf-primary); color: white; }
+        
+        /* 영수증 버튼 스타일 수정 */
+        .btn-receipt { background: #eff6ff; border: 1px solid #dbeafe; padding: 6px 12px; border-radius: 8px; color: var(--hf-primary); font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn-receipt:hover { background: var(--hf-primary); color: white; border-color: var(--hf-primary); }
     </style>
 </head>
 <body>
@@ -42,7 +44,6 @@
         <a href="/landlord/repairs" class="menu-item {% if request.path == '/landlord/repairs' %}active{% endif %}">
             <i class="fas fa-clipboard-list"></i> 전체 수리 내역
         </a>
-        </div>
     </div>
 
     <div class="main-content">
@@ -60,8 +61,7 @@
                         <th>요청 사안 (문제 분류)</th>
                         <th>실제 지출 비용</th>
                         <th>진행 상태</th>
-                        <th>상세 액션</th>
-                    </tr>
+                        <th>영수증 확인</th> </tr>
                 </thead>
                 <tbody>
                     {% if repairs %}
@@ -69,7 +69,7 @@
                         <tr>
                             <td style="color: var(--hf-text-sub); font-size: 13px;">{{ r.created_at if r.created_at else '-' }}</td>
                             <td>
-                                <span style="background:#eff6ff; color:var(--hf-primary); padding:4px 8px; border-radius:6px; font-weight:700; margin-right: 5px;">{{ r.room_number }}호</span>
+                                <span style="background:#eff6ff; color:var(--hf-primary); padding:4px 8px; border-radius:6px; font-weight:700; margin-right: 5px;">{{ r.room_number }}</span>
                                 <span style="font-size: 13px; color: var(--hf-text-sub);">{{ r.tenant_name if r.tenant_name else '미등록' }}</span>
                             </td>
                             <td style="font-weight: 600;">{{ r.problem_name }}</td>
@@ -90,7 +90,13 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <button class="btn-view" onclick="alert('상세 리포트 창 준비 중입니다.')">상세 보기</button>
+                                {% if r.receipt_image %}
+                                    <a href="/static/uploads/reviews/{{ r.receipt_image }}" target="_blank" class="btn-receipt">
+                                        <i class="fas fa-receipt"></i> 영수증 보기
+                                    </a>
+                                {% else %}
+                                    <span style="color: #cbd5e1; font-size: 13px; padding-left: 10px;">-</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

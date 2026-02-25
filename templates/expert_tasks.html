@@ -118,7 +118,7 @@
                             <span class="status-badge {% if t.status == '영수증제출' %}badge-done{% else %}badge-pending{% endif %}" style="margin-bottom: 10px; display: inline-block;">
                                 {{ '수리 완료' if t.status == '영수증제출' else '수리 진행중' }}
                             </span>
-                            <h4>{{ t.building_name }} {{ t.room_number }}호 - {{ t.problem_name }}</h4>
+                            <h4>{{ t.building_name }} {{ t.room_number }} - {{ t.problem_name }}</h4>
                             <p><i class="far fa-clock"></i> 배정일: {{ t.created_at }}</p>
                         </div>
                         <div class="task-meta">
