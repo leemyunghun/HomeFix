@@ -137,7 +137,7 @@
                     {% if tasks %}
                         {% for t in tasks[:5] %} <tr>
                             <td style="color: var(--hf-text-sub)">{{ t.created_at.split(' ')[0] }}</td>
-                            <td style="font-weight: 600">{{ t.building_name }} {{ t.room_number }}호</td>
+                            <td style="font-weight: 600">{{ t.building_name }} {{ t.room_number }}</td>
                             <td>{{ t.problem_name }}</td>
                             <td>
                                 {% if t.status == '영수증제출' %}

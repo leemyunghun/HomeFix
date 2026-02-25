@@ -69,6 +69,9 @@
 
         .room-badge { background: #eff6ff; color: var(--hf-primary); padding: 5px 10px; border-radius: 8px; font-weight: 700; font-size: 12px; }
         .building-tag { font-weight: 700; color: var(--hf-text-main); }
+
+        /* 버튼 호버 애니메이션 */
+        .btn-assign:hover { background-color: #1d4ed8 !important; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -125,7 +128,8 @@
                 <thead>
                     <tr>
                         <th>날짜</th>
-                        <th>건물명</th> <th>호실</th>
+                        <th>건물명</th> 
+                        <th>호실</th>
                         <th>세입자</th>
                         <th>항목</th>
                         <th>상태</th>
@@ -136,12 +140,18 @@
                         {% for log in logs %}
                         <tr>
                             <td style="color: var(--hf-text-sub);">{{ log.created_at if log.created_at else '-' }}</td>
-                            <td class="building-tag">{{ log.building_name }}</td> <td><span class="room-badge">{{ log.room_number }}호</span></td>
+                            <td class="building-tag">{{ log.building_name }}</td> 
+                            <td><span class="room-badge">{{ log.room_number }}</span></td>
                             <td style="font-weight: 600;">{{ log.tenant_name if log.tenant_name else '미지정' }}</td>
                             <td>{{ log.problem_name }}</td>
                             <td>
                                 {% if log.status == '요청됨' %}
-                                    <span style="color: #ef4444; font-weight: 700;">● 요청됨</span>
+                                    <span style="color: #ef4444; font-weight: 700; margin-right: 10px;">● 요청됨</span>
+                                    <button class="btn-assign" onclick="openAssignModal('{{ log.id }}', '{{ log.problem_name }}')" style="background: var(--hf-primary); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                                        업체 배정
+                                    </button>
+                                {% elif log.status == '수리중' %}
+                                    <span style="color: #f59e0b; font-weight: 700;">● 수리 진행중</span>
                                 {% else %}
                                     <span style="color: #10b981; font-weight: 700;">● 수리 완료</span>
                                 {% endif %}
@@ -156,5 +166,48 @@
         </div>
     </div>
 
+    <div id="assignModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(2px);">
+        <div style="background: white; width: 400px; margin: 100px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">🛠️ 수리 업체 배정</h3>
+            <p id="modalRepairTask" style="color: var(--hf-text-sub); font-size: 14px; margin-bottom: 20px;"></p>
+            
+            <form action="/landlord/assign_expert" method="POST">
+                <input type="hidden" name="repair_id" id="modalRepairId">
+                
+                <select name="expert_id" required style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--hf-border); margin-bottom: 20px; outline: none; font-size: 14px;">
+                    <option value="">수리 업체를 선택하세요</option>
+                    {% if experts %}
+                        {% for expert in experts %}
+                            <option value="{{ expert.userid }}">{{ expert.name }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">등록된 업체가 없습니다</option>
+                    {% endif %}
+                </select>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="closeAssignModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #f1f5f9; font-weight: bold; cursor: pointer;">취소</button>
+                    <button type="submit" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: var(--hf-primary); color: white; font-weight: bold; cursor: pointer;">배정하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAssignModal(id, taskName) {
+            document.getElementById('modalRepairId').value = id;
+            document.getElementById('modalRepairTask').innerText = "요청 항목: " + taskName;
+            document.getElementById('assignModal').style.display = 'block';
+        }
+        function closeAssignModal() {
+            document.getElementById('assignModal').style.display = 'none';
+        }
+        // 배경 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('assignModal')) {
+                closeAssignModal();
+            }
+        }
+    </script>
 </body>
 </html>
