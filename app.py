@@ -54,7 +54,8 @@ print(f"🚀 HomeFix 서비스 가동 중... 카카오 키: {'로드 완료' if 
 
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(**TIDB_CONFIG)
+        # ✨ buffered=True 옵션을 추가합니다.
+        conn = mysql.connector.connect(**TIDB_CONFIG, buffered=True)
         return conn
     except Error as e:
         print(f"❌ TiDB 연결 오류: {e}")
@@ -796,16 +797,108 @@ def change_password():
         cursor.close(); conn.close()
         return "<script>alert('현재 비밀번호가 틀렸습니다.'); history.back();</script>"
         
+# 1. 전문가 대시보드 홈 (stats와 tasks 데이터를 가져옵니다)
 @app.route('/expert_dashboard')
 def expert_dashboard():
     if 'userid' not in session or session.get('role') != 'expert':
-        return "<script>alert('업체 회원만 접근 가능한 페이지입니다.'); location.href='/login';</script>"
-    expert_name = session.get('name')
-    return render_template('expert_dashboard.html', expert_name=expert_name)
+        return "<script>alert('업체 회원 전용 페이지입니다.'); location.href='/login';</script>"
+    
+    expert_id = session['userid']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        # 통계 데이터 가져오기
+        cursor.execute("""
+            SELECT 
+                COUNT(CASE WHEN status != '영수증제출' THEN 1 END) as pending_count,
+                COALESCE(SUM(CASE WHEN status = '영수증제출' THEN actual_cost ELSE 0 END), 0) as total_income
+            FROM repair_logs 
+            WHERE expert_id = %s
+        """, (expert_id,))
+        stats = cursor.fetchone()
+
+        # ✨ 수정된 쿼리: r.building_id 대신 u.building_id를 사용해 JOIN 합니다.
+        cursor.execute("""
+            SELECT r.id, b.building_name, r.room_number, r.problem_name, r.status, 
+                   DATE_FORMAT(r.created_at, '%%Y-%%m-%%d') as created_at
+            FROM repair_logs r
+            JOIN users u ON r.tenant_id = u.userid
+            JOIN buildings b ON u.building_id = b.id
+            WHERE r.expert_id = %s 
+            ORDER BY r.created_at DESC LIMIT 5
+        """, (expert_id,))
+        tasks = cursor.fetchall()
+
+    except Exception as e:
+        print(f"❌ 전문가 대시보드 에러: {e}")
+        stats = {"pending_count": 0, "total_income": 0}
+        tasks = []
+    finally:
+        cursor.close(); conn.close()
+
+    return render_template('expert_dashboard.html', user_info=session.get('user'), stats=stats, tasks=tasks)
+
+# 2. 수리 대기 목록(expert_tasks) 수정
+@app.route('/expert/tasks')
+def expert_tasks():
+    if 'userid' not in session or session.get('role') != 'expert':
+        return redirect('/login')
+
+    expert_id = session['userid']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # ✨ 수정된 쿼리: JOIN 구조를 변경하여 에러를 방지합니다.
+        cursor.execute("""
+            SELECT r.id, b.building_name, r.room_number, r.problem_name, r.status, 
+                   DATE_FORMAT(r.created_at, '%%Y-%%m-%%d %%H:%%i') as created_at
+            FROM repair_logs r
+            JOIN users u ON r.tenant_id = u.userid
+            JOIN buildings b ON u.building_id = b.id
+            WHERE r.expert_id = %s 
+            ORDER BY r.created_at DESC
+        """, (expert_id,))
+        tasks = cursor.fetchall()
+    except Exception as e:
+        print(f"❌ 수리 목록 로드 에러: {e}")
+        tasks = []
+    finally:
+        cursor.close(); conn.close()
+
+    return render_template('expert_tasks.html', tasks=tasks, user_info=session.get('user'))
+
+@app.route('/expert/submit_receipt', methods=['POST'])
+def submit_receipt():
+    if 'userid' not in session: return jsonify({"result": "fail"}), 401
+    
+    order_id = request.form.get('order_id')
+    final_cost = request.form.get('final_cost')
+    image_file = request.files.get('receipt_image')
+    
+    filename = ""
+    if image_file:
+        from werkzeug.utils import secure_filename
+        filename = secure_filename(f"receipt_{order_id}_{image_file.filename}")
+        # static/uploads/reviews 폴더가 있는지 꼭 확인하세요!
+        image_file.save(os.path.join('static/uploads/reviews', filename))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE repair_logs 
+        SET status = '영수증제출', actual_cost = %s, receipt_image = %s 
+        WHERE id = %s
+    """, (final_cost, filename, order_id))
+    
+    conn.commit()
+    cursor.close(); conn.close()
+    return f"<script>alert('영수증이 성공적으로 제출되었습니다.'); location.href='/expert/tasks';</script>"
+
 
 @app.route('/landlord_dashboard')
 def landlord_dashboard():
-    # 1. 권한 체크
     if 'userid' not in session or session.get('role') != 'landlord':
         session.clear() 
         return "<script>alert('임대인 전용 페이지입니다. 다시 로그인해주세요.'); location.href='/login';</script>"
@@ -817,65 +910,71 @@ def landlord_dashboard():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # 💡 1. 건물 정보 가져오기
-        cursor.execute("SELECT building_name, address FROM buildings WHERE landlord_id = %s", (landlord_id,))
-        building = cursor.fetchone()
-        if not building:
-            building = {
-                "building_name": f"{landlord_name}님의 자산", 
-                "address": "주소 정보가 아직 등록되지 않았습니다."
-            }
+        # 💡 0. [전체 합계] 모든 건물의 총 세입자 수
+        cursor.execute("""
+            SELECT COUNT(*) as count 
+            FROM users u
+            JOIN buildings b ON u.building_id = b.id
+            WHERE b.landlord_id = %s AND u.role = 'user'
+        """, (landlord_id,))
+        tenant_count = cursor.fetchone()['count']
 
-        # 💡 2. 이번 달 수리 통계 가져오기 (actual_cost 사용!)
+        # 💡 1. [통합 통계] 모든 건물의 미처리 요청 및 누적 수리 비용
         cursor.execute("""
             SELECT 
-                COUNT(*) as total_count, 
+                COUNT(CASE WHEN status = '요청됨' THEN 1 END) as pending_requests,
                 COALESCE(SUM(actual_cost), 0) as total_cost 
             FROM repair_logs 
-            WHERE landlord_id = %s 
-              AND status = '수리 완료' 
-              AND DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+            WHERE landlord_id = %s
         """, (landlord_id,))
         stats_raw = cursor.fetchone()
         
-        stats = {
-            "total_count": stats_raw['total_count'] if stats_raw else 0,
-            "total_cost": f"{int(stats_raw['total_cost']):,}" if stats_raw else "0"
-        }
+        pending_requests = stats_raw['pending_requests'] if stats_raw else 0
+        total_spend = stats_raw['total_cost'] if stats_raw else 0
 
-        # 💡 3. 상세 유지보수 일지 가져오기 (여기에 있던 cost를 모두 제거하고 새로운 컬럼명 적용!)
+        # 💡 2. [통합 내역] 최근 수리 내역 (건물명을 가져오기 위해 세입자 정보를 경유)
+        # repair_logs에 building_id가 없을 경우를 대비해 u.building_id를 사용합니다.
         cursor.execute("""
             SELECT 
-                id,
-                DATE_FORMAT(created_at, '%Y-%m-%d') as created_at, 
-                room_number, 
-                problem_name, 
-                status,
-                ai_estimated_cost,
-                actual_cost,
-                receipt_image 
-            FROM repair_logs 
-            WHERE landlord_id = %s 
-            ORDER BY created_at DESC 
+                r.id,
+                DATE_FORMAT(r.created_at, '%Y-%m-%d') as created_at, 
+                r.room_number, 
+                r.problem_name, 
+                r.status,
+                b.building_name,
+                u.name as tenant_name
+            FROM repair_logs r
+            LEFT JOIN users u ON r.tenant_id = u.userid
+            LEFT JOIN buildings b ON u.building_id = b.id
+            WHERE r.landlord_id = %s 
+            ORDER BY r.created_at DESC 
             LIMIT 10
         """, (landlord_id,))
         logs = cursor.fetchall()
 
+        # 💡 3. 헤더 정보 설정
+        building = {
+            "building_name": "전체 건물 통합 관리", 
+            "address": "운영 중인 모든 건물의 실시간 현황입니다."
+        }
+
     except Exception as e:
+        # 오류 발생 시 터미널에 에러 내용을 출력하여 원인을 파악할 수 있게 합니다.
         print(f"❌ 임대인 대시보드 DB 에러: {e}")
-        building = {"building_name": f"{landlord_name}님의 자산", "address": "데이터를 불러오는 중 오류가 발생했습니다."}
-        stats = {"total_count": 0, "total_cost": "0"}
-        logs = []
+        building = {"building_name": "데이터 로드 실패", "address": "DB 구조와 쿼리가 일치하는지 확인이 필요합니다."}
+        tenant_count, pending_requests, total_spend, logs = 0, 0, 0, []
         
     finally:
         cursor.close()
         conn.close()
 
-    # 4. 템플릿으로 데이터 전달
     return render_template('landlord_dashboard.html', 
+                           user_info=session,
                            landlord_name=landlord_name,
                            building=building,
-                           stats=stats,
+                           tenant_count=tenant_count,    
+                           pending_requests=pending_requests, 
+                           total_spend=total_spend,      
                            logs=logs)
 
 @app.route('/logout')
@@ -900,7 +999,6 @@ def result_page():
     }
     return render_template('result.html', result_data=safe_data)
 
-
 @app.route('/myinfo')
 def myinfo():
     if 'user' not in session: 
@@ -922,13 +1020,92 @@ def myinfo():
     my_reviews = cursor.fetchall()
     reviews_dict = {r['repair_item']: r for r in my_reviews}
 
-    # ✨ 내 포인트 내역 최신순으로 가져오기
+    # 내 포인트 내역 최신순으로 가져오기
     cursor.execute('SELECT * FROM point_history WHERE userid = %s ORDER BY created_at DESC', (session['user']['userid'],))
     point_logs = cursor.fetchall()
     
+    cursor.execute("""
+        SELECT b.id, b.landlord_id, b.building_name, b.address, u.name as landlord_name 
+        FROM buildings b
+        JOIN users u ON b.landlord_id = u.userid
+    """)
+    all_buildings = cursor.fetchall()
+    
     cursor.close(); conn.close()
     
-    return render_template('myinfo.html', user_info=fresh_user_info, history=history, reviews_dict=reviews_dict, point_logs=point_logs)
+    return render_template('myinfo.html', 
+                           user_info=fresh_user_info, 
+                           history=history, 
+                           reviews_dict=reviews_dict, 
+                           point_logs=point_logs,
+                           all_buildings=all_buildings) # ✨ 템플릿으로 전달!
+
+# ✨ [신규] 거주지 정보 및 개인정보 동의 업데이트 라우트
+@app.route('/update_residence', methods=['POST'])
+def update_residence():
+    if 'user' not in session: return redirect('/login')
+    
+    userid = session['user']['userid']
+    # ✨ landlord_id 대신 building_id를 받습니다.
+    building_id = request.form.get('building_id') 
+    room_number = request.form.get('room_number')
+    privacy_consent = request.form.get('privacy_consent')
+    
+    if not building_id or not room_number or not privacy_consent:
+        return "<script>alert('건물 선택, 호수 입력 및 개인정보 동의가 필요합니다.'); history.back();</script>"
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # ✨ users 테이블의 building_id를 업데이트
+        cursor.execute("""
+            UPDATE users SET building_id = %s, room_number = %s 
+            WHERE userid = %s
+        """, (building_id, room_number, userid))
+        
+        # (선택) 만약 users 테이블에 landlord_id도 따로 저장해야 한다면
+        # UPDATE users SET building_id = %s, landlord_id = (SELECT landlord_id FROM buildings WHERE id = %s), ... 형태로 작성할 수도 있습니다.
+        
+        conn.commit()
+        return "<script>alert('거주지 정보가 성공적으로 저장되었습니다.'); location.href='/myinfo';</script>"
+    except Exception as e:
+        print(f"거주지 저장 오류: {e}")
+        return "<script>alert('저장 중 오류가 발생했습니다.'); history.back();</script>"
+    finally:
+        cursor.close()
+        conn.close()
+
+# ✨ [수정됨] 임대인 전용 건물 등록 라우트 (개인정보 동의 확인 포함)
+@app.route('/register_building', methods=['POST'])
+def register_building():
+    if 'user' not in session or session['user']['role'] != 'landlord':
+        return "<script>alert('임대인 권한이 필요합니다.'); history.back();</script>"
+        
+    landlord_id = session['user']['userid']
+    building_name = request.form.get('building_name')
+    address = request.form.get('address')
+    privacy_consent = request.form.get('privacy_consent') # ✨ 폼에서 동의 여부 가져오기
+    
+    # ✨ 유효성 검사 (하나라도 비어있거나 동의 안 하면 차단)
+    if not building_name or not address or not privacy_consent:
+        return "<script>alert('건물 정보 입력 및 정보 공개 동의가 필요합니다.'); history.back();</script>"
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # buildings 테이블에 새 건물 저장
+        cursor.execute("""
+            INSERT INTO buildings (landlord_id, building_name, address)
+            VALUES (%s, %s, %s)
+        """, (landlord_id, building_name, address))
+        conn.commit()
+        return "<script>alert('새 건물이 성공적으로 등록되었습니다! 이제 세입자가 선택할 수 있습니다.'); location.href='/myinfo';</script>"
+    except Exception as e:
+        print(f"건물 등록 오류: {e}")
+        return "<script>alert('건물 등록 중 오류가 발생했습니다.'); history.back();</script>"
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/edit_review', methods=['POST'])
 def edit_review():
@@ -1054,7 +1231,7 @@ def privacy(): return render_template('privacy.html')
 # [2] 👑 관리자(Admin) 전용 라우트
 # ==========================================
 
-@app.route('/admin/dashboard')
+@app.route('/admin_dashboard')
 def admin_dashboard_view():
     if session.get('user', {}).get('role') != 'admin': 
         return "<script>alert('관리자 전용 페이지입니다.'); location.href='/';</script>"
@@ -1134,7 +1311,7 @@ def admin_user_management():
             ORDER BY 
                 CASE WHEN approval_status = 'pending' THEN 0 ELSE 1 END,
                 FIELD(role, 'admin', 'expert', 'landlord', 'user'),
-                id DESC
+                name ASC
         """
         
         if search_keyword:
@@ -1349,6 +1526,101 @@ def admin_update_reservation():
         return jsonify({"result": "success", "message": success_msg})
     except Exception as e:
         return jsonify({"result": "fail", "message": str(e)})
+
+# [세입자 현황 페이지 로직]
+@app.route('/landlord/tenants')
+def tenant_management():
+    if 'user' not in session: 
+        return redirect('/login')
+    
+    landlord_id = session['user']['userid']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # ✨ [핵심 해결책] 에러가 나더라도 터지지 않도록 미리 빈 리스트를 만들어 둡니다.
+    tenants_list = []
+    buildings_list = []
+    
+    try:
+        # 1. 사이드바용 건물 목록 가져오기
+        cursor.execute("SELECT id, building_name FROM buildings WHERE landlord_id = %s", (landlord_id,))
+        buildings_list = cursor.fetchall()
+
+        # 2. 세입자 목록 가져오기 (연결된 건물의 주인이 나인 사람)
+        query = """
+            SELECT u.userid, u.name, u.phone, u.email, u.room_number, b.building_name 
+            FROM users u
+            JOIN buildings b ON u.building_id = b.id
+            WHERE b.landlord_id = %s AND u.role = 'user'
+        """
+        cursor.execute(query, (landlord_id,))
+        tenants_list = cursor.fetchall()
+
+    except Exception as e:
+        # 에러가 발생하면 터미널에 원인을 붉은 글씨로 출력합니다.
+        print(f"🚨 세입자 목록 DB 에러: {e}")
+        
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('tenant_management.html', 
+                           tenants=tenants_list, 
+                           buildings_list=buildings_list, 
+                           user_info=session['user'])
+
+# ==========================================
+# [전체 수리 내역 페이지 로직] 추가됨!
+# ==========================================
+@app.route('/landlord/repairs')
+def landlord_repairs():
+    if 'user' not in session: 
+        return redirect('/login')
+    
+    landlord_id = session['user']['userid']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # 1. 사이드바용 건물 리스트
+        cursor.execute("SELECT id, building_name FROM buildings WHERE landlord_id = %s", (landlord_id,))
+        buildings_list = cursor.fetchall()
+        
+        # 2. 전체 수리 내역 가져오기
+        query = """
+            SELECT 
+                r.id, 
+                DATE_FORMAT(r.created_at, '%Y-%m-%d %H:%i') as created_at, 
+                r.room_number, 
+                r.problem_name, 
+                r.status, 
+                r.ai_estimated_cost, 
+                r.actual_cost, 
+                r.receipt_image,
+                u.name as tenant_name
+            FROM repair_logs r
+            LEFT JOIN users u ON r.tenant_id = u.userid
+            WHERE r.landlord_id = %s 
+            ORDER BY r.created_at DESC
+        """
+        cursor.execute(query, (landlord_id,))
+        repairs_list = cursor.fetchall()
+
+    except Exception as e:
+        print(f"DB 에러 발생: {e}")
+        repairs_list = []
+        buildings_list = []
+    
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('landlord_repairs.html', 
+                           repairs=repairs_list, 
+                           buildings_list=buildings_list, 
+                           user_info=session['user'])
 
 if __name__ == '__main__':
     # 메인 포트인 5000에서 통합 실행됩니다.

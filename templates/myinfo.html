@@ -12,6 +12,89 @@
         <div class="text-6xl drop-shadow-xl animate-bounce-slow">🪙</div>
     </div>
 
+    {% if session['user']['role'] == 'landlord' %}
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 mb-8">
+            <h2 class="text-xl font-bold mb-2 text-slate-800">🏢 내 건물 등록</h2>
+            <p class="text-xs text-slate-400 mb-6 font-medium">소유하고 계신 건물을 등록해야 세입자가 선택할 수 있습니다.</p>
+            
+            <form action="/register_building" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">건물 이름 (필수)</label>
+                    <input type="text" name="building_name" required placeholder="예: 그린파크 빌라"
+                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">건물 주소 (필수)</label>
+                    <input type="text" name="address" required placeholder="예: 서울시 노원구 동일로 123"
+                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                </div>
+
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl mt-4">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" name="privacy_consent" required class="mt-1 w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+                        <span class="text-xs text-slate-600 leading-relaxed">
+                            <strong class="text-slate-700">[필수] 건물 정보 공개 및 제3자 제공 동의</strong><br>
+                            등록하신 건물명과 주소, 임대인 이름이 해당 건물을 선택하는 세입자 및 배정된 수리 전문가에게 공개되는 것에 동의합니다.
+                        </span>
+                    </label>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm hover:bg-slate-700 transition-colors shadow-md">
+                        동의하고 새 건물 등록하기
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    {% else %}
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 mb-8">
+            <h2 class="text-xl font-bold mb-2 text-slate-800">🏠 나의 거주지 정보</h2>
+            <p class="text-xs text-slate-400 mb-6 font-medium">거주지를 등록하면 수리 요청 시 임대인에게 알림이 갑니다.</p>
+            
+            <form action="/update_residence" method="POST" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">임대인(건물) 선택</label>
+                    <div class="relative">
+                        <select name="building_id" required class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
+    <option value="">건물을 선택해주세요</option>
+    {% for b in all_buildings %}
+        <option value="{{ b.id }}" {% if user_info.building_id == b.id %}selected{% endif %}>
+            {{ b.building_name }} ({{ b.address }})
+        </option>
+    {% endfor %}
+</select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">동 / 호수 (직접 입력)</label>
+                    <input type="text" name="room_number" value="{{ user_info.room_number or '' }}" required placeholder="예: 101동 202호"
+                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                </div>
+
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl mt-4">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" name="privacy_consent" required class="mt-1 w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+                        <span class="text-xs text-slate-600 leading-relaxed">
+                            <strong class="text-slate-700">[필수] 개인정보 수집 및 제3자 제공 동의</strong><br>
+                            원활한 수리 지원을 위해 입력하신 거주지 정보가 임대인 및 수리 전문가에게 제공됨에 동의합니다.
+                        </span>
+                    </label>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-blue-50 text-blue-600 font-bold py-3.5 rounded-xl text-sm hover:bg-blue-600 hover:text-white transition-colors">
+                        동의하고 거주지 정보 저장하기
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
     <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
         <h2 class="text-xl font-bold mb-6 text-slate-800">내 계정 정보</h2>
         <div class="space-y-4 text-sm">
