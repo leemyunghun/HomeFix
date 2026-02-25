@@ -182,9 +182,11 @@
 
 <script>
     var map, markers = [], infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+    var myLocationMarker = null; // 현위치 마커용 변수 추가
+    var myLocationLabel = null;  // 현위치 레이블용 변수 추가
 
     // ✨ [추가됨] 예약 팝업 관련 스크립트
-let currentMyPoints = 0;
+    let currentMyPoints = 0;
 
 function openReserveModal(btnElement) {
     // 버튼에 안전하게 숨겨둔 데이터를 꺼내옵니다.
@@ -245,11 +247,18 @@ function openReserveModal(btnElement) {
 
     // 초기화 함수
     function clearNearby() {
-        document.getElementById('nearbyStatus').innerText = '';
-        document.getElementById('nearbyResult').innerHTML = '';
-        if(markers.length > 0) markers.forEach((m) => m.setMap(null));
-        markers = [];
-    }
+    document.getElementById('nearbyStatus').innerText = '';
+    document.getElementById('nearbyResult').innerHTML = '';
+    if(markers.length > 0) markers.forEach((m) => m.setMap(null));
+
+    // ✨ 현위치 요소들도 지도에서 삭제
+    if(myLocationMarker) myLocationMarker.setMap(null);
+    if(myLocationLabel) myLocationLabel.setMap(null);
+
+    markers = [];
+    myLocationMarker = null;
+    myLocationLabel = null;
+}
 
     // 실시간 주변 전문가 찾기
     function findExperts() {
@@ -274,11 +283,24 @@ function openReserveModal(btnElement) {
             
             map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(lat, lon), level: 4 });
             
-            var myMarker = new kakao.maps.Marker({ 
-                position: new kakao.maps.LatLng(lat, lon), 
-                map: map 
-            });
-            markers.push(myMarker);
+            // ✨ [현위치 파란색 마커 설정]
+var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png';
+var imageSize = new kakao.maps.Size(35, 39);
+var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+myLocationMarker = new kakao.maps.Marker({ 
+    position: new kakao.maps.LatLng(lat, lon), 
+    map: map,
+    image: markerImage 
+});
+
+// ✨ [컴팩트 '내 위치' 레이블 설정]
+myLocationLabel = new kakao.maps.CustomOverlay({
+    content: `<div style="background:#2563eb; color:white; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:800; box-shadow:0 2px 6px rgba(37,99,235,0.3); border:1px solid white; white-space:nowrap;">내 위치</div>`,
+    position: new kakao.maps.LatLng(lat, lon),
+    yAnchor: 2.6 
+});
+myLocationLabel.setMap(map);
 
             var ps = new kakao.maps.services.Places();
             var keywords = ['집수리', '누수탐지', '배관', '보일러', '인테리어'];

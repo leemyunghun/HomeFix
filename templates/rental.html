@@ -209,14 +209,17 @@
         });
     }
 
-    // [기능 2] 실시간 GPS 주변 찾기
+    // [기능 2] 실시간 GPS 주변 찾기 (현위치 표시 강화 버전)
     var map, markers = [], infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+    var myLocationMarker = null; // 현위치 마커를 따로 관리합니다.
 
     function clearNearby() {
         document.getElementById('nearbyStatus').innerText = '';
         document.getElementById('nearbyResult').innerHTML = '';
         if(markers.length > 0) markers.forEach((m) => m.setMap(null));
+        if(myLocationMarker) myLocationMarker.setMap(null); // 현위치 마커 제거
         markers = [];
+        myLocationMarker = null;
     }
 
     function findToolRental() {
@@ -237,10 +240,44 @@
             var lat = pos.coords.latitude,
                 lon = pos.coords.longitude;
             var container = document.getElementById('map');
-            map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(lat, lon), level: 4 });
+            var centerLatLng = new kakao.maps.LatLng(lat, lon);
             
-            var myMarker = new kakao.maps.Marker({ position: new kakao.maps.LatLng(lat, lon), map: map });
-            markers.push(myMarker);
+            map = new kakao.maps.Map(container, { center: centerLatLng, level: 4 });
+            
+            // ✨ [개선] 현위치를 일반 마커와 구분하기 위한 파란색 마커 설정
+            var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png'; // 파란색 포인트 마커
+            var imageSize = new kakao.maps.Size(35, 39);
+            var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+            myLocationMarker = new kakao.maps.Marker({ 
+                position: centerLatLng, 
+                map: map,
+                image: markerImage // 파란색 이미지 적용
+            });
+
+            // ✨ [개선] 더 컴팩트한 커스텀 오버레이 레이블
+var content = `
+    <div style="
+        background: #2563eb; 
+        color: white; 
+        padding: 3px 10px; 
+        border-radius: 20px; 
+        font-size: 10px; 
+        font-weight: 800; 
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        border: 1px solid white;
+        white-space: nowrap;
+    ">
+        내 위치
+    </div>`;
+
+var myLocationLabel = new kakao.maps.CustomOverlay({
+    content: content,
+    position: centerLatLng,
+    yAnchor: 2.6 // 마커보다 약간 위쪽에 배치 (숫자가 커질수록 위로 올라감)
+});
+
+myLocationLabel.setMap(map);
 
             var ps = new kakao.maps.services.Places();
             var keywords = ['주민센터', '행정복지센터', '공구대여소'];
@@ -261,7 +298,7 @@
                             renderRealtimeResults(combinedData, lat, lon);
                         }
                     },
-                    { location: new kakao.maps.LatLng(lat, lon), radius: 3000 }
+                    { location: centerLatLng, radius: 3000 }
                 );
             });
         });
@@ -289,10 +326,13 @@
         statusEl.innerText = '✅ 주변 실시간 장소 ' + unique.length + '곳을 찾았습니다.';
         var html = '';
         var bounds = new kakao.maps.LatLngBounds();
+        
+        // ✨ 현위치를 범위에 포함
         bounds.extend(new kakao.maps.LatLng(lat, lon));
 
         unique.slice(0, 15).forEach(function (place) {
             var placePos = new kakao.maps.LatLng(place.y, place.x);
+            // 일반 대여소 마커 (기본 빨간색)
             var marker = new kakao.maps.Marker({ position: placePos, map: map });
             markers.push(marker);
             bounds.extend(placePos);
@@ -306,7 +346,6 @@
 
             var distKm = (place.distance / 1000).toFixed(1);
 
-            // [전문가 페이지와 동일한 카드 디자인 적용]
             html += `
             <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex justify-between items-center shadow-sm">
                 <div class="flex-1 pr-2">
@@ -326,7 +365,7 @@
         });
 
         resultEl.innerHTML = html;
-        map.setBounds(bounds);
+        map.setBounds(bounds); // ✨ 내 위치와 대여소가 모두 보이도록 지도 범위 조정
     }
 </script>
 {% endblock %}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeFix | 수리 대기 목록</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --hf-primary: #2563eb;
+            --hf-sidebar-bg: #ffffff;
+            --hf-bg: #f8fafc;
+            --hf-text-main: #1e293b;
+            --hf-text-sub: #64748b;
+            --hf-border: #e2e8f0;
+            --hf-success: #10b981;
+            --hf-warning: #f59e0b;
+        }
+
+        body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; background-color: var(--hf-bg); color: var(--hf-text-main); }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 260px; height: 100vh; background: var(--hf-sidebar-bg);
+            position: fixed; padding: 30px 20px; box-sizing: border-box; 
+            border-right: 1px solid var(--hf-border); display: flex; flex-direction: column;
+        }
+        
+        /* ✨ 로고에 마우스 올렸을 때 클릭할 수 있게 스타일 추가! */
+        .sidebar-logo { 
+            font-size: 24px; font-weight: 900; color: var(--hf-primary); 
+            margin-bottom: 40px; letter-spacing: -1px; text-decoration: none; display: block;
+            transition: opacity 0.2s;
+        }
+        .sidebar-logo:hover { opacity: 0.8; }
+        
+        .menu-label { font-size: 11px; font-weight: 800; color: var(--hf-text-sub); margin: 20px 0 10px 10px; text-transform: uppercase; }
+        .menu-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 15px;
+            border-radius: 12px; transition: 0.2s; margin-bottom: 5px;
+            color: var(--hf-text-main); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .menu-item:hover, .menu-item.active { background: #eff6ff; color: var(--hf-primary); }
+        .menu-item i { width: 20px; color: var(--hf-text-sub); }
+        .menu-item.active i { color: var(--hf-primary); }
+
+        /* 메인 콘텐츠 */
+        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; box-sizing: border-box; }
+        .header { margin-bottom: 35px; }
+        .header h2 { margin: 0; font-size: 24px; font-weight: 800; }
+
+        .content-card { 
+            background: white; border-radius: 24px; padding: 30px; 
+            border: 1px solid var(--hf-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        }
+
+        .task-list-grid { display: flex; flex-direction: column; gap: 15px; }
+        .task-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; border: 1px solid var(--hf-border); border-radius: 16px;
+            transition: 0.2s;
+        }
+        .task-item:hover { border-color: var(--hf-primary); background: #fdfdfd; }
+
+        .task-info h4 { margin: 0 0 5px 0; font-size: 16px; }
+        .task-info p { margin: 0; font-size: 13px; color: var(--hf-text-sub); }
+
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .badge-pending { background: #fff7ed; color: #f97316; }
+        .badge-done { background: #ecfdf5; color: #10b981; }
+
+        .btn-action {
+            background: var(--hf-primary); color: white; border: none; padding: 10px 20px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;
+        }
+
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 25px; }
+        .search-input {
+            flex: 1; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--hf-border);
+            font-size: 14px; outline: none;
+        }
+
+        /* 모달 스타일 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-content { background: white; width: 450px; margin: 80px auto; padding: 40px; border-radius: 30px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="sidebar-logo">HomeFix</a>
+        
+        <div class="menu-label">Expert Menu</div>
+        <a href="/expert_dashboard" class="menu-item">
+            <i class="fas fa-chart-line"></i> 대시보드 홈
+        </a>
+        <a href="/expert/tasks" class="menu-item active">
+            <i class="fas fa-tools"></i> 수리 대기 목록
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2>수리 대기 및 작업 목록</h2>
+            <p style="color: var(--hf-text-sub); margin-top:5px;">배정된 수리 건을 확인하고 영수증을 발행하세요.</p>
+        </div>
+
+        <div class="filter-bar">
+            <input type="text" class="search-input" placeholder="건물명 또는 호실로 검색...">
+        </div>
+
+        <div class="content-card">
+            <div class="task-list-grid">
+                {% if tasks %}
+                    {% for t in tasks %}
+                    <div class="task-item">
+                        <div class="task-info">
+                            <span class="status-badge {% if t.status == '영수증제출' %}badge-done{% else %}badge-pending{% endif %}" style="margin-bottom: 10px; display: inline-block;">
+                                {{ '수리 완료' if t.status == '영수증제출' else '수리 진행중' }}
+                            </span>
+                            <h4>{{ t.building_name }} {{ t.room_number }}호 - {{ t.problem_name }}</h4>
+                            <p><i class="far fa-clock"></i> 배정일: {{ t.created_at }}</p>
+                        </div>
+                        <div class="task-meta">
+                            {% if t.status != '영수증제출' %}
+                            <button class="btn-action" onclick="openReceiptModal('{{ t.id }}', '{{ t.building_name }} {{ t.room_number }}호')">
+                                영수증 발행하기
+                            </button>
+                            {% else %}
+                            <span style="color: var(--hf-success); font-weight: 700; font-size: 14px;">
+                                <i class="fas fa-check-circle"></i> 정산 대기중
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 50px; color: var(--hf-text-sub);">
+                        <i class="fas fa-clipboard-list" style="font-size: 40px; margin-bottom: 15px; opacity: 0.3;"></i>
+                        <p>현재 배정된 수리 내역이 없습니다.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin:0 0 10px;">영수증 발행</h3>
+            <p id="target_building" style="color: var(--hf-text-sub); margin-bottom:20px; font-size: 14px;"></p>
+            <form action="/expert/submit_receipt" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="order_id" id="modal_order_id" />
+                
+                <label style="display:block; font-weight:700; margin-bottom:8px; font-size: 14px;">최종 수리 비용 (원)</label>
+                <input type="number" name="final_cost" style="width:100%; padding:12px; border:1px solid var(--hf-border); border-radius:10px; margin-bottom:20px; box-sizing: border-box;" required />
+                
+                <label style="display:block; font-weight:700; margin-bottom:8px; font-size: 14px;">수리 완료 사진 / 영수증 첨부</label>
+                <input type="file" name="receipt_image" style="width:100%; margin-bottom:30px;" accept="image/*" required />
+
+                <div style="display:flex; gap:10px;">
+                    <button type="button" onclick="closeModal()" style="flex:1; padding:15px; border:none; border-radius:12px; cursor:pointer; font-weight: 700;">취소</button>
+                    <button type="submit" style="flex:1; padding:15px; background:var(--hf-primary); color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer;">전송하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openReceiptModal(orderId, buildingInfo) {
+            document.getElementById('modal_order_id').value = orderId;
+            document.getElementById('target_building').innerText = buildingInfo + ' 수리 건';
+            document.getElementById('receiptModal').style.display = 'block';
+        }
+        function closeModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+        // 배경 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('receiptModal')) closeModal();
+        }
+    </script>
+</body>
+</html>
