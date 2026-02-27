@@ -105,91 +105,110 @@
         text-decoration: underline;
     }
 
-    /* 모바일 대응 */
+    /* ✨ 모바일 반응형 디테일 강화 */
     @media (max-width: 768px) {
         .review-item {
-            flex-direction: column-reverse;
+            flex-direction: column-reverse; /* 모바일에서는 이미지가 위로 오게 배치 */
+            gap: 20px;
+            padding: 30px 0;
+        }
+        .review-title {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+        .review-text {
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+        .info-tag {
+            padding: 5px 12px;
+            font-size: 0.75rem;
         }
         .review-img-wrapper {
             width: 100%;
             height: 220px;
+            border-radius: 16px;
+        }
+        .review-meta {
+            font-size: 0.85rem;
+            gap: 8px;
+        }
+        .star-orange {
+            font-size: 1rem;
         }
     }
 </style>
 
-<div class="review-page py-10">
+<div class="review-page py-8 md:py-10 fade-in">
     <div class="centered-container">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-800 mb-3">이웃들의 리얼 수리 후기</h1>
-            <p class="text-slate-500 font-medium">
-                총 <span class="text-blue-600 font-bold">{{ reviews|length }}</span>개의 소중한 후기가 AI 지식으로
-                활용되고 있습니다.
+        <div class="text-center mb-8 md:mb-10">
+            <h1 class="text-2xl md:text-3xl font-black text-slate-800 mb-2 md:mb-3">이웃들의 리얼 수리 후기</h1>
+            <p class="text-sm md:text-base text-slate-500 font-medium break-keep">
+                총 <span class="text-blue-600 font-bold">{{ reviews|length }}</span>개의 소중한 후기가 AI 지식으로 활용되고 있습니다.
             </p>
         </div>
 
-        <div
-            class="bg-indigo-50 border border-indigo-100 rounded-3xl p-8 mb-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm"
-        >
+        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl md:rounded-3xl p-6 md:p-8 mb-8 md:mb-12 flex flex-col md:flex-row items-center justify-between gap-5 md:gap-6 shadow-sm text-center md:text-left">
             <div>
-                <h4 class="text-lg font-bold text-indigo-900 mb-1">후기 남기고 포인트 받기! 🪙</h4>
-                <p class="text-sm text-indigo-700">
-                    허위 리뷰 방지를 위해 <span class="font-bold">내 정보 > 진단 히스토리</span>에서만 후기 작성이
-                    가능합니다.
+                <h4 class="text-base md:text-lg font-bold text-indigo-900 mb-1">후기 남기고 포인트 받기! 🪙</h4>
+                <p class="text-xs md:text-sm text-indigo-700 break-keep">
+                    허위 리뷰 방지를 위해 <span class="font-bold">내 정보 > 진단 히스토리</span>에서만 후기 작성이 가능합니다.
                 </p>
             </div>
             <a
                 href="/myinfo"
-                class="shrink-0 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
+                class="w-full md:w-auto shrink-0 bg-indigo-600 text-white px-6 py-3.5 md:py-3 rounded-xl text-sm md:text-base font-bold hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
             >
                 내 진단 내역 보러가기 →
             </a>
         </div>
 
         <div class="review-list">
-            {% if reviews %} {% for review in reviews %}
-            <article class="review-item">
-                <div class="review-content {% if not review.image_path %}w-full{% endif %}">
-                    <h3 class="review-title">{{ review.repair_item }}</h3>
+            {% if reviews %} 
+                {% for review in reviews %}
+                <article class="review-item">
+                    <div class="review-content {% if not review.image_path %}w-full{% endif %}">
+                        <h3 class="review-title">{{ review.repair_item }}</h3>
 
-                    <div class="comment-area">
-                        <p class="review-text" data-full-text="{{ review.comment }}">{{ review.comment }}</p>
+                        <div class="comment-area">
+                            <p class="review-text" data-full-text="{{ review.comment }}">{{ review.comment }}</p>
+                        </div>
+
+                        <div class="tags-group mb-3 md:mb-4">
+                            <span class="info-tag">
+                                <i class="fas fa-tools mr-1 opacity-50"></i> {{ review.contractor_name }}
+                            </span>
+                            <span class="info-tag">
+                                <i class="fas fa-won-sign mr-1 opacity-50"></i> {{ "{:,}".format(review.cost) }}원
+                            </span>
+                        </div>
+
+                        <div class="review-meta">
+                            <span class="star-orange">{{ review.rating }}.0</span>
+                            <span class="star-icons">
+                                {% for _ in range(review.rating) %}★{% endfor %}{% for _ in range(5 - review.rating) %}☆{% endfor %}
+                            </span>
+                            <span class="user-name">{{ review.userid[:1] }}** 고객님</span>
+                            <span class="date-text">| {{ review.created_at }}</span>
+                        </div>
                     </div>
 
-                    <div class="tags-group mb-4">
-                        <span class="info-tag"
-                            ><i class="fas fa-tools mr-1 opacity-50"></i> {{ review.contractor_name }}</span
-                        >
-                        <span class="info-tag"
-                            ><i class="fas fa-won-sign mr-1 opacity-50"></i> {{ "{:,}".format(review.cost) }}원</span
-                        >
+                    {% if review.image_path %}
+                    <div class="review-img-wrapper">
+                        <img
+                            src="{{ url_for('static', filename='uploads/reviews/' + review.image_path) }}"
+                            alt="리뷰사진"
+                        />
                     </div>
-
-                    <div class="review-meta">
-                        <span class="star-orange">{{ review.rating }}.0</span>
-                        <span class="star-icons">
-                            {% for _ in range(review.rating) %}★{% endfor %}{% for _ in range(5 - review.rating) %}☆{%
-                            endfor %}
-                        </span>
-                        <span class="user-name">{{ review.userid[:1] }}** 고객님</span>
-                        <span class="date-text">| {{ review.created_at }}</span>
-                    </div>
+                    {% endif %}
+                </article>
+                {% endfor %} 
+            {% else %}
+                <div class="text-center py-16 md:py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                    <span class="text-4xl md:text-5xl opacity-50 block mb-3 md:mb-4">📭</span>
+                    <h3 class="text-lg md:text-xl font-bold text-slate-700 mb-1 md:mb-2">아직 등록된 후기가 없습니다.</h3>
+                    <p class="text-sm md:text-base text-slate-500">첫 번째 리뷰어가 되어 포인트를 받아보세요!</p>
                 </div>
-
-                {% if review.image_path %}
-                <div class="review-img-wrapper">
-                    <img
-                        src="{{ url_for('static', filename='uploads/reviews/' + review.image_path) }}"
-                        alt="리뷰사진"
-                    />
-                </div>
-                {% endif %}
-            </article>
-            {% endfor %} {% else %}
-            <div class="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                <span class="text-5xl opacity-50 block mb-4">📭</span>
-                <h3 class="text-xl font-bold text-slate-700 mb-2">아직 등록된 후기가 없습니다.</h3>
-                <p class="text-slate-500">첫 번째 리뷰어가 되어 포인트를 받아보세요!</p>
-            </div>
             {% endif %}
         </div>
     </div>
@@ -208,7 +227,7 @@
 
                 const btn = document.createElement('button');
                 btn.innerText = '더보기';
-                btn.className = 'more-link block mt-2 text-sm';
+                btn.className = 'more-link block mt-2 text-xs md:text-sm';
                 btn.onclick = function () {
                     if (btn.innerText === '더보기') {
                         el.innerText = originalText;

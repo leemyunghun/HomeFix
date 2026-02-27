@@ -1,58 +1,57 @@
 {% extends "admin_base.html" %} {% block content %}
-<div class="max-w-6xl mx-auto">
-    <div class="flex justify-between items-end mb-8">
+<div class="max-w-6xl mx-auto px-2 sm:px-0">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 md:mb-8 gap-2 sm:gap-0">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">📅 수리 예약 관리</h2>
-            <p class="text-slate-500 mt-2 text-sm">고객들이 포인트를 사용하여 신청한 시공 업체 예약 내역입니다.</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-800">📅 수리 예약 관리</h2>
+            <p class="text-slate-500 mt-2 text-xs md:text-sm">고객들이 포인트를 사용하여 신청한 시공 업체 예약 내역입니다.</p>
         </div>
-        <p class="text-2xl font-black text-indigo-600">{{ reservations|length }}건</p>
+        <p class="text-xl md:text-2xl font-black text-indigo-600">{{ reservations|length }}건</p>
     </div>
 
-    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden text-sm">
-        <table class="w-full text-left">
+    <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 shadow-sm overflow-x-auto text-xs md:text-sm">
+        <table class="w-full text-left min-w-[700px]">
             <thead class="bg-slate-50 border-b">
                 <tr>
-                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px]">예약 번호/일시</th>
-                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px]">신청자 ID</th>
-                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px]">예약 업체명</th>
-                    <th class="px-6 py-5 text-indigo-400 font-bold uppercase text-[11px] text-right">
-                        사용 포인트 (할인액)
-                    </th>
-                    <th class="px-6 py-5 text-slate-400 font-bold uppercase text-[11px] text-center">진행 상태 변경</th>
+                    <th class="px-4 py-3 md:px-6 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] whitespace-nowrap">예약 번호/일시</th>
+                    <th class="px-4 py-3 md:px-6 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] whitespace-nowrap">신청자 ID</th>
+                    <th class="px-4 py-3 md:px-6 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] whitespace-nowrap">예약 업체명</th>
+                    <th class="px-4 py-3 md:px-6 md:py-5 text-indigo-400 font-bold uppercase text-[10px] md:text-[11px] text-right whitespace-nowrap">사용 포인트 (할인액)</th>
+                    <th class="px-4 py-3 md:px-6 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] text-center whitespace-nowrap">진행 상태 변경</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                {% if reservations %} {% for res in reservations %}
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="px-6 py-5">
-                        <div class="font-bold text-slate-700">No. {{ res.id }}</div>
-                        <div class="text-slate-400 text-[11px]">{{ res.created_at }}</div>
-                    </td>
-                    <td class="px-6 py-5 font-bold text-slate-700">{{ res.userid }}</td>
-                    <td class="px-6 py-5 font-bold text-blue-600">{{ res.expert_name }}</td>
-                    <td class="px-6 py-5 text-right font-black text-indigo-600">
-                        - {{ "{:,}".format(res.used_points) }} <span class="text-xs text-slate-400 font-medium">P</span>
-                    </td>
-
-                    <td class="px-6 py-5 text-center">
-    <select 
-        onchange="updateResStatus('{{ res.id }}', this.value)" 
-        class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer 
-        {% if res.status == '예약대기' %}text-yellow-600{% elif res.status == '예약취소' %}text-red-500{% else %}text-green-600{% endif %}">
-        
-        <option value="예약대기" {% if res.status == '예약대기' %}selected{% endif %}>예약대기</option>
-        <option value="예약승인" {% if res.status == '예약승인' %}selected{% endif %}>예약승인</option>
-        <option value="시공완료" {% if res.status == '시공완료' %}selected{% endif %}>시공완료</option>
-        <option value="예약취소" {% if res.status == '예약취소' %}selected{% endif %}>예약취소</option>
-    </select>
-</td>
-                </tr>
-                {% endfor %} {% else %}
-                <tr>
-                    <td colspan="5" class="py-12 text-center text-slate-400 font-medium">
-                        아직 접수된 예약이 없습니다.
-                    </td>
-                </tr>
+                {% if reservations %} 
+                    {% for res in reservations %}
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-4 py-3 md:px-6 md:py-5 whitespace-nowrap">
+                            <div class="font-bold text-slate-700 text-xs md:text-sm">No. {{ res.id }}</div>
+                            <div class="text-slate-400 text-[10px] md:text-[11px]">{{ res.created_at }}</div>
+                        </td>
+                        <td class="px-4 py-3 md:px-6 md:py-5 font-bold text-slate-700 whitespace-nowrap">{{ res.userid }}</td>
+                        <td class="px-4 py-3 md:px-6 md:py-5 font-bold text-blue-600 whitespace-nowrap">{{ res.expert_name }}</td>
+                        <td class="px-4 py-3 md:px-6 md:py-5 text-right font-black text-indigo-600 whitespace-nowrap">
+                            - {{ "{:,}".format(res.used_points) }} <span class="text-[10px] md:text-xs text-slate-400 font-medium">P</span>
+                        </td>
+                        <td class="px-4 py-3 md:px-6 md:py-5 text-center whitespace-nowrap">
+                            <select 
+                                onchange="updateResStatus('{{ res.id }}', this.value)" 
+                                class="bg-slate-50 border border-slate-200 text-[10px] md:text-xs font-bold rounded-lg px-2 py-1 md:px-3 md:py-1.5 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer 
+                                {% if res.status == '예약대기' %}text-yellow-600{% elif res.status == '예약취소' %}text-red-500{% else %}text-green-600{% endif %}">
+                                
+                                <option value="예약대기" {% if res.status == '예약대기' %}selected{% endif %}>예약대기</option>
+                                <option value="예약승인" {% if res.status == '예약승인' %}selected{% endif %}>예약승인</option>
+                                <option value="시공완료" {% if res.status == '시공완료' %}selected{% endif %}>시공완료</option>
+                                <option value="예약취소" {% if res.status == '예약취소' %}selected{% endif %}>예약취소</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %} 
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-slate-400 font-medium">
+                            아직 접수된 예약이 없습니다.
+                        </td>
+                    </tr>
                 {% endif %}
             </tbody>
         </table>
@@ -60,12 +59,12 @@
 </div>
 
 <script>
-    // ✨ 상태 업데이트 함수 (Ajax 통신)
+    // ✨ 상태 업데이트 함수 (Ajax 통신) - 기존 기능 유지
     function updateResStatus(resId, newStatus) {
         // 예약 취소 시 경고창 띄우기
         if (newStatus === '예약취소') {
             if (!confirm('예약을 취소하시겠습니까? (사용된 포인트는 고객에게 환불됩니다)')) {
-                location.reload(); // 취소하면 원래 상태로 되돌리기 위해 새로고침
+                location.reload(); 
                 return;
             }
         }
@@ -79,7 +78,7 @@
             .then((data) => {
                 if (data.result === 'success') {
                     alert(data.message);
-                    location.reload(); // 색상 변경 등을 위해 화면 새로고침
+                    location.reload(); 
                 } else {
                     alert('변경 실패: ' + data.message);
                     location.reload();

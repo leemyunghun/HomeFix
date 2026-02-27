@@ -1,38 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-2xl mx-auto py-12 px-4 space-y-8 relative">
+<div class="max-w-2xl mx-auto py-8 md:py-12 px-4 space-y-6 md:space-y-8 relative">
     
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-[2.5rem] shadow-xl flex justify-between items-center text-white transform hover:-translate-y-1 transition-transform duration-300">
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-xl flex justify-between items-center text-white transform hover:-translate-y-1 transition-transform duration-300">
         <div>
-            <p class="text-blue-100 font-bold mb-1 text-sm opacity-90">사용 가능한 홈픽스 포인트</p>
-            <h3 class="text-4xl font-black tracking-tight drop-shadow-md">
-                {{ "{:,}".format(user_info.get('points', 0)) }} <span class="text-xl font-medium opacity-80">P</span>
+            <p class="text-blue-100 font-bold mb-1 text-xs md:text-sm opacity-90">사용 가능한 홈픽스 포인트</p>
+            <h3 class="text-3xl md:text-4xl font-black tracking-tight drop-shadow-md">
+                {{ "{:,}".format(user_info.get('points', 0)) }} <span class="text-lg md:text-xl font-medium opacity-80">P</span>
             </h3>
         </div>
-        <div class="text-6xl drop-shadow-xl animate-bounce-slow">🪙</div>
+        <div class="text-5xl md:text-6xl drop-shadow-xl animate-bounce-slow">🪙</div>
     </div>
 
     {% if session['user']['role'] == 'landlord' %}
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 mb-8">
-            <h2 class="text-xl font-bold mb-2 text-slate-800">🏢 내 건물 등록</h2>
-            <p class="text-xs text-slate-400 mb-6 font-medium">소유하고 계신 건물을 등록해야 세입자가 선택할 수 있습니다.</p>
+        <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100 mb-8">
+            <h2 class="text-lg md:text-xl font-bold mb-1 md:mb-2 text-slate-800">🏢 내 건물 등록</h2>
+            <p class="text-[11px] md:text-xs text-slate-400 mb-5 md:mb-6 font-medium">소유하고 계신 건물을 등록해야 세입자가 선택할 수 있습니다.</p>
             
             <form action="/register_building" method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">건물 이름 (필수)</label>
+                    <label class="block text-[11px] md:text-xs font-bold text-slate-500 mb-2 ml-1">건물 이름 (필수)</label>
                     <input type="text" name="building_name" required placeholder="예: 그린파크 빌라"
-                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                        class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">건물 주소 (필수)</label>
+                    <label class="block text-[11px] md:text-xs font-bold text-slate-500 mb-2 ml-1">건물 주소 (필수)</label>
                     <input type="text" name="address" required placeholder="예: 서울시 노원구 동일로 123"
-                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                        class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
                 </div>
 
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl mt-4">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="privacy_consent" required class="mt-1 w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
-                        <span class="text-xs text-slate-600 leading-relaxed">
+                <div class="p-3 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl mt-4">
+                    <label class="flex items-start gap-2 md:gap-3 cursor-pointer">
+                        <input type="checkbox" name="privacy_consent" required class="mt-1 w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer shrink-0">
+                        <span class="text-[10px] md:text-xs text-slate-600 leading-relaxed">
                             <strong class="text-slate-700">[필수] 건물 정보 공개 및 제3자 제공 동의</strong><br>
                             등록하신 건물명과 주소, 임대인 이름이 해당 건물을 선택하는 세입자 및 배정된 수리 전문가에게 공개되는 것에 동의합니다.
                         </span>
@@ -40,7 +40,7 @@
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm hover:bg-slate-700 transition-colors shadow-md">
+                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 md:py-3.5 rounded-xl text-sm hover:bg-slate-700 transition-colors shadow-md">
                         동의하고 새 건물 등록하기
                     </button>
                 </div>
@@ -48,38 +48,38 @@
         </div>
 
     {% else %}
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 mb-8">
-            <h2 class="text-xl font-bold mb-2 text-slate-800">🏠 나의 거주지 정보</h2>
-            <p class="text-xs text-slate-400 mb-6 font-medium">거주지를 등록하면 수리 요청 시 임대인에게 알림이 갑니다.</p>
+        <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100 mb-8">
+            <h2 class="text-lg md:text-xl font-bold mb-1 md:mb-2 text-slate-800">🏠 나의 거주지 정보</h2>
+            <p class="text-[11px] md:text-xs text-slate-400 mb-5 md:mb-6 font-medium">거주지를 등록하면 수리 요청 시 임대인에게 알림이 갑니다.</p>
             
-            <form action="/update_residence" method="POST" class="space-y-5">
+            <form action="/update_residence" method="POST" class="space-y-4 md:space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">임대인(건물) 선택</label>
+                    <label class="block text-[11px] md:text-xs font-bold text-slate-500 mb-2 ml-1">임대인(건물) 선택</label>
                     <div class="relative">
-                        <select name="building_id" required class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
-    <option value="">건물을 선택해주세요</option>
-    {% for b in all_buildings %}
-        <option value="{{ b.id }}" {% if user_info.building_id == b.id %}selected{% endif %}>
-            {{ b.building_name }} ({{ b.address }})
-        </option>
-    {% endfor %}
-</select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-slate-400">
+                        <select name="building_id" required class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-xs md:text-sm appearance-none cursor-pointer">
+                            <option value="">건물을 선택해주세요</option>
+                            {% for b in all_buildings %}
+                                <option value="{{ b.id }}" {% if user_info.building_id == b.id %}selected{% endif %}>
+                                    {{ b.building_name }} ({{ b.address }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 md:px-5 text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">동 / 호수 (직접 입력)</label>
+                    <label class="block text-[11px] md:text-xs font-bold text-slate-500 mb-2 ml-1">동 / 호수 (직접 입력)</label>
                     <input type="text" name="room_number" value="{{ user_info.room_number or '' }}" required placeholder="예: 101동 202호"
-                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                        class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-xs md:text-sm">
                 </div>
 
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl mt-4">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="privacy_consent" required class="mt-1 w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
-                        <span class="text-xs text-slate-600 leading-relaxed">
+                <div class="p-3 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl mt-4">
+                    <label class="flex items-start gap-2 md:gap-3 cursor-pointer">
+                        <input type="checkbox" name="privacy_consent" required class="mt-1 w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer shrink-0">
+                        <span class="text-[10px] md:text-xs text-slate-600 leading-relaxed">
                             <strong class="text-slate-700">[필수] 개인정보 수집 및 제3자 제공 동의</strong><br>
                             원활한 수리 지원을 위해 입력하신 거주지 정보가 임대인 및 수리 전문가에게 제공됨에 동의합니다.
                         </span>
@@ -87,7 +87,7 @@
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full bg-blue-50 text-blue-600 font-bold py-3.5 rounded-xl text-sm hover:bg-blue-600 hover:text-white transition-colors">
+                    <button type="submit" class="w-full bg-blue-50 text-blue-600 font-bold py-3 md:py-3.5 rounded-xl text-sm hover:bg-blue-600 hover:text-white transition-colors">
                         동의하고 거주지 정보 저장하기
                     </button>
                 </div>
@@ -95,64 +95,64 @@
         </div>
     {% endif %}
 
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
-        <h2 class="text-xl font-bold mb-6 text-slate-800">내 계정 정보</h2>
-        <div class="space-y-4 text-sm">
-            <div class="flex justify-between py-2 border-b border-slate-100">
+    <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-slate-800">내 계정 정보</h2>
+        <div class="space-y-3 md:space-y-4 text-xs md:text-sm">
+            <div class="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-slate-100 gap-1 sm:gap-0">
                 <span class="text-slate-400">이름 / 아이디</span>
                 <span class="font-bold text-slate-700">{{ user_info.name }} ({{ user_info.userid }})</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-slate-100">
+            <div class="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-slate-100 gap-1 sm:gap-0">
                 <span class="text-slate-400">이메일 주소</span>
                 <span class="font-bold text-slate-700">{{ user_info.email }}</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
-        <h2 class="text-xl font-bold mb-6 text-slate-800">💰 포인트 이용 내역</h2>
+    <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-slate-800">💰 포인트 이용 내역</h2>
         
         {% if point_logs %}
         <div class="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
             {% for log in point_logs %}
-            <div class="flex items-center justify-between p-4 rounded-2xl {% if log.amount > 0 %}bg-blue-50/50 border border-blue-100/50{% else %}bg-red-50/50 border border-red-100/50{% endif %}">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-lg {% if log.amount > 0 %}bg-blue-100 text-blue-600{% else %}bg-red-100 text-red-600{% endif %}">
+            <div class="flex items-center justify-between p-3 md:p-4 rounded-xl md:rounded-2xl {% if log.amount > 0 %}bg-blue-50/50 border border-blue-100/50{% else %}bg-red-50/50 border border-red-100/50{% endif %}">
+                <div class="flex items-center gap-3 md:gap-4">
+                    <div class="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-base md:text-lg {% if log.amount > 0 %}bg-blue-100 text-blue-600{% else %}bg-red-100 text-red-600{% endif %}">
                         {% if log.amount > 0 %}+{% else %}-{% endif %}
                     </div>
                     <div>
-                        <p class="font-bold text-slate-700 text-sm">{{ log.description }}</p>
-                        <p class="text-[11px] font-medium text-slate-400 mt-0.5">{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '최근' }}</p>
+                        <p class="font-bold text-slate-700 text-xs md:text-sm">{{ log.description }}</p>
+                        <p class="text-[10px] md:text-[11px] font-medium text-slate-400 mt-0.5">{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '최근' }}</p>
                     </div>
                 </div>
-                <div class="text-lg font-black shrink-0 {% if log.amount > 0 %}text-blue-600{% else %}text-red-600{% endif %}">
+                <div class="text-base md:text-lg font-black shrink-0 {% if log.amount > 0 %}text-blue-600{% else %}text-red-600{% endif %}">
                     {% if log.amount > 0 %}+{% endif %}{{ "{:,}".format(log.amount) }} P
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="text-center py-8 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-            <p class="text-sm font-bold">아직 포인트 이용 내역이 없습니다.</p>
-            <p class="text-xs mt-2">수리 후기를 작성하고 포인트를 모아보세요!</p>
+        <div class="text-center py-6 md:py-8 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <p class="text-xs md:text-sm font-bold">아직 포인트 이용 내역이 없습니다.</p>
+            <p class="text-[10px] md:text-xs mt-1 md:mt-2">수리 후기를 작성하고 포인트를 모아보세요!</p>
         </div>
         {% endif %}
     </div>
 
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
-        <h2 class="text-xl font-bold mb-6 text-slate-800">최근 진단 히스토리</h2>
+    <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-slate-800">최근 진단 히스토리</h2>
         {% if history %}
-            <div class="space-y-4">
+            <div class="space-y-3 md:space-y-4">
                 {% for item in history %}
-                <div id="history-{{ item.id }}" class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center group hover:bg-white hover:shadow-md transition-all duration-300">
-                    <div>
-                        <div class="font-bold text-slate-700">{{ item.problem_name }}</div>
-                        <div class="text-xs text-slate-400 mt-1">{{ item.created_at }}</div>
+                <div id="history-{{ item.id }}" class="p-4 md:p-5 bg-slate-50 rounded-xl md:rounded-2xl border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 group hover:bg-white hover:shadow-md transition-all duration-300">
+                    <div class="w-full sm:w-auto">
+                        <div class="font-bold text-slate-700 text-sm md:text-base">{{ item.problem_name }}</div>
+                        <div class="text-[10px] md:text-xs text-slate-400 mt-1">{{ item.created_at }}</div>
                     </div>
                     
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
                         {% if item.problem_name == '진단 불가' %}
-                            <button disabled class="bg-slate-100 text-slate-400 px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed border border-slate-200" title="진단에 실패한 내역은 후기를 작성할 수 없습니다.">
+                            <button disabled class="flex-1 sm:flex-none bg-slate-100 text-slate-400 px-3 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold cursor-not-allowed border border-slate-200" title="진단에 실패한 내역은 후기를 작성할 수 없습니다.">
                                 작성 불가 🚫
                             </button>
                             
@@ -165,118 +165,122 @@
                                 data-rating="{{ rev.rating }}"
                                 data-comment="{{ rev.comment }}"
                                 onclick="openEditModal(this)" 
-                                class="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition border border-slate-200 shadow-sm">
+                                class="flex-1 sm:flex-none bg-slate-100 text-slate-600 px-3 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold hover:bg-slate-200 transition border border-slate-200 shadow-sm">
                                 후기 수정 ✏️
                             </button>
                             
                         {% else %}
                             <button 
                                 onclick="openReviewModal('{{ item.problem_name }}')" 
-                                class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-600 hover:text-white transition shadow-sm">
+                                class="flex-1 sm:flex-none bg-indigo-50 text-indigo-600 px-3 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold hover:bg-indigo-600 hover:text-white transition shadow-sm whitespace-nowrap">
                                 후기 쓰기 🪙
                             </button>
                         {% endif %}
                         
-                        <a href="/history/{{ item.id }}" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">상세보기</a>
-                        <button data-id="{{ item.id }}" onclick="deleteHistory(this)" class="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">삭제</button>
+                        <a href="/history/{{ item.id }}" class="flex-1 sm:flex-none text-center bg-blue-50 text-blue-600 px-3 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold hover:bg-blue-600 hover:text-white transition">상세보기</a>
+                        <button data-id="{{ item.id }}" onclick="deleteHistory(this)" class="flex-1 sm:flex-none bg-red-50 text-red-500 px-3 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold hover:bg-red-500 hover:text-white transition">삭제</button>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="text-center py-10 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                <p>아직 진단 내역이 없습니다.</p>
+            <div class="text-center py-8 md:py-10 text-slate-400 bg-slate-50 rounded-2xl md:rounded-3xl border border-dashed border-slate-200">
+                <p class="text-sm md:text-base">아직 진단 내역이 없습니다.</p>
             </div>
         {% endif %}
     </div>
 
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100">
-        <h2 class="text-xl font-bold mb-2 text-slate-800">🔒 비밀번호 변경</h2>
-        <p class="text-xs text-slate-400 mb-6 font-medium">현재 비밀번호를 입력하여 본인 인증을 완료해 주세요.</p>
+    <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-lg md:text-xl font-bold mb-1 md:mb-2 text-slate-800">🔒 비밀번호 변경</h2>
+        <p class="text-[11px] md:text-xs text-slate-400 mb-5 md:mb-6 font-medium">현재 비밀번호를 입력하여 본인 인증을 완료해 주세요.</p>
         
-        <form action="/change_password" method="POST" class="space-y-5">
+        <form action="/change_password" method="POST" class="space-y-4 md:space-y-5">
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">현재 비밀번호</label>
+                <label class="block text-[11px] md:text-xs font-bold text-slate-500 mb-2 ml-1">현재 비밀번호</label>
                 <input type="password" name="current_password" required placeholder="현재 사용 중인 비밀번호"
-                    class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                    class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호</label>
+                    <label class="block text-[11px] md:text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호</label>
                     <input type="password" name="new_password" required placeholder="변경할 비밀번호"
-                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                        class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호 확인</label>
+                    <label class="block text-[11px] md:text-xs font-bold text-slate-500 mb-2 ml-1">새 비밀번호 확인</label>
                     <input type="password" name="confirm_password" required placeholder="비밀번호 확인"
-                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                        class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
                 </div>
             </div>
 
             <div class="pt-2 text-right">
-                <button type="submit" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-700 transition-all shadow-md active:scale-95">
+                <button type="submit" class="w-full sm:w-auto bg-slate-900 text-white px-8 py-3.5 rounded-xl md:rounded-2xl text-sm font-bold hover:bg-slate-700 transition-all shadow-md active:scale-95">
                     본인 인증 및 변경하기
                 </button>
             </div>
         </form>
     </div>
 
-    <div class="flex flex-col items-center gap-4 pt-4 border-t border-slate-100">
+    <div class="flex flex-col items-center gap-3 pt-4 border-t border-slate-100 pb-10">
         <button onclick="location.href='/'" class="text-slate-400 text-sm hover:text-blue-600 transition underline">홈으로 돌아가기</button>
-        <button onclick="confirmDeleteAccount()" class="text-slate-300 text-xs hover:text-red-500 transition">회원 탈퇴</button>
+        <button onclick="confirmDeleteAccount()" class="text-slate-300 text-[11px] md:text-xs hover:text-red-500 transition">회원 탈퇴</button>
     </div>
 </div>
 
 <div id="reviewModal" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
-    <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
-        <button onclick="closeReviewModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition">
+    <div class="bg-white rounded-3xl md:rounded-[2rem] p-6 md:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <button onclick="closeReviewModal()" class="absolute top-5 right-5 text-slate-400 hover:text-red-500 transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
-        <h2 id="modalTitle" class="text-2xl font-black mb-1 text-slate-800">수리 후기 작성</h2>
-        <p id="modalDesc" class="text-xs text-slate-500 mb-6">작성해주신 소중한 후기는 AI의 지식이 됩니다.</p>
+        
+        <h2 id="modalTitle" class="text-xl md:text-2xl font-black mb-1 text-slate-800 pr-6">수리 후기 작성</h2>
+        <p id="modalDesc" class="text-[11px] md:text-xs text-slate-500 mb-5 md:mb-6">작성해주신 소중한 후기는 AI의 지식이 됩니다.</p>
         
         <form id="reviewForm" action="/add_review" method="POST" enctype="multipart/form-data" class="space-y-4">
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 항목 (자동입력)</label>
+                <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">수리 항목 (자동입력)</label>
                 <input type="text" id="modal_repair_item" name="repair_item" readonly 
-                       class="w-full px-5 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-500 text-sm focus:outline-none font-bold">
+                       class="w-full px-4 md:px-5 py-3 bg-slate-100 border border-slate-200 rounded-xl md:rounded-2xl text-slate-500 text-xs md:text-sm focus:outline-none font-bold">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">시공 업체명</label>
+                <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">시공 업체명</label>
                 <input type="text" id="contractor_name" name="contractor_name" required placeholder="예: 우리동네설비, 직접수리 등" 
-                       class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
+                       class="w-full px-4 md:px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm transition">
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 비용 (원)</label>
+                    <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">수리 비용 (원)</label>
                     <input type="number" id="cost" name="cost" required placeholder="예: 50000" 
-                           class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
+                           class="w-full px-4 md:px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">만족도 (1~5점)</label>
+                    <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">만족도 (1~5점)</label>
                     <input type="number" id="rating" name="rating" min="1" max="5" required placeholder="5" 
-                           class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition">
+                           class="w-full px-4 md:px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm transition">
                 </div>
             </div>
+            
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">상세 후기</label>
+                <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">상세 후기</label>
                 <textarea id="comment" name="comment" required rows="3" placeholder="어떤 점이 좋았나요? 수리 과정은 어땠나요?" 
-                          class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm resize-none transition"></textarea>
+                          class="w-full px-4 md:px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-xs md:text-sm resize-none transition"></textarea>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">수리 완료 사진 (선택)</label>
+                <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">수리 완료 사진 (선택)</label>
                 <input type="file" name="image" accept="image/*" 
-                       class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer">
+                       class="w-full text-xs md:text-sm text-slate-500 file:mr-3 file:py-2 md:file:py-2.5 file:px-4 md:file:px-5 file:rounded-lg md:file:rounded-xl file:border-0 file:text-[10px] md:file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer">
             </div>
-            <button id="submitBtn" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-blue-600 transition-colors shadow-lg mt-2 flex justify-center items-center gap-2">
-                후기 등록하고 1,000P 받기 <span class="text-xl">🪙</span>
+            <button id="submitBtn" type="submit" class="w-full bg-slate-900 text-white font-bold py-3.5 md:py-4 rounded-xl md:rounded-2xl hover:bg-blue-600 transition-colors shadow-lg mt-2 flex justify-center items-center gap-2 text-sm md:text-base">
+                후기 등록하고 1,000P 받기 <span class="text-lg md:text-xl">🪙</span>
             </button>
         </form>
     </div>
 </div>
 
 <script>
+// 기존 자바스크립트 완벽 동일 유지
 async function deleteHistory(btn) {
     const historyId = btn.getAttribute('data-id');
     if(!confirm("이 기록을 삭제하시겠습니까?")) return;
@@ -313,7 +317,6 @@ function openReviewModal(problemName) {
     document.getElementById('submitBtn').innerHTML = '후기 등록하고 1,000P 받기 <span class="text-xl">🪙</span>';
     
     document.getElementById('modal_repair_item').value = problemName;
-    
     document.getElementById('contractor_name').value = '';
     document.getElementById('cost').value = '';
     document.getElementById('rating').value = '';
@@ -343,7 +346,7 @@ function closeReviewModal() {
 </script>
 
 <style>
-/* 스크롤바 커스텀 (Tailwind와 충돌을 피하기 위한 CSS) */
+/* 스크롤바 커스텀 */
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 8px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }

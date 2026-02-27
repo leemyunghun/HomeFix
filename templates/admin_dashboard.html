@@ -1,70 +1,70 @@
 {% extends "admin_base.html" %}
 {% block content %}
-<div class="max-w-6xl mx-auto py-10 px-4">
-    <div class="flex justify-between items-end mb-10">
+<div class="max-w-6xl mx-auto py-6 md:py-10 px-4">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-8 md:mb-10 gap-2 sm:gap-0">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">🛠️ 시스템 통합 현황</h2>
-            <p class="text-slate-500 mt-2 text-sm">홈픽스 서비스의 실시간 사용자 분포와 운영 지표를 관리합니다.</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-800">🛠️ 시스템 통합 현황</h2>
+            <p class="text-slate-500 mt-2 text-xs md:text-sm">홈픽스 서비스의 실시간 사용자 분포와 운영 지표를 관리합니다.</p>
         </div>
-        <p class="text-2xl font-black text-blue-600">Master Control</p>
+        <p class="text-xl md:text-2xl font-black text-blue-600">Master Control</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <div class="bg-white p-8 rounded-3xl border shadow-sm border-l-8 border-l-slate-800">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10">
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border shadow-sm border-l-8 border-l-slate-800">
             <p class="text-xs font-bold text-slate-400">전체 사용자</p>
-            <h3 class="text-4xl font-black mt-2 text-slate-800">{{ total_users | default(0) }}</h3>
+            <h3 class="text-3xl md:text-4xl font-black mt-2 text-slate-800">{{ total_users | default(0) }}</h3>
         </div>
-        <div class="bg-white p-8 rounded-3xl border shadow-sm text-blue-600 border-l-8 border-l-blue-600">
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border shadow-sm text-blue-600 border-l-8 border-l-blue-600">
             <p class="text-xs font-bold text-blue-400">AI 진단 로그</p>
-            <h3 class="text-4xl font-black mt-2">{{ total_diagnoses | default(0) }}</h3>
+            <h3 class="text-3xl md:text-4xl font-black mt-2">{{ total_diagnoses | default(0) }}</h3>
         </div>
-        <div class="bg-white p-8 rounded-3xl border shadow-sm text-indigo-600 border-l-8 border-l-indigo-600">
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border shadow-sm text-indigo-600 border-l-8 border-l-indigo-600">
             <p class="text-xs font-bold text-indigo-400">신규 예약 대기</p>
-            <h3 class="text-4xl font-black mt-2">{{ total_reservations | default(0) }}</h3>
+            <h3 class="text-3xl md:text-4xl font-black mt-2">{{ total_reservations | default(0) }}</h3>
         </div>
-        <div class="bg-white p-8 rounded-3xl border shadow-sm text-red-600 border-l-8 border-l-red-600">
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border shadow-sm text-red-600 border-l-8 border-l-red-600">
             <p class="text-xs font-bold text-red-400">미응답 문의</p>
-            <h3 class="text-4xl font-black mt-2">{{ pending_support | default(0) }}</h3>
+            <h3 class="text-3xl md:text-4xl font-black mt-2">{{ pending_support | default(0) }}</h3>
         </div>
     </div>
 
-    <h3 class="text-xl font-bold text-slate-800 mb-6">👥 사용자 유형별 분포</h3>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <div class="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">👑</div>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">시스템 관리자</p>
-            <h3 class="text-4xl font-black mt-2 text-white">{{ admin_users | default(0) }}<span class="text-lg font-normal opacity-50 ml-1">명</span></h3>
+    <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-4 md:mb-6">👥 사용자 유형별 분포</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10">
+        <div class="bg-slate-800 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-slate-700 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10 text-5xl md:text-6xl">👑</div>
+            <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">시스템 관리자</p>
+            <h3 class="text-3xl md:text-4xl font-black mt-2 text-white">{{ admin_users | default(0) }}<span class="text-sm md:text-lg font-normal opacity-50 ml-1">명</span></h3>
         </div>
-        <div class="bg-white p-8 rounded-3xl border border-emerald-100 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">🏗️</div>
-            <p class="text-xs font-bold text-emerald-500 uppercase tracking-widest">파트너 업체</p>
-            <h3 class="text-4xl font-black mt-2 text-slate-800">{{ expert_users | default(0) }}<span class="text-lg font-normal text-slate-400 ml-1">곳</span></h3>
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border border-emerald-100 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10 text-5xl md:text-6xl">🏗️</div>
+            <p class="text-[10px] md:text-xs font-bold text-emerald-500 uppercase tracking-widest">파트너 업체</p>
+            <h3 class="text-3xl md:text-4xl font-black mt-2 text-slate-800">{{ expert_users | default(0) }}<span class="text-sm md:text-lg font-normal text-slate-400 ml-1">곳</span></h3>
         </div>
-        <div class="bg-white p-8 rounded-3xl border border-purple-100 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">🏠</div>
-            <p class="text-xs font-bold text-purple-500 uppercase tracking-widest">등록 임대인</p>
-            <h3 class="text-4xl font-black mt-2 text-slate-800">{{ landlord_users | default(0) }}<span class="text-lg font-normal text-slate-400 ml-1">명</span></h3>
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border border-purple-100 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10 text-5xl md:text-6xl">🏠</div>
+            <p class="text-[10px] md:text-xs font-bold text-purple-500 uppercase tracking-widest">등록 임대인</p>
+            <h3 class="text-3xl md:text-4xl font-black mt-2 text-slate-800">{{ landlord_users | default(0) }}<span class="text-sm md:text-lg font-normal text-slate-400 ml-1">명</span></h3>
         </div>
-        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">👤</div>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">일반 유저</p>
-            <h3 class="text-4xl font-black mt-2 text-slate-800">{{ general_users | default(0) }}<span class="text-lg font-normal text-slate-400 ml-1">명</span></h3>
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10 text-5xl md:text-6xl">👤</div>
+            <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">일반 유저</p>
+            <h3 class="text-3xl md:text-4xl font-black mt-2 text-slate-800">{{ general_users | default(0) }}<span class="text-sm md:text-lg font-normal text-slate-400 ml-1">명</span></h3>
         </div>
     </div>
 
-    <hr class="border-slate-200 mb-10">
+    <hr class="border-slate-200 mb-8 md:mb-10">
 
-    <h3 class="text-xl font-bold text-slate-800 mb-6">📉 실시간 데이터 통계 분석</h3>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-            <h4 class="font-bold text-slate-700 mb-4">최근 7일 진단 건수 추이</h4>
-            <div class="h-64">
+    <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-4 md:mb-6">📉 실시간 데이터 통계 분석</h3>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-10">
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border border-slate-100 shadow-sm">
+            <h4 class="font-bold text-slate-700 mb-4 text-sm md:text-base">최근 7일 진단 건수 추이</h4>
+            <div class="h-48 md:h-64">
                 <canvas id="trendChart"></canvas>
             </div>
         </div>
-        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-            <h4 class="font-bold text-slate-700 mb-4">주요 수리 항목 분포</h4>
-            <div class="h-64">
+        <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border border-slate-100 shadow-sm">
+            <h4 class="font-bold text-slate-700 mb-4 text-sm md:text-base">주요 수리 항목 분포</h4>
+            <div class="h-48 md:h-64">
                 <canvas id="distChart"></canvas>
             </div>
         </div>

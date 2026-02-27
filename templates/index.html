@@ -29,564 +29,317 @@
 </style>
 
 <div class="w-full overflow-hidden">
-    <section class="snap-section relative bg-gradient-to-b from-blue-50 to-white px-4">
-        <div class="max-w-5xl mx-auto text-center space-y-8 fade-in w-full">
+    <section class="snap-section relative bg-gradient-to-b from-blue-50 to-white px-4 md:px-8">
+        <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in w-full">
             <div
-                class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-blue-100 text-blue-600 text-sm font-bold mx-auto"
+                class="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white rounded-full shadow-sm border border-blue-100 text-blue-600 text-xs md:text-sm font-bold mx-auto"
             >
-                <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-ping"></span>
+                <span class="flex h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-blue-600 animate-ping"></span>
                 실시간 AI 수리 어드바이저 가동 중
             </div>
 
-            <h1 class="text-5xl md:text-6xl font-black text-slate-900 leading-[1.15] tracking-tight">
-                고쳐야 할 우리 집, <br />
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 leading-[1.2] tracking-tight">
+                고쳐야 할 우리 집, <br class="hidden sm:block" />
                 <span class="text-blue-600">홈픽스 AI</span>가 답을 찾습니다.
             </h1>
 
-            <p class="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
-                갑작스러운 고장에 당황하지 마세요. AI 맞춤 가이드부터<br />
+            <p class="text-slate-500 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed px-4">
+                갑작스러운 고장에 당황하지 마세요. AI 맞춤 가이드부터<br class="hidden sm:block" />
                 가까운 공구 대여소 매칭까지 한 번에 해결해 드립니다.
             </p>
 
-            <div class="max-w-2xl mx-auto pt-8">
+            <div class="max-w-2xl mx-auto pt-4 md:pt-8 w-full px-2">
                 {% if user_info %}
                 <div class="space-y-4">
                     <div
-                        class="bg-white p-3 rounded-[2rem] shadow-2xl flex items-center gap-3 border border-slate-100 focus-within:ring-4 focus-within:ring-blue-100 transition-all"
+                        class="bg-white p-2 md:p-3 rounded-2xl md:rounded-[2rem] shadow-xl md:shadow-2xl flex flex-col md:flex-row items-center gap-2 md:gap-3 border border-slate-100 focus-within:ring-4 focus-within:ring-blue-100 transition-all w-full"
                     >
-                        <label
-                            class="cursor-pointer w-14 h-14 flex-shrink-0 flex items-center justify-center bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm border border-blue-100 group relative"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2"
-                                stroke="currentColor"
-                                class="w-6 h-6 group-hover:scale-110 transition-transform"
+                        <div class="flex w-full gap-2 items-center px-2 md:px-0">
+                            <label
+                                class="cursor-pointer w-12 h-12 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl md:rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm border border-blue-100 group relative"
                             >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
-                                />
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
-                                />
-                            </svg>
-
-                            <span
-                                class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg"
-                            >
-                                사진 업로드
-                                <span
-                                    class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"
-                                ></span>
-                            </span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke="currentColor"
+                                    class="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                                </svg>
+                                <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg hidden md:block">
+                                    사진 업로드
+                                    <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></span>
+                                </span>
+                                <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="updateFileName(this)" multiple />
+                            </label>
 
                             <input
-                                type="file"
-                                id="imageInput"
-                                accept="image/*"
-                                class="hidden"
-                                onchange="updateFileName(this)"
-                                multiple
+                                type="text"
+                                id="problemInput"
+                                onkeypress="if (event.key === 'Enter') processStart();"
+                                class="flex-1 py-3 px-2 outline-none text-base md:text-lg bg-transparent text-slate-800 placeholder-slate-400 min-w-0"
+                                placeholder="어디가 문제인가요? (예: 샤워기 교체)"
                             />
-                        </label>
-
-                        <input
-                            type="text"
-                            id="problemInput"
-                            onkeypress="if (event.key === 'Enter') processStart();"
-                            class="flex-1 px-2 outline-none text-lg bg-transparent text-slate-800 placeholder-slate-400 h-full"
-                            placeholder="어디가 문제인가요? (예: 샤워기 헤드 교체)"
-                        />
+                        </div>
 
                         <button
                             onclick="processStart()"
                             id="diagBtn"
-                            class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95 whitespace-nowrap flex items-center gap-2"
+                            class="w-full md:w-auto bg-blue-600 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95 whitespace-nowrap flex items-center justify-center gap-2 mt-2 md:mt-0"
                         >
                             <span>AI 진단하기</span>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                class="w-4 h-4"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                                    clip-rule="evenodd"
-                                />
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
                             </svg>
                         </button>
                     </div>
-                    <div id="imagePreviewContainer" class="grid grid-cols-4 gap-2 px-2 hidden">
-                        </div>
+                    <div id="imagePreviewContainer" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 px-2 hidden"></div>
 
-                    <div
-                        id="fileStatus"
-                        class="text-sm text-slate-500 font-medium hidden flex items-center justify-center gap-2 animate-fade-in-up"
-                    >
-                        </div>
-                    <div
-                        id="fileStatus"
-                        class="text-sm text-slate-500 font-medium hidden flex items-center justify-center gap-2 animate-fade-in-up"
-                    >
-                        <span
-                            class="w-5 h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs"
-                            >✓</span
-                        >
-                        <span id="fileNameDisplay" class="text-emerald-700 font-bold"></span>
-                        <span class="text-slate-400">파일이 선택되었습니다.</span>
-                        <button
-                            onclick="removeFile()"
-                            class="text-red-400 hover:text-red-600 ml-2 text-xs border border-red-200 px-2 py-0.5 rounded hover:bg-red-50 transition"
-                        >
-                            삭제
-                        </button>
+                    <div id="fileStatus" class="text-xs md:text-sm text-slate-500 font-medium hidden flex items-center justify-center gap-2 animate-fade-in-up">
+                        <span class="w-4 h-4 md:w-5 md:h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-[10px] md:text-xs">✓</span>
+                        <span id="fileNameDisplay" class="text-emerald-700 font-bold truncate max-w-[150px] md:max-w-[200px]"></span>
+                        <span class="text-slate-400 shrink-0">파일이 선택되었습니다.</span>
+                        <button onclick="removeFile()" class="text-red-400 hover:text-red-600 ml-2 text-[10px] md:text-xs border border-red-200 px-2 py-0.5 rounded hover:bg-red-50 transition shrink-0">전체 삭제</button>
                     </div>
                 </div>
                 {% else %}
-                <div
-                    class="bg-white/80 backdrop-blur-md p-8 rounded-[2.5rem] shadow-xl border border-white text-center"
-                >
-                    <p class="text-slate-800 font-bold mb-4 text-lg">지금 로그인하고 무료 진단을 시작해보세요</p>
-                    <a
-                        href="/login"
-                        class="bg-blue-600 text-white px-12 py-4 rounded-2xl font-bold hover:bg-blue-700 transition inline-block shadow-lg"
-                        >무료 진단 받기</a
-                    >
+                <div class="bg-white/80 backdrop-blur-md p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-xl border border-white text-center mx-4 md:mx-0">
+                    <p class="text-slate-800 font-bold mb-4 text-base md:text-lg">지금 로그인하고 무료 진단을 시작해보세요</p>
+                    <a href="/login" class="bg-blue-600 text-white px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold hover:bg-blue-700 transition inline-block shadow-lg w-full sm:w-auto">무료 진단 받기</a>
                 </div>
                 {% endif %}
             </div>
-            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-slate-300">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                    ></path>
+            
+            <div class="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-slate-300">
+                <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                 </svg>
             </div>
         </div>
     </section>
-<section class="snap-section bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 px-4 relative flex items-center justify-center overflow-hidden py-20"> <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-blue-600/20 rounded-full blur-[150px] pointer-events-none animate-pulse-slow"></div>
+
+    <section class="snap-section bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 px-4 relative flex items-center justify-center overflow-hidden py-16 md:py-20"> 
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[1000px] md:h-[1000px] bg-blue-600/20 rounded-full blur-[100px] md:blur-[150px] pointer-events-none animate-pulse-slow"></div>
     
-    <div class="max-w-7xl mx-auto w-full relative z-10">
-        <div class="text-center mb-10 fade-in">
-            <span class="text-blue-300 font-bold text-sm tracking-[0.2em] uppercase mb-3 block drop-shadow-sm">Brand Campaign</span>
-            <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight drop-shadow-lg">
-                홈픽스 <span class="text-blue-400">프리미엄 파트너</span>
-            </h2>
-        </div>
-
-        <div class="relative w-full rounded-[2.5rem] overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.6)] border border-white/10 group h-[500px] md:h-[600px] bg-blue-950"> <div id="ad-slider-track" class="flex h-full transition-transform duration-700 ease-in-out will-change-transform">
-                
-                <div class="w-full h-full shrink-0 relative flex items-center justify-center">
-                    <img 
-                        src="/static/uploads/documents/ad_image.png" 
-                        alt="스마트 IT 비서 광고" 
-                        class="w-full h-full object-contain" 
-                    /> </div>
-
-                 <div class="w-full h-full shrink-0 relative flex items-center justify-center">
-                    <img src="/static/uploads/documents/ad_image2.png" class="w-full h-full object-contain" alt="광고 예시 2">
-                    </div>
-
-                <div class="w-full h-full shrink-0 relative flex items-center justify-center">
-                     <img src="/static/uploads/documents/ad_image1.png" class="w-full h-full object-contain" alt="광고 예시 3">
-                    </div>
+        <div class="max-w-7xl mx-auto w-full relative z-10">
+            <div class="text-center mb-6 md:mb-10 fade-in">
+                <span class="text-blue-300 font-bold text-xs md:text-sm tracking-[0.2em] uppercase mb-2 md:mb-3 block drop-shadow-sm">Brand Campaign</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight drop-shadow-lg">
+                    홈픽스 <span class="text-blue-400">프리미엄 파트너</span>
+                </h2>
             </div>
 
-            <button id="ad-prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                  </svg>                  
-            </button>
-            <button id="ad-next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-            </button>
+            <div class="relative w-full rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)] md:shadow-[0_20px_80px_rgba(0,0,0,0.6)] border border-white/10 group h-[350px] sm:h-[450px] md:h-[600px] bg-blue-950"> 
+                <div id="ad-slider-track" class="flex h-full transition-transform duration-700 ease-in-out will-change-transform">
+                    <div class="w-full h-full shrink-0 relative flex items-center justify-center p-4 md:p-0">
+                        <img src="/static/uploads/documents/ad_image.png" alt="스마트 IT 비서 광고" class="w-full h-full object-contain" /> 
+                    </div>
+                    <div class="w-full h-full shrink-0 relative flex items-center justify-center p-4 md:p-0">
+                        <img src="/static/uploads/documents/ad_image3.png" class="w-full h-full object-contain" alt="광고 예시 2">
+                    </div>
+                    <div class="w-full h-full shrink-0 relative flex items-center justify-center p-4 md:p-0">
+                        <img src="/static/uploads/documents/ad_image2.png" class="w-full h-full object-contain" alt="광고 예시 3">
+                    </div>
+                    <div class="w-full h-full shrink-0 relative flex items-center justify-center p-4 md:p-0">
+                        <img src="/static/uploads/documents/ad_image1.png" class="w-full h-full object-contain" alt="광고 예시 4">
+                    </div>
+                </div>
 
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20 bg-black/20 px-4 py-2 rounded-full backdrop-blur-sm">
-                <button class="ad-dot-indicator w-8 h-2.5 rounded-full bg-blue-500 transition-all duration-300" data-index="0"></button>
-                <button class="ad-dot-indicator w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300" data-index="1"></button>
-                <button class="ad-dot-indicator w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300" data-index="2"></button>
+                <button id="ad-prev-btn" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-100 md:opacity-0 group-hover:opacity-100 z-20 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 md:w-6 md:h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                </button>
+                <button id="ad-next-btn" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-100 md:opacity-0 group-hover:opacity-100 z-20 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 md:w-6 md:h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                </button>
+
+                <div class="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-20 bg-black/30 px-3 py-1.5 md:px-4 md:py-2 rounded-full backdrop-blur-sm">
+                    <button class="ad-dot-indicator w-6 md:w-8 h-2 md:h-2.5 rounded-full bg-blue-500 transition-all duration-300" data-index="0"></button>
+                    <button class="ad-dot-indicator w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300" data-index="1"></button>
+                    <button class="ad-dot-indicator w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300" data-index="2"></button>
+                    <button class="ad-dot-indicator w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300" data-index="3"></button>
+                </div>
             </div>
-
         </div>
-    </div>
-</section>
+    </section>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const adSliderTrack = document.getElementById('ad-slider-track');
-        const adPrevBtn = document.getElementById('ad-prev-btn');
-        const adNextBtn = document.getElementById('ad-next-btn');
-        const adDots = document.querySelectorAll('.ad-dot-indicator');
-        const slides = adSliderTrack.children;
-        
-        let adCurrentIndex = 0;
-        const adTotalSlides = slides.length;
-        let adAutoSlideInterval;
-
-        // 슬라이드 업데이트 함수
-        function updateAdSlider() {
-            adSliderTrack.style.transform = `translateX(-${adCurrentIndex * 100}%)`;
-            
-            // 인디케이터 업데이트
-            adDots.forEach((dot, index) => {
-                if (index === adCurrentIndex) {
-                    dot.classList.remove('bg-white/40', 'w-2.5', 'hover:bg-white/70');
-                    dot.classList.add('bg-blue-500', 'w-8'); // 활성 점: 길고 파랗게
-                } else {
-                    dot.classList.remove('bg-blue-500', 'w-8');
-                    dot.classList.add('bg-white/40', 'w-2.5', 'hover:bg-white/70'); // 비활성 점: 작고 하얗게
-                }
-            });
-        }
-
-        function nextAdSlide() {
-            adCurrentIndex = (adCurrentIndex + 1) % adTotalSlides;
-            updateAdSlider();
-        }
-
-        function prevAdSlide() {
-            adCurrentIndex = (adCurrentIndex - 1 + adTotalSlides) % adTotalSlides;
-            updateAdSlider();
-        }
-
-        // 이벤트 리스너 등록
-        adNextBtn.addEventListener('click', () => { nextAdSlide(); resetAdAutoSlide(); });
-        adPrevBtn.addEventListener('click', () => { prevAdSlide(); resetAdAutoSlide(); });
-
-        adDots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                adCurrentIndex = index;
-                updateAdSlider();
-                resetAdAutoSlide();
-            });
-        });
-
-        // 자동 슬라이드 (4초 간격)
-        function startAdAutoSlide() {
-            adAutoSlideInterval = setInterval(nextAdSlide, 4000);
-        }
-        function resetAdAutoSlide() {
-            clearInterval(adAutoSlideInterval);
-            startAdAutoSlide();
-        }
-
-        startAdAutoSlide(); // 시작
-    });
-</script>
     <section class="snap-section max-w-6xl mx-auto px-4 border-b border-slate-100">
-        <div class="w-full">
-            <div class="text-center mb-16">
-                <span class="text-blue-600 font-bold text-sm tracking-wider uppercase mb-2 block">Process</span>
-                <h2 class="text-3xl md:text-4xl font-black text-slate-900">홈픽스는 이렇게 해결합니다</h2>
+        <div class="w-full py-10 md:py-0">
+            <div class="text-center mb-10 md:mb-16">
+                <span class="text-blue-600 font-bold text-xs md:text-sm tracking-wider uppercase mb-2 block">Process</span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900">홈픽스는 이렇게 해결합니다</h2>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 relative">
                 <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-100 -z-10"></div>
 
-                <div
-                    class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300"
-                >
-                    <div
-                        class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-blue-100"
-                    >
-                        1
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">촬영 & 업로드</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        고장 난 부위를 사진으로 찍거나<br />증상을 글로 적어주세요.
-                    </p>
+                <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 md:w-16 md:h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-bold mx-auto mb-4 md:mb-6 border border-blue-100">1</div>
+                    <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-2 md:mb-3">촬영 & 업로드</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">고장 난 부위를 사진으로 찍거나<br class="hidden md:block"/>증상을 글로 적어주세요.</p>
                 </div>
 
-                <div
-                    class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300"
-                >
-                    <div
-                        class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-purple-100"
-                    >
-                        2
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">AI 즉시 분석</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        AI가 고장 원인을 분석하고<br />최적의 수리 방법을 제시합니다.
-                    </p>
+                <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 md:w-16 md:h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-bold mx-auto mb-4 md:mb-6 border border-purple-100">2</div>
+                    <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-2 md:mb-3">AI 즉시 분석</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">AI가 고장 원인을 분석하고<br class="hidden md:block"/>최적의 수리 방법을 제시합니다.</p>
                 </div>
 
-                <div
-                    class="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300"
-                >
-                    <div
-                        class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-6 border border-emerald-100"
-                    >
-                        3
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">해결 & 대여</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        필요한 공구를 근처에서 대여하거나<br />전문가와 연결해 드립니다.
-                    </p>
+                <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2rem] border border-slate-100 shadow-sm text-center relative hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 md:w-16 md:h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-bold mx-auto mb-4 md:mb-6 border border-emerald-100">3</div>
+                    <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-2 md:mb-3">해결 & 대여</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">필요한 공구를 근처에서 대여하거나<br class="hidden md:block"/>전문가와 연결해 드립니다.</p>
                 </div>
             </div>
         </div>
-        
     </section>
+
     <div class="max-w-6xl mx-auto px-4 mt-8 mb-10 relative group" id="banner-container">
-    
-    <div class="overflow-hidden rounded-[2rem] shadow-xl relative">
-        <div class="flex transition-transform duration-500 ease-in-out" id="banner-slider">
+        <div class="overflow-hidden rounded-3xl md:rounded-[2rem] shadow-xl relative">
+            <div class="flex transition-transform duration-500 ease-in-out" id="banner-slider">
+                <a href="/notice/2" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 shrink-0">
+                    <div class="absolute -right-10 -bottom-20 w-48 h-48 bg-yellow-300 opacity-20 rounded-full blur-2xl"></div>
+                    <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between px-6 py-8 md:px-10 md:py-10 text-center sm:text-left">
+                        <div class="text-white mb-4 sm:mb-0">
+                            <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[10px] md:text-[11px] font-bold tracking-wider mb-2 md:mb-3 backdrop-blur-sm border border-white/30">🚀 정식 런칭</span>
+                            <h3 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mb-1 md:mb-2">집수리의 새로운 기준, <span class="text-yellow-300">홈픽스 런칭!</span></h3>
+                            <p class="text-orange-100 text-xs sm:text-sm md:text-base font-medium">AI 진단부터 우리 동네 검증된 업체 매칭까지</p>
+                        </div>
+                        <div class="text-5xl md:text-6xl drop-shadow-lg transform hover:rotate-12 transition duration-300">✨</div>
+                    </div>
+                </a>
+                <a href="notice/30001" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shrink-0">
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+                    <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between px-6 py-8 md:px-10 md:py-10 text-center sm:text-left">
+                        <div class="text-white mb-4 sm:mb-0">
+                            <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[10px] md:text-[11px] font-bold tracking-wider mb-2 md:mb-3 backdrop-blur-sm border border-white/30">🎉 EVENT</span>
+                            <h3 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mb-1 md:mb-2">OPEN EVENT 시공 업체 <span class="text-yellow-300">10% 할인!</span></h3>
+                            <p class="text-blue-100 text-xs sm:text-sm md:text-base font-medium">내 주변 업체를 확인하고 저렴하게 수리해보세요.</p>
+                        </div>
+                        <div class="text-5xl md:text-6xl drop-shadow-lg transform hover:scale-110 hover:rotate-12 transition duration-300">🧰</div>
+                    </div>
+                </a>
+                <a href="/review" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-teal-500 to-emerald-600 shrink-0">
+                    <div class="absolute left-10 -top-10 w-40 h-40 bg-white opacity-20 rounded-full blur-2xl"></div>
+                    <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between px-6 py-8 md:px-10 md:py-10 text-center sm:text-left">
+                        <div class="text-white mb-4 sm:mb-0">
+                            <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[10px] md:text-[11px] font-bold tracking-wider mb-2 md:mb-3 backdrop-blur-sm border border-white/30">🎁 포인트 팡팡</span>
+                            <h3 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mb-1 md:mb-2">생생한 수리 후기 남기고 <span class="text-yellow-300">포인트 받자!</span></h3>
+                            <p class="text-teal-100 text-xs sm:text-sm md:text-base font-medium">AI가 후기를 학습하여 모두의 지식이 됩니다.</p>
+                        </div>
+                        <div class="text-5xl md:text-6xl drop-shadow-lg transform hover:-rotate-12 transition duration-300">📝</div>
+                    </div>
+                </a>
+            </div>
+
+            <button id="prev-btn" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-100 md:opacity-0 group-hover:opacity-100 z-20">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </button>
+            <button id="next-btn" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-100 md:opacity-0 group-hover:opacity-100 z-20">
+                <i class="fas fa-chevron-right text-sm"></i>
+            </button>
             
-            <a href="/notice/2" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-orange-500 to-red-500 shrink-0">
-                <div class="absolute -right-10 -bottom-20 w-48 h-48 bg-yellow-300 opacity-20 rounded-full blur-2xl"></div>
-                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between px-10 py-8 md:py-10">
-                    <div class="text-white mb-6 md:mb-0">
-                        <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[11px] font-bold tracking-wider mb-3 backdrop-blur-sm border border-white/30">🚀 정식 런칭</span>
-                        <h3 class="text-2xl md:text-3xl font-black tracking-tight mb-2">
-                집수리의 새로운 기준, <span class="text-yellow-300">홈픽스 정식 런칭!</span>
-            </h3>
-                        <p class="text-orange-100 text-sm md:text-base font-medium">AI 진단부터 우리 동네 검증된 업체 매칭까지 한 번에 해결하세요.</p>
-                    </div>
-                    <div class="text-6xl drop-shadow-lg transform hover:scale-110 transition duration-300">✨</div>
-                </div>
-            </a>
-            <a href="notice/30001" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shrink-0">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
-                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between px-10 py-8 md:py-10">
-                    <div class="text-white mb-6 md:mb-0">
-                        <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[11px] font-bold tracking-wider mb-3 backdrop-blur-sm border border-white/30">🎉 EVENT</span>
-                        <h3 class="text-2xl md:text-3xl font-black tracking-tight mb-2">OPEN EVENT 시공 업체 <span class="text-yellow-300">10% 할인!</span></h3>
-                        <p class="text-blue-100 text-sm md:text-base font-medium">내 주변 업체를 확인하고 저렴하게 수리해보세요.</p>
-                    </div>
-                    <div class="text-6xl drop-shadow-lg transform hover:scale-110 hover:rotate-12 transition duration-300">🧰</div>
-                </div>
-            </a>
-
-            <a href="/review" class="min-w-full relative block overflow-hidden bg-gradient-to-r from-teal-500 to-emerald-600 shrink-0">
-                <div class="absolute left-10 -top-10 w-40 h-40 bg-white opacity-20 rounded-full blur-2xl"></div>
-                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between px-10 py-8 md:py-10">
-                    <div class="text-white mb-6 md:mb-0">
-                        <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[11px] font-bold tracking-wider mb-3 backdrop-blur-sm border border-white/30">🎁 포인트 팡팡</span>
-                        <h3 class="text-2xl md:text-3xl font-black tracking-tight mb-2">생생한 수리 후기 남기고 <span class="text-yellow-300">포인트 받자!</span></h3>
-                        <p class="text-teal-100 text-sm md:text-base font-medium">AI가 후기를 학습하여 모두의 지식이 됩니다.</p>
-                    </div>
-                    <div class="text-6xl drop-shadow-lg transform hover:-rotate-12 transition duration-300">📝</div>
-                </div>
-            </a>
-
-        </div>
-
-        <button id="prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-20">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button id="next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-20">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-        
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            <button class="dot-indicator w-4 h-2 rounded-full bg-white/90 transition-all" data-index="0"></button>
-            <button class="dot-indicator w-2 h-2 rounded-full bg-white/40 transition-all" data-index="1"></button>
-            <button class="dot-indicator w-2 h-2 rounded-full bg-white/40 transition-all" data-index="2"></button>
+            <div class="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-20 bg-black/20 px-3 py-1 rounded-full">
+                <button class="dot-indicator w-4 h-1.5 md:h-2 rounded-full bg-white/90 transition-all" data-index="0"></button>
+                <button class="dot-indicator w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-white/40 transition-all" data-index="1"></button>
+                <button class="dot-indicator w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-white/40 transition-all" data-index="2"></button>
+            </div>
         </div>
     </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const slider = document.getElementById('banner-slider');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const dots = document.querySelectorAll('.dot-indicator');
-        
-        let currentIndex = 0;
-        const totalSlides = 3; // 슬라이드 개수
-        let autoSlideInterval;
-
-        // 슬라이드 이동 함수
-        function updateSlider() {
-            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-            
-            // 점(Indicator) 모양 업데이트
-            dots.forEach((dot, index) => {
-                if (index === currentIndex) {
-                    dot.classList.remove('bg-white/40', 'w-2');
-                    dot.classList.add('bg-white/90', 'w-4'); // 현재 점은 길고 밝게
-                } else {
-                    dot.classList.remove('bg-white/90', 'w-4');
-                    dot.classList.add('bg-white/40', 'w-2'); // 나머지는 작고 투명하게
-                }
-            });
-        }
-
-        // 다음 슬라이드
-        function nextSlide() {
-            currentIndex = (currentIndex + 1) % totalSlides;
-            updateSlider();
-        }
-
-        // 이전 슬라이드
-        function prevSlide() {
-            currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-            updateSlider();
-        }
-
-        // 버튼 클릭 이벤트
-        nextBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // a 태그 이동 방지
-            nextSlide();
-            resetAutoSlide(); // 내가 누르면 자동 이동 타이머 초기화
-        });
-        
-        prevBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            prevSlide();
-            resetAutoSlide();
-        });
-
-        // 점 클릭 이벤트
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', (e) => {
-                e.preventDefault();
-                currentIndex = index;
-                updateSlider();
-                resetAutoSlide();
-            });
-        });
-
-        // 5초마다 자동 슬라이드
-        function startAutoSlide() {
-            autoSlideInterval = setInterval(nextSlide, 5000);
-        }
-
-        // 타이머 리셋
-        function resetAutoSlide() {
-            clearInterval(autoSlideInterval);
-            startAutoSlide();
-        }
-
-        // 시작!
-        startAutoSlide();
-    });
-</script>
 
     <section class="snap-section max-w-6xl mx-auto px-4">
-        <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 flex flex-col gap-6">
-                <div
-                    class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2.5rem] p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[240px]"
-                >
-                    <div
-                        class="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500"
-                    >
-                        <span class="text-[10rem]">🛠️</span>
+        <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 py-10 md:py-0">
+            <div class="lg:col-span-2 flex flex-col gap-4 md:gap-6">
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[200px] md:min-h-[240px]">
+                    <div class="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500">
+                        <span class="text-[8rem] md:text-[10rem]">🛠️</span>
                     </div>
                     <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span
-                                class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-blue-300 backdrop-blur-sm border border-white/5"
-                                >Smart Solution</span
-                            >
+                        <div class="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                            <span class="px-2 md:px-3 py-1 bg-white/10 rounded-full text-[10px] md:text-xs font-bold text-blue-300 backdrop-blur-sm border border-white/5">Smart Solution</span>
                         </div>
-                        <h3 class="text-3xl md:text-4xl font-black mb-4 leading-tight">AI 진단 & 공구 매칭</h3>
-                        <p class="text-slate-400 text-lg font-medium leading-relaxed max-w-md">
-                            "진단은 AI에게, 공구는 내 집 앞에서."<br />수리의 시작과 끝을 데이터로 연결합니다.
+                        <h3 class="text-2xl sm:text-3xl md:text-4xl font-black mb-2 md:mb-4 leading-tight">AI 진단 & 공구 매칭</h3>
+                        <p class="text-slate-400 text-sm sm:text-base md:text-lg font-medium leading-relaxed max-w-sm">
+                            "진단은 AI에게, 공구는 내 집 앞에서."<br class="hidden sm:block"/>수리의 시작과 끝을 데이터로 연결합니다.
                         </p>
                     </div>
                 </div>
 
-                <div
-                    class="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[2.5rem] p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[240px]"
-                >
-                    <div
-                        class="absolute right-4 bottom-[-20px] opacity-20 group-hover:translate-x-2 transition-transform duration-500"
-                    >
-                        <span class="text-[10rem]">🔬</span>
+                <div class="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-10 text-white shadow-xl relative overflow-hidden group flex-1 flex flex-col justify-center min-h-[200px] md:min-h-[240px]">
+                    <div class="absolute right-4 bottom-[-10px] md:bottom-[-20px] opacity-20 group-hover:translate-x-2 transition-transform duration-500">
+                        <span class="text-[8rem] md:text-[10rem]">🔬</span>
                     </div>
                     <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span
-                                class="px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-blue-100 backdrop-blur-sm border border-white/5"
-                                >Engineering Lab</span
-                            >
+                        <div class="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                            <span class="px-2 md:px-3 py-1 bg-white/10 rounded-full text-[10px] md:text-xs font-bold text-blue-100 backdrop-blur-sm border border-white/5">Engineering Lab</span>
                         </div>
-                        <h3 class="text-3xl md:text-4xl font-black mb-4 leading-tight">포토 리포트 솔루션</h3>
-                        <p class="text-blue-100/80 text-lg font-medium leading-relaxed max-w-md">
-                            사진 한 장으로 분석하는<br />가장 안전하고 정확한 수리 가이드.
+                        <h3 class="text-2xl sm:text-3xl md:text-4xl font-black mb-2 md:mb-4 leading-tight">포토 리포트 솔루션</h3>
+                        <p class="text-blue-100/80 text-sm sm:text-base md:text-lg font-medium leading-relaxed max-w-sm">
+                            사진 한 장으로 분석하는<br class="hidden sm:block"/>가장 안전하고 정확한 수리 가이드.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-6">
-                <div class="bg-blue-600 rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
-                        <svg width="100" height="100" fill="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col gap-4 md:gap-6">
+                <div class="bg-blue-600 rounded-3xl md:rounded-[2.5rem] p-6 md:p-8 text-white shadow-xl relative overflow-hidden group">
+                    <div class="absolute -right-2 -top-2 opacity-10 group-hover:scale-110 transition-transform">
+                        <svg width="80" height="80" md:width="100" md:height="100" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2L1 21h22L12 2zm0 3.45l8.27 14.55H3.73L12 5.45z" />
                         </svg>
                     </div>
-                    <p class="text-blue-100 text-sm mb-1 font-bold">실시간 AI 학습 지식</p>
-                    <h4 class="text-4xl font-black">{{ stats.total_knowledge }}건</h4>
-                    <p class="text-blue-200 text-xs mt-2 flex items-center gap-1">
-                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <p class="text-blue-100 text-xs md:text-sm mb-1 font-bold">실시간 AI 학습 지식</p>
+                    <h4 class="text-3xl md:text-4xl font-black">{{ stats.total_knowledge }}건</h4>
+                    <p class="text-blue-200 text-[10px] md:text-xs mt-2 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse"></span>
                         지금도 학습 중
                     </p>
                 </div>
 
-                <div class="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden flex-1 min-h-[300px]">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-white font-bold text-lg flex items-center gap-2">
-                            <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <div class="bg-slate-900 rounded-3xl md:rounded-[2.5rem] p-6 md:p-8 shadow-2xl relative overflow-hidden flex-1 min-h-[250px] md:min-h-[300px]">
+                    <div class="flex items-center justify-between mb-4 md:mb-6">
+                        <h3 class="text-white font-bold text-base md:text-lg flex items-center gap-2">
+                            <span class="flex h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             실시간 진단
                         </h3>
                     </div>
-                    <div class="space-y-3 overflow-y-auto max-h-[300px] pr-2 scrollbar-hide">
+                    <div class="space-y-2 md:space-y-3 overflow-y-auto max-h-[200px] md:max-h-[300px] pr-2 scrollbar-hide relative z-10">
                         {% if recent_fixes %} {% for fix in recent_fixes %}
-                        <div
-                            class="group flex items-center justify-between text-slate-300 bg-white/5 p-4 rounded-2xl border border-white/5 hover:bg-white/10 hover:border-blue-500/30 transition-all cursor-default"
-                        >
+                        <div class="group flex items-center justify-between text-slate-300 bg-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl border border-white/5 hover:bg-white/10 hover:border-blue-500/30 transition-all cursor-default">
                             <div class="flex flex-col">
-                                <span class="text-xs text-slate-500 mb-1">{{ fix['time_ago'] }}</span>
-                                <span class="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
+                                <span class="text-[10px] md:text-xs text-slate-500 mb-0.5 md:mb-1">{{ fix['time_ago'] }}</span>
+                                <span class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white transition-colors truncate max-w-[150px] sm:max-w-[200px]">
                                     {{ fix['problem_name'] }}
                                 </span>
                             </div>
                         </div>
                         {% endfor %} {% else %}
-                        <div class="h-full flex flex-col items-center justify-center text-slate-600 italic py-10">
-                            <span class="text-2xl mb-2">👋</span>
-                            첫 번째 수리 주인공이<br />되어보세요!
+                        <div class="h-full flex flex-col items-center justify-center text-slate-600 italic py-8 md:py-10">
+                            <span class="text-xl md:text-2xl mb-2">👋</span>
+                            <span class="text-sm md:text-base text-center">첫 번째 수리 주인공이<br />되어보세요!</span>
                         </div>
                         {% endif %}
                     </div>
-                    <div
-                        class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none"
-                    ></div>
+                    <div class="absolute bottom-0 left-0 w-full h-10 md:h-12 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none z-20"></div>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="snap-section max-w-6xl mx-auto px-4">
-        <div class="w-full">
-            <div class="text-center mb-16 space-y-4">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">제공하는 서비스</h2>
-                <p class="text-slate-500">집수리의 시작부터 끝까지 홈픽스가 동행합니다.</p>
+        <div class="w-full py-10 md:py-0">
+            <div class="text-center mb-10 md:mb-16 space-y-2 md:space-y-4">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">제공하는 서비스</h2>
+                <p class="text-slate-500 text-sm md:text-base">집수리의 시작부터 끝까지 홈픽스가 동행합니다.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 justify-items-center">
                 <a href="/rental" class="service-card group border-slate-100">
                     <div class="icon-circle bg-orange-50 text-orange-600 group-hover:bg-orange-600">🛠️</div>
-                    <h3 class="text-xl font-bold mb-4 text-slate-800">근처 공구 대여소</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-800">근처 공구 대여소</h3>
+                    <p class="text-slate-500 text-xs md:text-sm leading-relaxed">
                         비싼 공구, 사지 말고 빌려 쓰세요!<br />
                         우리 동네 주민센터 등 가까운<br />
                         무료 공구 대여소를 찾아드립니다.
@@ -595,8 +348,8 @@
 
                 <a href="/expert" class="service-card group border-slate-100">
                     <div class="icon-circle bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600">👷</div>
-                    <h3 class="text-xl font-bold mb-4 text-slate-800">수리 업체 정보</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-800">수리 업체 정보</h3>
+                    <p class="text-slate-500 text-xs md:text-sm leading-relaxed">
                         직접 하기 힘든 큰 공사인가요?<br />
                         평점 좋은 우리 동네 수리 기사님을<br />
                         투명한 정보와 함께 연결해 드립니다.
@@ -605,8 +358,8 @@
 
                 <a href="/review" class="service-card group border-blue-100 bg-blue-50/30">
                     <div class="icon-circle bg-purple-50 text-purple-600 group-hover:bg-purple-600">📝</div>
-                    <h3 class="text-xl font-bold mb-4 text-slate-800">수리 후기 게시판</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-800">수리 후기 게시판</h3>
+                    <p class="text-slate-500 text-xs md:text-sm leading-relaxed">
                         다른 사람들의 후기 경험을 들어보세요!<br />
                         남겨주신 소중한 후기는 AI가 학습하여<br />
                         더 똑똑한 해결책을 제시합니다.
@@ -616,12 +369,12 @@
         </div>
     </section>
 
-    <section class="snap-footer bg-slate-50 border-t border-slate-200 py-16">
-        <div class="max-w-6xl mx-auto px-6 w-full">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16">
-                <div class="md:col-span-4 space-y-4">
-                    <h3 class="text-2xl font-black text-blue-600 tracking-tighter hover:opacity-80 transition">HomeFix</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
+    <section class="snap-footer bg-slate-50 border-t border-slate-200 py-10 md:py-16">
+        <div class="max-w-6xl mx-auto px-4 md:px-6 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-8 lg:gap-8 mb-10 md:mb-16">
+                <div class="md:col-span-4 space-y-3 md:space-y-4">
+                    <h3 class="text-xl md:text-2xl font-black text-blue-600 tracking-tighter hover:opacity-80 transition">HomeFix</h3>
+                    <p class="text-slate-500 text-xs md:text-sm leading-relaxed max-w-xs">
                         AI 기술로 주거 공간의 불편함을<br />
                         가장 빠르고 스마트하게 해결합니다.<br />
                         안전한 수리 생활의 시작, 홈픽스
@@ -629,25 +382,21 @@
                 </div>
 
                 <div class="md:col-span-3">
-                    <h4 class="font-bold text-slate-900 mb-5">고객지원</h4>
-                    <ul class="space-y-3 text-sm text-slate-500 mb-6">
+                    <h4 class="font-bold text-slate-900 mb-3 md:mb-5 text-sm md:text-base">고객지원</h4>
+                    <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-slate-500 mb-4 md:mb-6">
                         <li><a href="/support" class="hover:text-blue-600 transition-colors font-semibold">고객센터</a></li>
                         <li><a href="/terms" class="hover:text-blue-600 transition-colors font-semibold">이용 약관</a></li>
-                        <li>
-                            <a href="/privacy" class="hover:text-blue-600 transition-colors font-semibold"
-                                >개인정보처리방침</a
-                            >
-                        </li>
+                        <li><a href="/privacy" class="hover:text-blue-600 transition-colors font-semibold">개인정보처리방침</a></li>
                     </ul>
-                    <div class="text-sm text-slate-500 space-y-1">
+                    <div class="text-[10px] md:text-xs text-slate-500 space-y-1">
                         <p><span class="font-bold text-slate-700">운영시간</span> 평일 09:30 ~ 18:30</p>
                         <p><span class="font-bold text-slate-700">문의</span> support@homefix.com</p>
                     </div>
                 </div>
 
                 <div class="md:col-span-3">
-                    <h4 class="font-bold text-slate-900 mb-5">비즈니스</h4>
-                    <div class="space-y-3 text-sm text-slate-500">
+                    <h4 class="font-bold text-slate-900 mb-3 md:mb-5 text-sm md:text-base">비즈니스</h4>
+                    <div class="space-y-2 md:space-y-3 text-xs md:text-sm text-slate-500">
                         <div>
                             <span class="block font-bold text-slate-700 mb-0.5">Team HomeFix</span>
                             이명훈, 유진현, 전진우
@@ -664,9 +413,9 @@
                 </div>
             </div>
 
-            <div class="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-slate-400 text-xs text-center md:text-left">© 2026 HomeFix Inc. All rights reserved.</p>
-                <p class="text-slate-400 text-xs text-center md:text-right flex items-center gap-1">
+            <div class="pt-6 md:pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+                <p class="text-slate-400 text-[10px] md:text-xs text-center md:text-left">© 2026 HomeFix Inc. All rights reserved.</p>
+                <p class="text-slate-400 text-[10px] md:text-xs text-center md:text-right flex items-center justify-center gap-1">
                     <span>⚠️ 본 서비스는 AI 가이드를 제공하며, 실제 수리 시 안전 수칙을 준수해야 합니다.</span>
                 </p>
             </div>
@@ -676,41 +425,156 @@
 
 <div id="loadingOverlay" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-white/80 backdrop-blur-sm transition-opacity"></div>
-    <div class="relative flex flex-col items-center justify-center h-full fade-in">
-        <div class="relative w-24 h-24 mb-8">
+    <div class="relative flex flex-col items-center justify-center h-full fade-in px-4 text-center">
+        <div class="relative w-20 h-20 md:w-24 md:h-24 mb-6 md:mb-8">
             <div class="absolute inset-0 bg-blue-500 rounded-full opacity-20 animate-ping"></div>
             <div class="absolute inset-2 bg-blue-500 rounded-full opacity-40 animate-pulse"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-4xl">🤖</div>
+            <div class="absolute inset-0 flex items-center justify-center text-3xl md:text-4xl">🤖</div>
         </div>
-        <h3 class="text-2xl font-black text-slate-800 mb-2">AI 진단 중...</h3>
-        <p class="text-slate-500 font-medium animate-pulse">
+        <h3 class="text-xl md:text-2xl font-black text-slate-800 mb-2">AI 진단 중...</h3>
+        <p class="text-sm md:text-base text-slate-500 font-medium animate-pulse">
             증상을 분석하고 해결책을 찾고 있습니다.<br />잠시만 기다려주세요.
         </p>
     </div>
 </div>
 
 <script>
-// ✨ 선택된 파일들을 담을 전역 배열 (버퍼 역할)
+// ✨ (광고 슬라이더 JS)
+document.addEventListener('DOMContentLoaded', () => {
+    const adSliderTrack = document.getElementById('ad-slider-track');
+    const adPrevBtn = document.getElementById('ad-prev-btn');
+    const adNextBtn = document.getElementById('ad-next-btn');
+    const adDots = document.querySelectorAll('.ad-dot-indicator');
+    const slides = adSliderTrack.children;
+    
+    let adCurrentIndex = 0;
+    const adTotalSlides = slides.length;
+    let adAutoSlideInterval;
+
+    function updateAdSlider() {
+        adSliderTrack.style.transform = `translateX(-${adCurrentIndex * 100}%)`;
+        adDots.forEach((dot, index) => {
+            if (index === adCurrentIndex) {
+                dot.classList.remove('bg-white/40', 'w-2', 'md:w-2.5', 'hover:bg-white/70');
+                dot.classList.add('bg-blue-500', 'w-6', 'md:w-8'); 
+            } else {
+                dot.classList.remove('bg-blue-500', 'w-6', 'md:w-8');
+                dot.classList.add('bg-white/40', 'w-2', 'md:w-2.5', 'hover:bg-white/70'); 
+            }
+        });
+    }
+
+    function nextAdSlide() {
+        adCurrentIndex = (adCurrentIndex + 1) % adTotalSlides;
+        updateAdSlider();
+    }
+
+    function prevAdSlide() {
+        adCurrentIndex = (adCurrentIndex - 1 + adTotalSlides) % adTotalSlides;
+        updateAdSlider();
+    }
+
+    adNextBtn.addEventListener('click', () => { nextAdSlide(); resetAdAutoSlide(); });
+    adPrevBtn.addEventListener('click', () => { prevAdSlide(); resetAdAutoSlide(); });
+
+    adDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            adCurrentIndex = index;
+            updateAdSlider();
+            resetAdAutoSlide();
+        });
+    });
+
+    function startAdAutoSlide() {
+        adAutoSlideInterval = setInterval(nextAdSlide, 4000);
+    }
+    function resetAdAutoSlide() {
+        clearInterval(adAutoSlideInterval);
+        startAdAutoSlide();
+    }
+    startAdAutoSlide(); 
+});
+
+// ✨ (이벤트 배너 슬라이더 JS)
+document.addEventListener('DOMContentLoaded', () => {
+    const slider = document.getElementById('banner-slider');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const dots = document.querySelectorAll('.dot-indicator');
+    
+    let currentIndex = 0;
+    const totalSlides = 3; 
+    let autoSlideInterval;
+
+    function updateSlider() {
+        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+        dots.forEach((dot, index) => {
+            if (index === currentIndex) {
+                dot.classList.remove('bg-white/40', 'w-1.5', 'md:w-2');
+                dot.classList.add('bg-white/90', 'w-4'); 
+            } else {
+                dot.classList.remove('bg-white/90', 'w-4');
+                dot.classList.add('bg-white/40', 'w-1.5', 'md:w-2'); 
+            }
+        });
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        updateSlider();
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        updateSlider();
+    }
+
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        nextSlide();
+        resetAutoSlide(); 
+    });
+    
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        prevSlide();
+        resetAutoSlide();
+    });
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentIndex = index;
+            updateSlider();
+            resetAutoSlide();
+        });
+    });
+
+    function startAutoSlide() {
+        autoSlideInterval = setInterval(nextSlide, 5000);
+    }
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        startAutoSlide();
+    }
+    startAutoSlide();
+});
+
+// ✨ (이미지 업로드 및 진단 폼 JS)
 let selectedFiles = [];
 
-// 사진 파일 선택 시 배열에 추가하고 미리보기 재생성
 function updateFileName(input) {
     const status = document.getElementById('fileStatus');
     const previewContainer = document.getElementById('imagePreviewContainer');
     
     if (input.files && input.files.length > 0) {
-        // 새로 선택된 파일들을 전역 배열에 추가
         const newFiles = Array.from(input.files);
         selectedFiles = [...selectedFiles, ...newFiles];
-        
-        // 입력창 초기화 (같은 파일을 다시 선택할 수 있도록)
         input.value = '';
-        
         renderPreviews();
     }
 }
 
-// ✨ 미리보기와 개별 삭제 버튼을 그리는 핵심 함수
 function renderPreviews() {
     const status = document.getElementById('fileStatus');
     const nameDisplay = document.getElementById('fileNameDisplay');
@@ -723,13 +587,12 @@ function renderPreviews() {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const imgWrapper = document.createElement('div');
-                imgWrapper.className = "relative h-16 w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm group";
+                imgWrapper.className = "relative h-12 w-12 md:h-16 md:w-full rounded-lg md:rounded-xl overflow-hidden border border-slate-200 shadow-sm group shrink-0";
                 
-                // 이미지와 개별 삭제(X) 버튼
                 imgWrapper.innerHTML = `
                     <img src="${e.target.result}" class="w-full h-full object-cover">
                     <button type="button" onclick="removeIndividualFile(${index})" 
-                            class="absolute top-1 right-1 bg-red-500/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors shadow-md backdrop-blur-sm">
+                            class="absolute top-0.5 right-0.5 md:top-1 md:right-1 bg-red-500/80 text-white rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-[8px] md:text-[10px] hover:bg-red-600 transition-colors shadow-md backdrop-blur-sm">
                         ✕
                     </button>
                 `;
@@ -743,25 +606,21 @@ function renderPreviews() {
         status.classList.remove('hidden');
         previewContainer.classList.remove('hidden');
     } else {
-        // 파일이 없으면 숨김
         status.classList.add('hidden');
         previewContainer.classList.add('hidden');
     }
 }
 
-// ✨ 특정 인덱스의 사진만 삭제
 function removeIndividualFile(index) {
-    selectedFiles.splice(index, 1); // 배열에서 해당 인덱스 제거
-    renderPreviews(); // 다시 그리기
+    selectedFiles.splice(index, 1); 
+    renderPreviews(); 
 }
 
-// 전체 삭제 버튼 기능
 function removeFile() {
     selectedFiles = [];
     renderPreviews();
 }
 
-// ✨ 진단 시작 시 전역 배열(selectedFiles)의 데이터를 전송하도록 수정
 async function processStart() {
     const input = document.getElementById('problemInput').value;
 
@@ -776,7 +635,6 @@ async function processStart() {
         const fd = new FormData();
         fd.append('problem', input);
         
-        // ✨ 전역 배열에 담긴 파일들을 FormData에 순차적으로 추가
         selectedFiles.forEach(file => {
             fd.append('image', file);
         });
@@ -801,41 +659,58 @@ async function processStart() {
     /* 서비스 카드 스타일 */
     .service-card {
         background-color: white;
-        padding: 2.5rem;
-        border-radius: 3rem;
+        padding: 2rem;
+        border-radius: 2rem;
         border: 1px solid #f1f5f9;
-        box-shadow:
-            0 1px 3px 0 rgba(0, 0, 0, 0.1),
-            0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
         width: 100%;
-        max-width: 360px;
-        min-height: 380px;
+        max-width: 320px; /* 모바일에서 조금 작게 */
+        min-height: 320px;
         text-decoration: none;
         margin: 0 auto;
     }
+    
+    @media (min-width: 768px) {
+        .service-card {
+            padding: 2.5rem;
+            border-radius: 3rem;
+            max-width: 360px;
+            min-height: 380px;
+        }
+    }
+
     .service-card:hover {
-        transform: translateY(-10px);
-        box-shadow:
-            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
     .icon-circle {
-        width: 5rem;
-        height: 5rem;
-        border-radius: 1.5rem;
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1.25rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2.25rem;
-        margin-bottom: 2rem;
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
         transition: all 0.5s ease;
         box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
     }
+    
+    @media (min-width: 768px) {
+        .icon-circle {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 1.5rem;
+            font-size: 2.25rem;
+            margin-bottom: 2rem;
+        }
+    }
+
     .service-card:hover .icon-circle {
         color: white;
     }
@@ -850,14 +725,9 @@ async function processStart() {
     }
     .service-card h3 {
         color: #1e293b;
-        font-weight: 900;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
     }
     .service-card p {
         color: #64748b;
-        line-height: 1.625;
-        font-size: 0.875rem;
     }
 
     /* 스크롤바 숨기기 유틸리티 */

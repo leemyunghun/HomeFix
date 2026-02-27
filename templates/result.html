@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-4xl mx-auto py-12 px-4">
+<div class="max-w-4xl mx-auto py-8 md:py-12 px-4">
 
     {% if result_data.images %}
-    <div class="mb-8 p-6 bg-white rounded-[2.5rem] border border-blue-50 shadow-lg fade-in">
-        <h3 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">내가 진단 요청한 사진</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="mb-6 md:mb-8 p-5 md:p-6 bg-white rounded-3xl md:rounded-[2.5rem] border border-blue-50 shadow-lg fade-in">
+        <h3 class="text-[10px] md:text-xs font-bold text-slate-400 mb-3 md:mb-4 uppercase tracking-widest">내가 진단 요청한 사진</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
             {% for img in result_data.images %}
-            <div class="aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm cursor-pointer group"
+            <div class="aspect-square rounded-xl md:rounded-2xl overflow-hidden border border-slate-100 shadow-sm cursor-pointer group"
                  onclick="openImageModal(this.querySelector('img').src)">
                 <img src="data:image/jpeg;base64,{{ img }}" 
                      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
@@ -18,84 +18,90 @@
     {% endif %}
 
     {% if result_data.risk_level %}
-    <div class="mb-8 p-6 rounded-[2.5rem] fade-in 
+    <div class="mb-6 md:mb-8 p-5 md:p-6 rounded-3xl md:rounded-[2.5rem] fade-in 
         {% if result_data.risk_level >= 4 %} bg-red-50 border-2 border-red-500 text-red-900
         {% else %} bg-blue-50 border border-blue-100 text-blue-900 {% endif %}">
-        <div class="flex items-center gap-4">
-            <span class="text-3xl">{% if result_data.risk_level >= 4 %}🚨{% else %}✅{% endif %}</span>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <span class="text-2xl md:text-3xl">{% if result_data.risk_level >= 4 %}🚨{% else %}✅{% endif %}</span>
+                <h3 class="font-black text-base md:text-lg whitespace-nowrap sm:hidden">AI 안전 등급: {{ result_data.risk_level }} / 5</h3>
+                {% if result_data.risk_level >= 4 %}
+                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-bold animate-pulse sm:hidden ml-auto">전문가 권장</span>
+                {% endif %}
+            </div>
             <div class="flex-1">
-                <h3 class="font-black text-lg">AI 안전 등급: {{ result_data.risk_level }} / 5</h3>
-                <p class="text-sm opacity-80 leading-relaxed">{{ result_data.warning }}</p>
+                <h3 class="font-black text-lg hidden sm:block">AI 안전 등급: {{ result_data.risk_level }} / 5</h3>
+                <p class="text-xs md:text-sm opacity-80 leading-relaxed mt-1 sm:mt-0">{{ result_data.warning }}</p>
             </div>
             {% if result_data.risk_level >= 4 %}
-            <span class="bg-red-500 text-white px-4 py-1.5 rounded-full text-xs font-bold animate-pulse">전문가 권장</span>
+            <span class="hidden sm:inline-block bg-red-500 text-white px-4 py-1.5 rounded-full text-xs font-bold animate-pulse whitespace-nowrap">전문가 권장</span>
             {% endif %}
         </div>
     </div>
     {% endif %}
 
-    <div class="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-[2.5rem] fade-in flex items-center gap-4">
-        <span class="text-3xl">💰</span>
+    <div class="mb-6 md:mb-8 p-5 md:p-6 bg-emerald-50 border border-emerald-100 rounded-3xl md:rounded-[2.5rem] fade-in flex items-center gap-3 md:gap-4">
+        <span class="text-2xl md:text-3xl">💰</span>
         <div>
-            <h3 class="font-black text-emerald-800 text-lg">예상 수리 비용</h3>
-            <p class="text-2xl font-black text-emerald-600">{{ result_data.estimated_cost }}</p>
-            <p class="text-xs text-emerald-700/60 mt-1">* 재료비 및 표준 인건비 기준이며, 환경에 따라 다를 수 있습니다.</p>
+            <h3 class="font-black text-emerald-800 text-base md:text-lg">예상 수리 비용</h3>
+            <p class="text-xl md:text-2xl font-black text-emerald-600">{{ result_data.estimated_cost }}</p>
+            <p class="text-[10px] md:text-xs text-emerald-700/60 mt-1 break-keep">* 재료비 및 표준 인건비 기준이며, 환경에 따라 다를 수 있습니다.</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-[2.5rem] p-10 shadow-xl border border-blue-50 fade-in">
-        <h2 class="text-3xl font-bold text-blue-700 mb-8 text-center">{{ result_data.problem_name }}</h2>
+    <div class="bg-white rounded-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-10 shadow-xl border border-blue-50 fade-in">
+        <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-6 md:mb-8 text-center">{{ result_data.problem_name }}</h2>
         
-        <div class="grid md:grid-cols-2 gap-10">
-            <div class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+            <div class="space-y-6 md:space-y-8">
                 <div>
-                    <h3 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">필요한 공구</h3>
+                    <h3 class="text-[10px] md:text-xs font-bold text-slate-400 mb-3 md:mb-4 uppercase tracking-widest">필요한 공구</h3>
                     <div class="flex flex-wrap gap-2">
                         {% for tool in result_data.tools %}
-                        <span class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold font-mono"># {{ tool }}</span>
+                        <span class="bg-blue-100 text-blue-700 px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-bold font-mono"># {{ tool }}</span>
                         {% endfor %}
                     </div>
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">수리 가이드</h3>
-                    <div class="space-y-4">
+                    <h3 class="text-[10px] md:text-xs font-bold text-slate-400 mb-3 md:mb-4 uppercase tracking-widest">수리 가이드</h3>
+                    <div class="space-y-3 md:space-y-4">
                         {% for step in result_data.steps %}
-                        <div class="flex gap-4">
-                            <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 font-bold">{{ loop.index }}</span>
-                            <p class="text-sm text-slate-700 leading-relaxed">{{ step }}</p>
+                        <div class="flex gap-3 md:gap-4">
+                            <span class="bg-blue-600 text-white w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[10px] md:text-xs flex-shrink-0 font-bold mt-0.5 md:mt-0">{{ loop.index }}</span>
+                            <p class="text-xs md:text-sm text-slate-700 leading-relaxed">{{ step }}</p>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
 
-            <div class="bg-slate-50 rounded-3xl p-8 flex flex-col justify-center text-center">
-                <p class="text-slate-500 mb-6">
+            <div class="bg-slate-50 rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col justify-center text-center">
+                <p class="text-xs md:text-sm text-slate-500 mb-6 break-keep">
                     {% if result_data.get('risk_level', 0) >= 4 %}
-                        <strong class="text-red-600 block mb-2">⚠️ 직접 수리 불가</strong>
+                        <strong class="text-red-600 block mb-2 text-sm md:text-base">⚠️ 직접 수리 불가</strong>
                         위험도가 매우 높은 작업입니다. 사고 예방을 위해 반드시 전문가의 도움을 받으세요.
                     {% else %}
                         직접 하기 어렵거나 공구가 필요하신가요? 홈픽스가 도와드릴게요.
                     {% endif %}
                 </p>
                 
-                <form action="/user/request_landlord" method="POST" class="mb-3">
+                <form action="/user/request_landlord" method="POST" class="mb-3 w-full">
                     <input type="hidden" name="problem_name" value="{{ result_data.problem_name }}">
                     <input type="hidden" name="estimated_cost" value="{{ result_data.estimated_cost }}">
-                    <button type="submit" class="w-full py-4 rounded-2xl font-bold transition shadow-md bg-blue-600 hover:bg-blue-700 text-white transform hover:-translate-y-1">
-                        🏠 내 임대인에게 수리 접수하기
+                    <button type="submit" class="w-full py-3.5 md:py-4 rounded-xl md:rounded-2xl font-bold transition shadow-md bg-blue-600 hover:bg-blue-700 text-white transform hover:-translate-y-1 text-sm md:text-base">
+                        🏠 내 임대인에게 접수하기
                     </button>
                 </form>
                 
                 <button onclick="location.href='/expert'" 
-                        class="w-full py-5 rounded-2xl font-bold transition shadow-lg 
-                        {% if result_data.risk_level >= 4 %} bg-red-600 hover:bg-red-700 text-white scale-105 shadow-red-200
-                        {% else %} bg-slate-900 hover:bg-black text-white mb-4 {% endif %}">
+                        class="w-full py-3.5 md:py-5 rounded-xl md:rounded-2xl font-bold transition shadow-lg text-sm md:text-base
+                        {% if result_data.risk_level >= 4 %} bg-red-600 hover:bg-red-700 text-white scale-100 md:scale-105 shadow-red-200
+                        {% else %} bg-slate-900 hover:bg-black text-white mb-3 md:mb-4 {% endif %}">
                     👨‍🔧 전문 업체 매칭받기
                 </button>
 
                 {% if result_data.risk_level <= 3 %}
-                <button onclick="location.href='/rental'" class="w-full border border-blue-600 text-blue-600 py-3 rounded-2xl text-sm font-bold hover:bg-blue-50 transition">
+                <button onclick="location.href='/rental'" class="w-full border border-blue-600 text-blue-600 py-3 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold hover:bg-blue-50 transition">
                     📍 근처 대여소 찾기
                 </button>
                 {% endif %}
@@ -104,8 +110,8 @@
     </div>
 </div>
 
-<div id="imageModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center p-4 cursor-zoom-out" onclick="this.classList.add('hidden')">
-    <img id="modalImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl">
+<div id="imageModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center p-2 sm:p-4 cursor-zoom-out" onclick="this.classList.add('hidden')">
+    <img id="modalImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain">
 </div>
 
 <script>

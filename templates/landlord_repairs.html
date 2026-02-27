@@ -2,110 +2,191 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeFix | 전체 수리 내역</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --hf-primary: #2563eb; --hf-bg: #f8fafc; --hf-border: #e2e8f0; --hf-text: #1e293b; --hf-text-sub: #64748b; }
+        :root { 
+            --hf-primary: #2563eb; 
+            --hf-bg: #f8fafc; 
+            --hf-border: #e2e8f0; 
+            --hf-text: #1e293b; 
+            --hf-text-sub: #64748b; 
+        }
         body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; background: var(--hf-bg); }
-        .sidebar { width: 260px; height: 100vh; background: white; border-right: 1px solid var(--hf-border); position: fixed; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; }
+        
+        /* [1] 사이드바 */
+        .sidebar { 
+            width: 260px; height: 100vh; background: white; border-right: 1px solid var(--hf-border); 
+            position: fixed; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .sidebar-logo { 
+            font-size: 24px; font-weight: 900; color: var(--hf-primary); 
+            margin-bottom: 40px; text-decoration: none; display: block; 
+            transition: opacity 0.2s; padding-left: 10px; letter-spacing: -1px;
+        }
+        .sidebar-logo:hover { opacity: 0.7; }
+
+        /* 모바일 햄버거 버튼 */
+        .mobile-menu-btn {
+            display: none; background: none; border: none; font-size: 24px;
+            color: var(--hf-text); cursor: pointer; padding: 5px;
+        }
+
         .menu-label { font-size: 11px; font-weight: 800; color: var(--hf-text-sub); margin: 20px 0 10px 10px; text-transform: uppercase; letter-spacing: 1px; }
         .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 12px; color: var(--hf-text); text-decoration: none; font-weight: 600; margin-bottom: 5px; font-size: 14px; transition: 0.2s; }
         .menu-item:hover, .menu-item.active { background: #eff6ff; color: var(--hf-primary); }
         .menu-item i { width: 20px; color: var(--hf-text-sub); transition: 0.2s; }
         .menu-item:hover i, .menu-item.active i { color: var(--hf-primary); }
-        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; }
+        
+        /* [2] 메인 콘텐츠 */
+        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; box-sizing: border-box; }
         .content-card { background: white; border-radius: 20px; padding: 30px; border: 1px solid var(--hf-border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 15px; color: var(--hf-text-sub); border-bottom: 2px solid #f1f5f9; font-size: 14px; }
-        td { padding: 18px 15px; border-bottom: 1px solid #f8fafc; font-size: 15px; }
+        
+        /* 표 가로 스크롤 래퍼 */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { text-align: left; padding: 15px; color: var(--hf-text-sub); border-bottom: 2px solid #f1f5f9; font-size: 14px; white-space: nowrap; }
+        td { padding: 18px 15px; border-bottom: 1px solid #f8fafc; font-size: 15px; white-space: nowrap; }
         .status-badge { padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 12px; display: inline-block; }
         
-        /* 영수증 버튼 스타일 수정 */
         .btn-receipt { background: #eff6ff; border: 1px solid #dbeafe; padding: 6px 12px; border-radius: 8px; color: var(--hf-primary); font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; transition: 0.2s; }
         .btn-receipt:hover { background: var(--hf-primary); color: white; border-color: var(--hf-primary); }
+
+        /* ✨ 모바일 반응형 처리 (768px 이하) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            
+            /* 사이드바 -> 상단 네비게이션 변환 */
+            .sidebar {
+                width: 100%; height: auto; position: sticky; top: 0; padding: 0;
+                border-right: none; border-bottom: 1px solid var(--hf-border);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+            .sidebar-header {
+                padding: 15px 20px; background: white;
+            }
+            .sidebar-logo { margin-bottom: 0; padding-left: 0; font-size: 22px; }
+            .mobile-menu-btn { display: block; }
+            
+            /* 모바일 메뉴 열기/닫기 영역 */
+            .sidebar-menu {
+                display: none; background: white; padding: 0 20px 20px 20px;
+                border-top: 1px solid #f1f5f9; flex-direction: column;
+            }
+            .sidebar-menu.active { display: flex; }
+            
+            /* 메인 콘텐츠 여백 및 레이아웃 수정 */
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            .content-card { padding: 20px; border-radius: 16px; }
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <a href="/" style="text-decoration: none; display: block; margin-bottom: 40px; padding-left: 10px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-            <div style="font-size: 24px; font-weight: 900; color: var(--hf-primary);">HomeFix</div>
-        </a>
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-logo">HomeFix</a>
+            <button id="mobile-menu-btn" class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
         
-        <div class="menu-label">Main Menu</div>
-        
-        <a href="/landlord_dashboard" class="menu-item {% if request.path == '/landlord_dashboard' %}active{% endif %}"> 
-            <i class="fas fa-chart-pie"></i> 대시보드 홈
-        </a>
-        
-        <a href="/landlord/tenants" class="menu-item {% if request.path == '/landlord/tenants' %}active{% endif %}">
-            <i class="fas fa-users"></i> 세입자 현황
-        </a>
-        
-        <a href="/landlord/repairs" class="menu-item {% if request.path == '/landlord/repairs' %}active{% endif %}">
-            <i class="fas fa-clipboard-list"></i> 전체 수리 내역
-        </a>
+        <div id="sidebar-menu" class="sidebar-menu">
+            <div class="menu-label">Main Menu</div>
+            
+            <a href="/landlord_dashboard" class="menu-item {% if request.path == '/landlord_dashboard' %}active{% endif %}"> 
+                <i class="fas fa-chart-pie"></i> 대시보드 홈
+            </a>
+            
+            <a href="/landlord/tenants" class="menu-item {% if request.path == '/landlord/tenants' %}active{% endif %}">
+                <i class="fas fa-users"></i> 세입자 현황
+            </a>
+            
+            <a href="/landlord/repairs" class="menu-item {% if request.path == '/landlord/repairs' %}active{% endif %}">
+                <i class="fas fa-clipboard-list"></i> 전체 수리 내역
+            </a>
+        </div>
     </div>
 
     <div class="main-content">
         <div style="margin-bottom: 35px;">
-            <h2 style="margin: 0;">전체 수리 내역</h2>
+            <h2 style="margin: 0; font-size: 24px; font-weight: 800; color: var(--hf-text);">전체 수리 내역</h2>
             <p style="color: #64748b; margin-top: 5px;">{{ user_info.name }} 임대인님 건물의 누적 수리 기록입니다.</p>
         </div>
 
         <div class="content-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>접수 일시</th>
-                        <th>호실 (세입자)</th>
-                        <th>요청 사안 (문제 분류)</th>
-                        <th>실제 지출 비용</th>
-                        <th>진행 상태</th>
-                        <th>영수증 확인</th> </tr>
-                </thead>
-                <tbody>
-                    {% if repairs %}
-                        {% for r in repairs %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
                         <tr>
-                            <td style="color: var(--hf-text-sub); font-size: 13px;">{{ r.created_at if r.created_at else '-' }}</td>
-                            <td>
-                                <span style="background:#eff6ff; color:var(--hf-primary); padding:4px 8px; border-radius:6px; font-weight:700; margin-right: 5px;">{{ r.room_number }}</span>
-                                <span style="font-size: 13px; color: var(--hf-text-sub);">{{ r.tenant_name if r.tenant_name else '미등록' }}</span>
-                            </td>
-                            <td style="font-weight: 600;">{{ r.problem_name }}</td>
-                            <td>
-                                {% if r.actual_cost %}
-                                    {{ "{:,}".format(r.actual_cost|int) }}원
-                                {% else %}
-                                    <span style="color: #94a3b8;">미정</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if r.status == '요청됨' %}
-                                    <span class="status-badge" style="background:#fef2f2; color:#ef4444;">● 신규 요청</span>
-                                {% elif r.status == '수리중' %}
-                                    <span class="status-badge" style="background:#fffbeb; color:#f59e0b;">● 진행 중</span>
-                                {% else %}
-                                    <span class="status-badge" style="background:#ecfdf5; color:#10b981;">● 처리 완료</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if r.receipt_image %}
-                                    <a href="/static/uploads/reviews/{{ r.receipt_image }}" target="_blank" class="btn-receipt">
-                                        <i class="fas fa-receipt"></i> 영수증 보기
-                                    </a>
-                                {% else %}
-                                    <span style="color: #cbd5e1; font-size: 13px; padding-left: 10px;">-</span>
-                                {% endif %}
-                            </td>
+                            <th>접수 일시</th>
+                            <th>호실 (세입자)</th>
+                            <th>요청 사안 (문제 분류)</th>
+                            <th>실제 지출 비용</th>
+                            <th>진행 상태</th>
+                            <th>영수증 확인</th> 
                         </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr><td colspan="6" style="text-align: center; padding: 60px; color: var(--hf-text-sub);">접수된 수리 내역이 없습니다.</td></tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% if repairs %}
+                            {% for r in repairs %}
+                            <tr>
+                                <td style="color: var(--hf-text-sub); font-size: 13px;">{{ r.created_at if r.created_at else '-' }}</td>
+                                <td>
+                                    <span style="background:#eff6ff; color:var(--hf-primary); padding:4px 8px; border-radius:6px; font-weight:700; margin-right: 5px;">{{ r.room_number }}</span>
+                                    <span style="font-size: 13px; color: var(--hf-text-sub);">{{ r.tenant_name if r.tenant_name else '미등록' }}</span>
+                                </td>
+                                <td style="font-weight: 600;">{{ r.problem_name }}</td>
+                                <td>
+                                    {% if r.actual_cost %}
+                                        {{ "{:,}".format(r.actual_cost|int) }}원
+                                    {% else %}
+                                        <span style="color: #94a3b8;">미정</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if r.status == '요청됨' %}
+                                        <span class="status-badge" style="background:#fef2f2; color:#ef4444;">● 신규 요청</span>
+                                    {% elif r.status == '수리중' %}
+                                        <span class="status-badge" style="background:#fffbeb; color:#f59e0b;">● 진행 중</span>
+                                    {% else %}
+                                        <span class="status-badge" style="background:#ecfdf5; color:#10b981;">● 처리 완료</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if r.receipt_image %}
+                                        <a href="/static/uploads/reviews/{{ r.receipt_image }}" target="_blank" class="btn-receipt">
+                                            <i class="fas fa-receipt"></i> 영수증 보기
+                                        </a>
+                                    {% else %}
+                                        <span style="color: #cbd5e1; font-size: 13px; padding-left: 10px;">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="6" style="text-align: center; padding: 60px; color: var(--hf-text-sub);">접수된 수리 내역이 없습니다.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const sidebarMenu = document.getElementById('sidebar-menu');
+
+            menuBtn.addEventListener('click', function() {
+                sidebarMenu.classList.toggle('active');
+            });
+        });
+    </script>
 </body>
 </html>

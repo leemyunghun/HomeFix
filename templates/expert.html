@@ -1,26 +1,26 @@
 {% extends "base.html" %} 
 {% block content %}
-<div class="max-w-4xl mx-auto py-12 px-4 fade-in relative">
-    <div class="mb-10 text-center">
-        <h2 class="text-3xl font-bold text-slate-800">👷 우리동네 인증 수리 업체</h2>
-        <p class="text-slate-500 mt-2">서울시 공식 인증 업체와 내 주변 전문가를 실시간으로 찾아보세요.</p>
+<div class="max-w-4xl mx-auto py-8 md:py-12 px-4 fade-in relative">
+    <div class="mb-8 md:mb-10 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-800">👷 우리동네 인증 수리 업체</h2>
+        <p class="text-slate-500 mt-2 text-sm md:text-base">서울시 공식 인증 업체와 내 주변 전문가를 실시간으로 찾아보세요.</p>
 
-        <form action="/expert" method="GET" class="relative max-w-2xl mx-auto mt-8">
+        <form action="/expert" method="GET" class="relative max-w-2xl mx-auto mt-6 md:mt-8">
             <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <span class="text-slate-400">🔍</span>
+                <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                    <span class="text-slate-400 text-sm md:text-base">🔍</span>
                 </div>
                 <input
                     type="text"
                     name="query"
-                    placeholder="업체명, 지역명, 시공분야 입력 (예: 노원구, 보일러)"
-                    class="block w-full pl-11 pr-24 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="업체명, 지역명, 시공분야 (예: 노원구, 보일러)"
+                    class="block w-full pl-9 pr-20 md:pl-11 md:pr-24 py-3 md:py-3.5 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-xs md:text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value="{{ query or '' }}"
                 />
                 <div class="absolute inset-y-1.5 right-1.5">
                     <button
                         type="submit"
-                        class="h-full px-5 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-700 transition"
+                        class="h-full px-3 md:px-5 bg-slate-800 text-white text-[10px] md:text-xs font-bold rounded-lg md:rounded-xl hover:bg-slate-700 transition"
                     >
                         검색
                     </button>
@@ -29,149 +29,149 @@
         </form>
     </div>
 
-    <div class="mb-12">
+    <div class="mb-10 md:mb-12">
         <div class="flex justify-between items-end mb-4 px-2">
-            <h3 class="text-xl font-bold text-slate-800">
+            <h3 class="text-lg md:text-xl font-bold text-slate-800">
                 {% if query %} '{{ query }}' 검색 결과 {% else %} ✅ 인증 업체 목록 {% endif %}
             </h3>
-            <span class="text-[12px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded">공식 인증</span>
+            <span class="text-[10px] md:text-[12px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded">공식 인증</span>
         </div>
 
         <div class="grid gap-3">
             {% if experts %} 
                 {% for ex in experts %}
-                <div class="expert-item bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 transition overflow-hidden">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-base text-slate-800">{{ ex['name'] }}</h4>
-                                <span class="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-0.5 rounded-lg font-bold">인증</span>
+                <div class="expert-item bg-white p-4 md:p-5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 transition overflow-hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-0">
+                        <div class="flex-1 w-full">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="font-bold text-sm md:text-base text-slate-800 truncate">{{ ex['name'] }}</h4>
+                                <span class="bg-emerald-50 text-emerald-600 text-[9px] md:text-[10px] px-2 py-0.5 rounded-lg font-bold shrink-0">인증</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">
-                                <i class="fas fa-map-marker-alt mr-1"></i> {{ ex['location'] }}
+                            <p class="text-[11px] md:text-xs text-slate-500 mt-1 break-keep">
+                                <i class="fas fa-map-marker-alt mr-1 w-3 text-center"></i> {{ ex['location'] }}
                             </p>
                             
                             {% if ex['contact'] and ex['contact'] != '정보없음' and ex['contact'] != 'None' and ex['contact'] != '' %}
-                            <div class="mt-2 text-blue-600 text-sm font-bold">
-                                <i class="fas fa-phone-alt mr-1"></i> {{ ex['contact'] }}
+                            <div class="mt-1.5 md:mt-2 text-blue-600 text-xs md:text-sm font-bold">
+                                <i class="fas fa-phone-alt mr-1 w-3 text-center"></i> {{ ex['contact'] }}
                             </div>
                             {% endif %}
                         </div>
 
-                        <div class="flex flex-col gap-2 min-w-[100px] items-end ml-4">
+                        <div class="flex flex-col gap-2 w-full md:w-auto md:min-w-[100px] items-end md:ml-4">
                             <button
                                 type="button"
                                 data-location="{{ ex['location'] }}"
                                 data-name="{{ ex['name'] }}"
                                 onclick="showDirectMap(this)"
-                                class="w-full text-center bg-slate-100 text-slate-600 px-3 py-2 rounded-xl text-[10px] font-bold hover:bg-slate-200 transition"
+                                class="w-full text-center bg-slate-100 text-slate-600 px-3 py-2 rounded-lg md:rounded-xl text-[10px] font-bold hover:bg-slate-200 transition"
                             >
                                 📍 위치 확인
                             </button>
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t border-slate-100 text-right">
+                    <div class="mt-4 pt-4 border-t border-slate-100 text-center md:text-right">
                         {% if user_info %}
                             <button 
                                 onclick="openReserveModal(this)" 
                                 data-expert="{{ ex['name'] }}" 
                                 data-points="{{ user_info.get('points', 0) }}"
-                                class="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition shadow-md active:scale-95">
+                                class="w-full md:w-auto inline-flex justify-center items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold hover:bg-indigo-700 transition shadow-md active:scale-95">
                                 할인 예약하기 🪙
                             </button>
                             
                         {% else %}
-                            <a href="/login" class="inline-flex items-center gap-2 bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-700 transition shadow-md">
+                            <a href="/login" class="w-full md:w-auto inline-flex justify-center items-center gap-2 bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold hover:bg-slate-700 transition shadow-md">
                                 로그인하고 예약하기
                             </a>
                         {% endif %}
                     </div>
 
                     <div class="direct-map-container hidden mt-4 border-t border-slate-100 pt-4">
-                        <div class="w-full h-64 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative">
+                        <div class="w-full h-48 md:h-64 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative">
                              <div class="map-area w-full h-full"></div>
                         </div>
                     </div>
                 </div>
                 {% endfor %} 
             {% else %}
-                <div class="text-center py-10 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                    <p class="text-slate-400 text-sm">등록된 업체 정보가 없습니다.</p>
+                <div class="text-center py-8 md:py-10 bg-slate-50 rounded-2xl md:rounded-3xl border border-dashed border-slate-200">
+                    <p class="text-slate-400 text-xs md:text-sm">등록된 업체 정보가 없습니다.</p>
                 </div>
             {% endif %}
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm mt-12">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div class="bg-white rounded-2xl md:rounded-3xl border border-slate-200 p-4 md:p-6 shadow-sm mt-8 md:mt-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 mb-4 md:mb-6">
             <div>
-                <h3 class="text-lg font-bold text-slate-800">🧭 내 주변 전문가 찾기</h3>
-                <p class="text-xs text-slate-400 mt-1">
+                <h3 class="text-base md:text-lg font-bold text-slate-800">🧭 내 주변 전문가 찾기</h3>
+                <p class="text-[10px] md:text-xs text-slate-400 mt-1">
                     GPS를 기반으로 현재 위치 주변의 수리 업체를 실시간으로 검색합니다.
                 </p>
             </div>
             <div class="flex gap-2 w-full md:w-auto">
                 <button
                     onclick="findExperts()"
-                    class="flex-1 md:flex-none bg-blue-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition"
+                    class="flex-1 md:flex-none bg-blue-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[11px] md:text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition"
                 >
                     내 주변 찾기
                 </button>
                 <button
                     onclick="clearNearby()"
-                    class="bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-200 transition"
+                    class="bg-slate-100 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[11px] md:text-xs font-bold hover:bg-slate-200 transition shrink-0"
                 >
                     초기화
                 </button>
             </div>
         </div>
 
-        <div id="nearbySection" class="hidden space-y-6">
-            <div id="nearbyStatus" class="text-xs text-blue-600 font-bold text-center"></div>
-            <div class="bg-slate-50 p-1 rounded-2xl border border-slate-100">
-                <div id="map" class="w-full h-80 rounded-xl overflow-hidden shadow-inner"></div>
+        <div id="nearbySection" class="hidden space-y-4 md:space-y-6">
+            <div id="nearbyStatus" class="text-[11px] md:text-xs text-blue-600 font-bold text-center"></div>
+            <div class="bg-slate-50 p-1 rounded-xl md:rounded-2xl border border-slate-100">
+                <div id="map" class="w-full h-64 md:h-80 rounded-lg md:rounded-xl overflow-hidden shadow-inner"></div>
             </div>
-            <div id="nearbyResult" class="grid gap-3"></div>
+            <div id="nearbyResult" class="grid gap-2 md:gap-3"></div>
         </div>
     </div>
 </div>
 
 <div id="reserveModal" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
-    <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative">
+    <div class="bg-white rounded-[2rem] p-6 md:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
         
-        <button onclick="closeReserveModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition">
+        <button onclick="closeReserveModal()" class="absolute top-5 right-5 text-slate-400 hover:text-red-500 transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
         
-        <h2 class="text-2xl font-black mb-1 text-slate-800">전문가 수리 예약</h2>
-        <p class="text-xs text-slate-500 mb-6">보유하신 포인트를 사용하여 결제 금액을 할인받으세요.</p>
+        <h2 class="text-xl md:text-2xl font-black mb-1 text-slate-800 pr-8">전문가 수리 예약</h2>
+        <p class="text-[10px] md:text-xs text-slate-500 mb-5 md:mb-6">보유하신 포인트를 사용하여 결제 금액을 할인받으세요.</p>
         
-        <form action="/reserve_expert" method="POST" class="space-y-5">
+        <form action="/reserve_expert" method="POST" class="space-y-4 md:space-y-5">
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">예약할 업체</label>
+                <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">예약할 업체</label>
                 <input type="text" id="modal_expert_name" name="expert_name" readonly 
-                       class="w-full px-5 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-700 font-bold focus:outline-none text-sm">
+                       class="w-full px-4 md:px-5 py-3 bg-slate-100 border border-slate-200 rounded-xl md:rounded-2xl text-slate-700 font-bold focus:outline-none text-xs md:text-sm">
             </div>
             
-            <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl flex justify-between items-center">
-                <span class="text-sm font-bold text-indigo-900">내 보유 포인트</span>
-                <span class="text-xl font-black text-indigo-600">
-                    <span id="modal_my_points">0</span> <span class="text-sm font-medium">P</span>
+            <div class="bg-indigo-50 border border-indigo-100 p-4 md:p-5 rounded-xl md:rounded-2xl flex justify-between items-center">
+                <span class="text-xs md:text-sm font-bold text-indigo-900">내 보유 포인트</span>
+                <span class="text-lg md:text-xl font-black text-indigo-600">
+                    <span id="modal_my_points">0</span> <span class="text-xs md:text-sm font-medium">P</span>
                 </span>
             </div>
             
             <div>
-                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">사용할 포인트 입력</label>
+                <label class="block text-[10px] md:text-xs font-bold text-slate-500 mb-1 ml-1">사용할 포인트 입력</label>
                 <div class="relative">
                     <input type="number" name="use_points" id="use_points_input" min="0" value="0"
-                           class="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-lg font-bold transition">
-                    <button type="button" onclick="useAllPoints()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-slate-700 transition">전액사용</button>
+                           class="w-full px-4 md:px-5 py-3 md:py-3.5 bg-white border border-slate-200 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-base md:text-lg font-bold transition">
+                    <button type="button" onclick="useAllPoints()" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-slate-800 text-white text-[10px] md:text-xs px-2 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg font-bold hover:bg-slate-700 transition">전액사용</button>
                 </div>
-                <p class="text-[11px] text-red-400 mt-2 ml-1">* 포인트는 1P당 1원으로 환산되어 현장 시공비에서 차감됩니다.</p>
+                <p class="text-[9px] md:text-[11px] text-red-400 mt-1.5 md:mt-2 ml-1">* 포인트는 1P당 1원으로 환산되어 현장 시공비에서 차감됩니다.</p>
             </div>
             
-            <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-indigo-600 transition-colors shadow-lg mt-4 text-lg">
+            <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 md:py-4 rounded-xl md:rounded-2xl hover:bg-indigo-600 transition-colors shadow-lg mt-4 text-sm md:text-lg">
                 포인트 적용하고 예약하기
             </button>
         </form>
@@ -182,24 +182,22 @@
 
 <script>
     var map, markers = [], infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
-    var myLocationMarker = null; // 현위치 마커용 변수 추가
-    var myLocationLabel = null;  // 현위치 레이블용 변수 추가
+    var myLocationMarker = null; 
+    var myLocationLabel = null;  
 
-    // ✨ [추가됨] 예약 팝업 관련 스크립트
     let currentMyPoints = 0;
 
-function openReserveModal(btnElement) {
-    // 버튼에 안전하게 숨겨둔 데이터를 꺼내옵니다.
-    const expertName = btnElement.getAttribute('data-expert');
-    const myPoints = parseInt(btnElement.getAttribute('data-points'), 10);
+    function openReserveModal(btnElement) {
+        const expertName = btnElement.getAttribute('data-expert');
+        const myPoints = parseInt(btnElement.getAttribute('data-points'), 10);
 
-    document.getElementById('modal_expert_name').value = expertName;
-    document.getElementById('modal_my_points').innerText = myPoints.toLocaleString();
-    document.getElementById('use_points_input').max = myPoints;
-    currentMyPoints = myPoints;
-    
-    document.getElementById('reserveModal').classList.remove('hidden');
-}
+        document.getElementById('modal_expert_name').value = expertName;
+        document.getElementById('modal_my_points').innerText = myPoints.toLocaleString();
+        document.getElementById('use_points_input').max = myPoints;
+        currentMyPoints = myPoints;
+        
+        document.getElementById('reserveModal').classList.remove('hidden');
+    }
 
     function useAllPoints() {
         document.getElementById('use_points_input').value = currentMyPoints;
@@ -209,7 +207,6 @@ function openReserveModal(btnElement) {
         document.getElementById('reserveModal').classList.add('hidden');
     }
 
-    // 기존 개별 업체 위치보기 (아코디언)
     function showDirectMap(btn) {
         const address = btn.getAttribute('data-location');
         const title = btn.getAttribute('data-name');
@@ -232,7 +229,7 @@ function openReserveModal(btnElement) {
                 
                 const marker = new kakao.maps.Marker({ map: dMap, position: coords });
                 const iw = new kakao.maps.InfoWindow({
-                    content: `<div style="padding:5px;font-size:12px;font-weight:bold;">${title}</div>`
+                    content: `<div style="padding:5px;font-size:11px;font-weight:bold;">${title}</div>`
                 });
                 iw.open(dMap, marker);
                 
@@ -245,22 +242,17 @@ function openReserveModal(btnElement) {
         });
     }
 
-    // 초기화 함수
     function clearNearby() {
-    document.getElementById('nearbyStatus').innerText = '';
-    document.getElementById('nearbyResult').innerHTML = '';
-    if(markers.length > 0) markers.forEach((m) => m.setMap(null));
+        document.getElementById('nearbyStatus').innerText = '';
+        document.getElementById('nearbyResult').innerHTML = '';
+        if(markers.length > 0) markers.forEach((m) => m.setMap(null));
+        if(myLocationMarker) myLocationMarker.setMap(null);
+        if(myLocationLabel) myLocationLabel.setMap(null);
+        markers = [];
+        myLocationMarker = null;
+        myLocationLabel = null;
+    }
 
-    // ✨ 현위치 요소들도 지도에서 삭제
-    if(myLocationMarker) myLocationMarker.setMap(null);
-    if(myLocationLabel) myLocationLabel.setMap(null);
-
-    markers = [];
-    myLocationMarker = null;
-    myLocationLabel = null;
-}
-
-    // 실시간 주변 전문가 찾기
     function findExperts() {
         const section = document.getElementById('nearbySection');
         const statusEl = document.getElementById('nearbyStatus');
@@ -283,24 +275,22 @@ function openReserveModal(btnElement) {
             
             map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(lat, lon), level: 4 });
             
-            // ✨ [현위치 파란색 마커 설정]
-var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png';
-var imageSize = new kakao.maps.Size(35, 39);
-var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+            var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png';
+            var imageSize = new kakao.maps.Size(35, 39);
+            var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
 
-myLocationMarker = new kakao.maps.Marker({ 
-    position: new kakao.maps.LatLng(lat, lon), 
-    map: map,
-    image: markerImage 
-});
+            myLocationMarker = new kakao.maps.Marker({ 
+                position: new kakao.maps.LatLng(lat, lon), 
+                map: map,
+                image: markerImage 
+            });
 
-// ✨ [컴팩트 '내 위치' 레이블 설정]
-myLocationLabel = new kakao.maps.CustomOverlay({
-    content: `<div style="background:#2563eb; color:white; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:800; box-shadow:0 2px 6px rgba(37,99,235,0.3); border:1px solid white; white-space:nowrap;">내 위치</div>`,
-    position: new kakao.maps.LatLng(lat, lon),
-    yAnchor: 2.6 
-});
-myLocationLabel.setMap(map);
+            myLocationLabel = new kakao.maps.CustomOverlay({
+                content: `<div style="background:#2563eb; color:white; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:800; box-shadow:0 2px 6px rgba(37,99,235,0.3); border:1px solid white; white-space:nowrap;">내 위치</div>`,
+                position: new kakao.maps.LatLng(lat, lon),
+                yAnchor: 2.6 
+            });
+            myLocationLabel.setMap(map);
 
             var ps = new kakao.maps.services.Places();
             var keywords = ['집수리', '누수탐지', '배관', '보일러', '인테리어'];
@@ -329,7 +319,6 @@ myLocationLabel.setMap(map);
         });
     }
 
-    // 결과 렌더링
     function renderNearbyResults(data, lat, lon) {
         var statusEl = document.getElementById('nearbyStatus');
         var resultEl = document.getElementById('nearbyResult');
@@ -362,7 +351,7 @@ myLocationLabel.setMap(map);
 
             kakao.maps.event.addListener(marker, 'click', function () {
                 infowindow.setContent(
-                    '<div style="padding:10px;font-size:12px;font-weight:bold;">' + place.place_name + '</div>',
+                    '<div style="padding:8px;font-size:11px;font-weight:bold;">' + place.place_name + '</div>',
                 );
                 infowindow.open(map, marker);
             });
@@ -370,17 +359,17 @@ myLocationLabel.setMap(map);
             var distKm = (place.distance / 1000).toFixed(1);
 
             html += `
-            <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex justify-between items-center shadow-sm">
-                <div class="flex-1 pr-2">
+            <div class="bg-blue-50/50 border border-blue-100 rounded-xl md:rounded-2xl p-3 md:p-4 flex justify-between items-center shadow-sm">
+                <div class="flex-1 pr-2 min-w-0">
                     <div class="flex items-center">
-                        <b class="text-sm text-slate-800 truncate">${place.place_name}</b> 
-                        <span class="text-blue-600 text-[10px] ml-2 font-black whitespace-nowrap">${distKm}km</span>
+                        <b class="text-xs md:text-sm text-slate-800 truncate">${place.place_name}</b> 
+                        <span class="text-blue-600 text-[9px] md:text-[10px] ml-2 font-black whitespace-nowrap shrink-0">${distKm}km</span>
                     </div>
-                    <div class="text-[11px] text-slate-500 mt-1 truncate">${place.road_address_name || place.address_name}</div>
-                    ${place.phone ? `<div class="text-[10px] text-slate-400 mt-0.5"><i class="fas fa-phone mr-1"></i>${place.phone}</div>` : ''}
+                    <div class="text-[10px] md:text-[11px] text-slate-500 mt-1 truncate">${place.road_address_name || place.address_name}</div>
+                    ${place.phone ? `<div class="text-[9px] md:text-[10px] text-slate-400 mt-0.5"><i class="fas fa-phone mr-1"></i>${place.phone}</div>` : ''}
                 </div>
                 <div class="flex-shrink-0 ml-2">
-                    <a href="${place.place_url}" target="_blank" class="bg-white border border-slate-200 px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition block text-center min-w-[70px]">
+                    <a href="${place.place_url}" target="_blank" class="bg-white border border-slate-200 px-2 md:px-3 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition block text-center min-w-[60px] md:min-w-[70px]">
                         상세정보
                     </a>
                 </div>
