@@ -19,21 +19,32 @@
 
         body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; background-color: var(--hf-bg); color: var(--hf-text-main); }
 
-        /* 사이드바 */
+        /* [1] 사이드바 */
         .sidebar {
             width: 260px; height: 100vh; background: var(--hf-sidebar-bg);
             position: fixed; padding: 30px 20px; box-sizing: border-box; 
             border-right: 1px solid var(--hf-border); display: flex; flex-direction: column;
+            z-index: 1000;
         }
         
-        /* ✨ 로고에 마우스 올렸을 때 클릭할 수 있게 스타일 추가! */
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* ✨ 수정됨: 로고 좌측 패딩(padding-left) 추가하여 정렬 맞춤 */
         .sidebar-logo { 
             font-size: 24px; font-weight: 900; color: var(--hf-primary); 
             margin-bottom: 40px; letter-spacing: -1px; text-decoration: none; display: block;
-            transition: opacity 0.2s;
+            transition: opacity 0.2s; padding-left: 10px;
         }
         .sidebar-logo:hover { opacity: 0.8; }
         
+        /* 모바일용 햄버거 버튼 */
+        .mobile-menu-btn {
+            display: none; background: none; border: none; font-size: 24px;
+            color: var(--hf-text-main); cursor: pointer; padding: 5px;
+        }
+
         .menu-label { font-size: 11px; font-weight: 800; color: var(--hf-text-sub); margin: 20px 0 10px 10px; text-transform: uppercase; }
         .menu-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 15px;
@@ -44,7 +55,7 @@
         .menu-item i { width: 20px; color: var(--hf-text-sub); }
         .menu-item.active i { color: var(--hf-primary); }
 
-        /* 메인 콘텐츠 */
+        /* [2] 메인 콘텐츠 */
         .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; box-sizing: border-box; }
         .header { margin-bottom: 35px; }
         .header h2 { margin: 0; font-size: 24px; font-weight: 800; }
@@ -82,21 +93,67 @@
 
         /* 모달 스타일 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: white; width: 450px; margin: 80px auto; padding: 40px; border-radius: 30px; }
+        .modal-content { background: white; width: 450px; max-width: 90%; margin: 80px auto; padding: 40px; border-radius: 30px; box-sizing: border-box; }
+
+        /* ✨ 모바일 반응형 처리 (768px 이하) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            
+            /* 사이드바를 상단 네비게이션으로 변경 */
+            .sidebar {
+                width: 100%; height: auto; position: sticky; top: 0; padding: 0;
+                border-right: none; border-bottom: 1px solid var(--hf-border);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+            .sidebar-header {
+                padding: 15px 20px; background: var(--hf-sidebar-bg);
+            }
+            /* ✨ 수정됨: 모바일 뷰일 때는 좌측 패딩 제거하여 라인 맞춤 */
+            .sidebar-logo { margin-bottom: 0; padding-left: 0; font-size: 22px; }
+            .mobile-menu-btn { display: block; }
+            
+            /* 모바일 메뉴 열기/닫기 영역 */
+            .sidebar-menu {
+                display: none; background: var(--hf-sidebar-bg); padding: 0 20px 20px 20px;
+                border-top: 1px solid #f1f5f9;
+            }
+            .sidebar-menu.active { display: block; }
+            
+            /* 메인 콘텐츠 영역 여백 축소 */
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            .header h2 { font-size: 20px; }
+            
+            .content-card { padding: 20px; border-radius: 20px; }
+
+            /* 수리 항목 리스트 모바일 최적화 (세로 정렬) */
+            .task-item {
+                flex-direction: column; align-items: flex-start; gap: 15px; padding: 15px;
+            }
+            .task-meta { width: 100%; display: flex; justify-content: flex-end; }
+            .btn-action { width: 100%; text-align: center; } /* 모바일에서는 버튼을 꽉 차게 */
+
+            /* 모달 팝업 모바일 최적화 */
+            .modal-content { width: 95%; margin: 50px auto; padding: 25px; border-radius: 20px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <a href="/" class="sidebar-logo">HomeFix</a>
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-logo">HomeFix</a>
+            <button id="mobile-menu-btn" class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
         
-        <div class="menu-label">Expert Menu</div>
-        <a href="/expert_dashboard" class="menu-item">
-            <i class="fas fa-chart-line"></i> 대시보드 홈
-        </a>
-        <a href="/expert/tasks" class="menu-item active">
-            <i class="fas fa-tools"></i> 수리 대기 목록
-        </a>
+        <div id="sidebar-menu" class="sidebar-menu">
+            <div class="menu-label">Expert Menu</div>
+            <a href="/expert_dashboard" class="menu-item">
+                <i class="fas fa-chart-line"></i> 대시보드 홈
+            </a>
+            <a href="/expert/tasks" class="menu-item active">
+                <i class="fas fa-tools"></i> 수리 대기 목록
+            </a>
+        </div>
     </div>
 
     <div class="main-content">
@@ -128,7 +185,7 @@
                             </button>
                             {% else %}
                             <span style="color: var(--hf-success); font-weight: 700; font-size: 14px;">
-                                <i class="fas fa-check-circle"></i> 정산 대기중
+                                <i class="fas fa-check-circle"></i> 수리 완료
                             </span>
                             {% endif %}
                         </div>
@@ -166,6 +223,7 @@
     </div>
 
     <script>
+        // 모달 관련 스크립트
         function openReceiptModal(orderId, buildingInfo) {
             document.getElementById('modal_order_id').value = orderId;
             document.getElementById('target_building').innerText = buildingInfo + ' 수리 건';
@@ -174,10 +232,19 @@
         function closeModal() {
             document.getElementById('receiptModal').style.display = 'none';
         }
-        // 배경 클릭 시 닫기
         window.onclick = function(event) {
             if (event.target == document.getElementById('receiptModal')) closeModal();
         }
+
+        // 모바일 햄버거 메뉴 스크립트
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const sidebarMenu = document.getElementById('sidebar-menu');
+
+            menuBtn.addEventListener('click', function() {
+                sidebarMenu.classList.toggle('active');
+            });
+        });
     </script>
 </body>
 </html>
