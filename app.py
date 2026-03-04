@@ -2053,15 +2053,46 @@ def toss_pay_confirm():
 
 
 @app.route('/payment/toss/success')
-def toss_pay_success_redirect():
-    order_id    = request.args.get('orderId', '')
-    payment_key = request.args.get('paymentKey', '')
-    amount      = request.args.get('amount', 0)
-    return render_template(
-        'payment_toss_redirect.html',
-        order_id=order_id, payment_key=payment_key, amount=amount
-    )
+def toss_success():
+    payment_key = request.args.get('paymentKey')
+    order_id = request.args.get('orderId')
+    amount = request.args.get('amount')
+    purpose = request.args.get('purpose')
+    repair_id_raw = request.args.get('ref_id') # URL에서 받은 원본 값
 
+    print(f"🔍 결제 성공 데이터 확인 -> 목적: {purpose}, 수리ID: {repair_id_raw}")
+
+    if purpose == 'repair_service' and repair_id_raw:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            # ✨ 핵심: ID를 안전하게 숫자로 변환합니다.
+            repair_id = int(repair_id_raw)
+            
+            # ✨ paid_at 컬럼이 없으므로 status만 업데이트하도록 수정했습니다.
+            update_query = """
+                UPDATE repair_logs 
+                SET status = '결제완료' 
+                WHERE id = %s
+            """
+            cursor.execute(update_query, (repair_id,))
+            conn.commit()
+            
+            # 쿼리가 실제로 몇 줄이나 영향을 줬는지 확인 (0이면 ID가 틀린 것)
+            if cursor.rowcount > 0:
+                print(f"✅ [HomeFix] DB 업데이트 성공! 수리 ID {repair_id} -> 결제완료")
+            else:
+                print(f"⚠️ [HomeFix] 업데이트 실패: ID {repair_id}와 일치하는 데이터가 없습니다.")
+
+        except Exception as e:
+            conn.rollback()
+            print(f"❌ [HomeFix] DB 업데이트 에러 발생: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+
+    return render_template('payment_success.html', 
+                           message="수리비 결제가 성공적으로 완료되었습니다!")
 
 @app.route('/payment/toss/fail')
 def toss_pay_fail_redirect():
