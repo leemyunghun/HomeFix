@@ -8,6 +8,10 @@
             <h3 class="text-3xl md:text-4xl font-black tracking-tight drop-shadow-md">
                 {{ "{:,}".format(user_info.get('points', 0)) }} <span class="text-lg md:text-xl font-medium opacity-80">P</span>
             </h3>
+            <a href="/payment/charge"
+               class="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white text-xs font-bold transition-all duration-200 border border-white/30 shadow-sm">
+                <i class="fas fa-plus text-[10px]"></i> 포인트 충전하기
+            </a>
         </div>
         <div class="text-5xl md:text-6xl drop-shadow-xl animate-bounce-slow">🪙</div>
     </div>

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto py-12 md:py-20 px-4 fade-in">
+    <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-xl text-center">
+
+        <!-- 성공 아이콘 -->
+        <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+
+        <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-2">결제 완료!</h2>
+        <p class="text-slate-400 text-sm mb-8">결제가 성공적으로 처리되었습니다.</p>
+
+        {% if payment %}
+        <!-- 결제 상세 -->
+        <div class="bg-slate-50 rounded-2xl p-5 text-left space-y-3 mb-8 border border-slate-100">
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-slate-400 font-medium">주문번호</span>
+                <span class="font-bold text-slate-600 font-mono text-[11px]">{{ payment.order_id }}</span>
+            </div>
+            <div class="flex justify-between items-center text-sm border-t border-slate-100 pt-3">
+                <span class="text-slate-400 font-medium">결제 금액</span>
+                <span class="font-black text-slate-800">{{ "{:,}".format(payment.amount) }}원</span>
+            </div>
+            {% if payment.purpose == 'point_charge' %}
+            <div class="flex justify-between items-center text-sm border-t border-slate-100 pt-3">
+                <span class="text-slate-400 font-medium">충전 포인트</span>
+                <span class="font-black text-blue-600 text-lg">+{{ "{:,}".format(payment.point_amount) }} P</span>
+            </div>
+            {% elif payment.purpose == 'expert_reserve' %}
+            <div class="flex justify-between items-center text-sm border-t border-slate-100 pt-3">
+                <span class="text-slate-400 font-medium">결제 유형</span>
+                <span class="font-bold text-slate-700">전문가 예약</span>
+            </div>
+            {% elif payment.purpose == 'subscription' %}
+            <div class="flex justify-between items-center text-sm border-t border-slate-100 pt-3">
+                <span class="text-slate-400 font-medium">구독 플랜</span>
+                <span class="font-bold text-indigo-600">{{ 'Premium' if payment.amount >= 20000 else 'Basic' }} 30일</span>
+            </div>
+            {% endif %}
+            <div class="flex justify-between items-center text-sm border-t border-slate-100 pt-3">
+                <span class="text-slate-400 font-medium">결제 수단</span>
+                <span class="font-bold text-slate-600">
+                    {% if payment.payment_type == 'kakao' %}
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-black" style="background:#FEE500; color:#3C1E1E;">카카오페이</span>
+                    {% else %}
+                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-[11px] font-black">토스페이먼츠</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="space-y-3">
+            <a href="/myinfo"
+                class="block w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-blue-600 transition-colors shadow-lg">
+                마이페이지로 이동
+            </a>
+            <a href="/payment/history"
+                class="block w-full py-3.5 border-2 border-slate-200 text-slate-500 rounded-2xl font-bold text-sm hover:bg-slate-50 transition">
+                결제 내역 보기
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
