@@ -172,23 +172,38 @@
                     {% for t in tasks %}
                     <div class="task-item">
                         <div class="task-info">
-                            <span class="status-badge {% if t.status == '영수증제출' %}badge-done{% else %}badge-pending{% endif %}" style="margin-bottom: 10px; display: inline-block;">
-                                {{ '수리 완료' if t.status == '영수증제출' else '수리 진행중' }}
-                            </span>
-                            <h4>{{ t.building_name }} {{ t.room_number }} - {{ t.problem_name }}</h4>
-                            <p><i class="far fa-clock"></i> 배정일: {{ t.created_at }}</p>
-                        </div>
+    {% if t.status == '수리완료' %}
+        <span class="status-badge badge-done" style="margin-bottom: 10px; display: inline-block; background: #fff7ed; color: #ea580c;">
+            <i class="fas fa-check"></i> 수리 완료 (입금 대기)
+        </span>
+    {% elif t.status == '결제완료' %}
+        <span class="status-badge badge-done" style="margin-bottom: 10px; display: inline-block;">
+            <i class="fas fa-hand-holding-usd"></i> 결제 완료
+        </span>
+    {% else %}
+        <span class="status-badge badge-pending" style="margin-bottom: 10px; display: inline-block;">
+            <i class="fas fa-tools"></i> 수리 진행중
+        </span>
+    {% endif %}
+    
+    <h4>{{ t.building_name }} {{ t.room_number }} - {{ t.problem_name }}</h4>
+    <p><i class="far fa-clock"></i> 배정일: {{ t.created_at }}</p>
+</div>
                         <div class="task-meta">
-                            {% if t.status != '영수증제출' %}
-                            <button class="btn-action" onclick="openReceiptModal('{{ t.id }}', '{{ t.building_name }} {{ t.room_number }}호')">
-                                영수증 발행하기
-                            </button>
-                            {% else %}
-                            <span style="color: var(--hf-success); font-weight: 700; font-size: 14px;">
-                                <i class="fas fa-check-circle"></i> 수리 완료
-                            </span>
-                            {% endif %}
-                        </div>
+    {% if t.status == '수리중' %}
+        <button class="btn-action" onclick="openReceiptModal('{{ t.id }}', '{{ t.building_name }} {{ t.room_number }}호')">
+            영수증 발행하기
+        </button>
+    {% elif t.status == '수리완료' %}
+        <span style="color: #ea580c; font-weight: 700; font-size: 14px;">
+            <i class="fas fa-clock"></i> 임대인 결제 대기
+        </span>
+    {% elif t.status == '결제완료' %}
+        <span style="color: var(--hf-success); font-weight: 700; font-size: 14px;">
+            <i class="fas fa-check-circle"></i> 정산 완료
+        </span>
+    {% endif %}
+</div>
                     </div>
                     {% endfor %}
                 {% else %}

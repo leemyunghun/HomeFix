@@ -854,12 +854,14 @@ def expert_dashboard():
     try:
         # 통계 데이터 가져오기
         cursor.execute("""
-            SELECT 
-                COUNT(CASE WHEN status != '영수증제출' THEN 1 END) as pending_count,
-                COALESCE(SUM(CASE WHEN status = '영수증제출' THEN actual_cost ELSE 0 END), 0) as total_income
-            FROM repair_logs 
-            WHERE expert_id = %s
-        """, (expert_id,))
+    SELECT 
+        -- ✨ 수리 완료/결제 완료가 아닌 것만 '진행 중'으로 카운트
+        COUNT(CASE WHEN status NOT IN ('수리완료', '결제완료') THEN 1 END) as pending_count,
+        -- ✨ 결제가 완료된 금액만 총 수입으로 합산
+        COALESCE(SUM(CASE WHEN status = '결제완료' THEN actual_cost ELSE 0 END), 0) as total_income
+    FROM repair_logs 
+    WHERE expert_id = %s
+""", (expert_id,))
         stats = cursor.fetchone()
 
         # ✨ 수정된 쿼리: r.building_id 대신 u.building_id를 사용해 JOIN 합니다.
@@ -1814,23 +1816,23 @@ def _process_payment_success(cursor, payment):
 
 # --- [포인트 충전 페이지] ---
 @app.route('/payment/charge')
-def payment_charge_page():
+def payment_charge():
     if 'user' not in session:
         return redirect('/login')
+
+    # 사업성 고려한 현실적인 충전 옵션 세팅
     charge_options = [
-        {"amount": 5000,  "points": 5000,  "label": "5,000원 → 5,000P"},
-        {"amount": 10000, "points": 11000, "label": "10,000원 → 11,000P (+10%)"},
-        {"amount": 30000, "points": 35000, "label": "30,000원 → 35,000P (+17%)"},
-        {"amount": 50000, "points": 60000, "label": "50,000원 → 60,000P (+20%)"},
+        {'amount': 10000,  'points': 10000},  # 기본
+        {'amount': 30000,  'points': 31000},  # +1,000P
+        {'amount': 50000,  'points': 52000},  # +3,000P
+        {'amount': 100000, 'points': 105000}  # +10,000P (최대 10%)
     ]
-    return render_template(
-        'payment_charge.html',
-        charge_options=charge_options,
-        toss_client_key=TOSS_CLIENT_KEY,
-        kakao_js_key=KAKAO_JS_KEY,
-        base_url=BASE_URL,
-        user_info=session['user']
-    )
+
+    return render_template('payment_charge.html', 
+                           user_info=session['user'],
+                           charge_options=charge_options,
+                           toss_client_key=TOSS_CLIENT_KEY,
+                           base_url=BASE_URL)
 
 
 # --- [카카오페이] 결제 준비 ---

@@ -192,24 +192,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if tasks %}
-                            {% for t in tasks[:5] %} <tr>
-                                <td style="color: var(--hf-text-sub)">{{ t.created_at.split(' ')[0] }}</td>
-                                <td style="font-weight: 600">{{ t.building_name }} {{ t.room_number }}</td>
-                                <td>{{ t.problem_name }}</td>
-                                <td>
-                                    {% if t.status == '영수증제출' %}
-                                    <span class="status-tag status-complete">완료</span>
-                                    {% else %}
-                                    <span class="status-tag status-ongoing">수리중</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                        <tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--hf-text-sub)">최근 작업 내역이 없습니다.</td></tr>
-                        {% endif %}
-                    </tbody>
+    {% if tasks %}
+        {% for t in tasks[:5] %} 
+        <tr>
+            <td style="color: var(--hf-text-sub)">{{ t.created_at.split(' ')[0] }}</td>
+            <td style="font-weight: 600">{{ t.building_name }} {{ t.room_number }}</td>
+            <td>{{ t.problem_name }}</td>
+            <td>
+                {% if t.status == '수리완료' %}
+                    <span class="status-tag" style="background: #fff7ed; color: #ea580c;">
+                        <i class="fas fa-clock"></i> 입금 대기
+                    </span>
+                {% elif t.status == '결제완료' %}
+                    <span class="status-tag status-complete">
+                        <i class="fas fa-check-circle"></i> 정산 완료
+                    </span>
+                {% else %}
+                    <span class="status-tag status-ongoing">
+                        <i class="fas fa-tools"></i> 수리중
+                    </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    {% else %}
+    {% endif %}
+</tbody>
                 </table>
             </div>
         </div>
