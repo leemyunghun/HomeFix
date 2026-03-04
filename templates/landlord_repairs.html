@@ -54,6 +54,9 @@
         <a href="/" class="sidebar-logo">HomeFix</a>
         <div style="font-size:11px; color:#64748b; margin:20px 0 10px 10px; font-weight:800; text-transform:uppercase;">Management</div>
         <a href="/landlord_dashboard" class="menu-item"><i class="fas fa-chart-pie"></i> 대시보드 홈</a>
+        <a href="/landlord/tenants" class="menu-item {% if request.path == '/landlord/tenants' %}active{% endif %}">
+                <i class="fas fa-users"></i> 세입자 현황
+            </a>
         <a href="/landlord/repairs" class="menu-item active"><i class="fas fa-clipboard-list"></i> 전체 수리 내역</a>
     </div>
 
