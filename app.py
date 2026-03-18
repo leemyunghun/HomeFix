@@ -39,6 +39,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
 # ✨ [결제 시스템] 추가 환경변수
 # .env에 아래 항목을 추가해주세요:
 #   TOSS_SECRET_KEY=test_sk_...
@@ -47,6 +48,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 TOSS_SECRET_KEY = os.getenv("TOSS_SECRET_KEY", "")
 TOSS_CLIENT_KEY = os.getenv("TOSS_CLIENT_KEY", "")
 BASE_URL        = os.getenv("BASE_URL", "http://localhost:5000")
+KAKAO_JS_KEY = os.getenv("KAKAO_JS_KEY", "")
 
 # TiDB 연결 설정
 TIDB_CONFIG = {
@@ -384,9 +386,9 @@ def rental_page():
         rentals = cursor.fetchall()
     finally:
         cursor.close(); conn.close()
-    return render_template('rental.html', rentals=rentals, query=query)
+    return render_template('rental.html', rentals=rentals, query=query, kakao_js_key=KAKAO_JS_KEY)
 
-# [전문가] 전문가 목록 조회 — 카테고리/지역 필터 지원
+# [전문가] 전문가 목록 조회, 카테고리/지역 필터 지원
 @app.route('/expert')
 def expert_matching():
     query = request.args.get('query', '').strip()
@@ -410,7 +412,7 @@ def expert_matching():
                 seen_names.add(expert['name'])
     finally:
         cursor.close(); conn.close()
-    return render_template('expert.html', experts=experts, query=query)
+    return render_template('expert.html', experts=experts, query=query, kakao_js_key=KAKAO_JS_KEY)
 
 # [전문가] 전문가 예약 처리 — 예약 DB 저장 + 포인트 차감
 @app.route('/reserve_expert', methods=['POST'])

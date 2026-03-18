@@ -146,7 +146,7 @@
                     value: amount,
                 },
                 orderId: 'REPAIR-' + repairId + '-' + Date.now(),
-                orderName: 'HomeFix 수리비: ' + roomNumber + '호 ' + problemName,
+                orderName: 'HomeFix 수리비: ' + roomNumber,
                 // 결제 성공 시 이동할 주소
                 successUrl: window.location.origin + '/payment/toss/success?purpose=repair_service&ref_id=' + repairId,
                 failUrl: window.location.origin + '/payment/toss/fail',
