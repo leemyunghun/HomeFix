@@ -1,0 +1,191 @@
+{% extends "base.html" %} 
+{% block content %}
+<style>
+    .header h2 { margin: 0; font-size: 24px; font-weight: 800; color: var(--hf-text-main); }
+    
+    .point-banner {
+        background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
+        color: white; padding: 35px 40px; border-radius: 28px; 
+        display: flex; justify-content: space-between; align-items: center; 
+        margin-bottom: 35px; box-shadow: 0 15px 25px -5px rgba(59, 130, 246, 0.3);
+        position: relative; overflow: hidden;
+    }
+    .point-banner::after {
+        content: ''; position: absolute; top: -50%; right: -20%;
+        width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .point-banner h3 { font-size: 42px; font-weight: 900; margin: 5px 0 0 0; letter-spacing: -1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .point-banner p { color: rgba(255,255,255,0.85); font-size: 14px; margin: 8px 0 0 0; font-weight: 500; }
+    
+    .charge-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 30px; }
+    .charge-opt {
+        border: 2px solid #e2e8f0; background: #ffffff; border-radius: 20px; 
+        padding: 24px 20px; text-align: left; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+    .charge-opt:hover { border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+    .charge-opt.selected { 
+        border-color: var(--hf-primary); background: #eff6ff; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.2);
+    }
+    
+    .opt-points { font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 6px; transition: color 0.2s; }
+    .charge-opt.selected .opt-points { color: var(--hf-primary); }
+    .opt-price { font-size: 14px; color: #64748b; font-weight: 600; }
+    
+    .bonus-badge {
+        position: absolute; top: -12px; right: 15px; 
+        background: #f59e0b; color: #fff; font-size: 12px; font-weight: 800; 
+        padding: 4px 12px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+        border: 2px solid white;
+    }
+
+    .payment-section {
+        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; 
+        padding: 25px; display: none; margin-bottom: 25px; animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 15px; }
+    
+    .btn-toss {
+        background: #3182f6;
+        color: #ffffff; width: 100%; padding: 18px; border: none; 
+        border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; 
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: all 0.2s; box-shadow: 0 4px 6px rgba(49, 130, 246, 0.2);
+    }
+    .btn-toss:hover { background: #2b72d6; transform: scale(1.01); }
+
+    .info-list { margin: 0; padding: 0 0 0 20px; color: #64748b; font-size: 14px; line-height: 1.8; }
+    .info-list li { margin-bottom: 8px; }
+    
+    .content-card { background: white; border-radius: 24px; padding: 35px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+</style>
+
+<div class="header" style="margin-bottom: 25px;">
+    <h2>포인트 지갑</h2>
+    <p style="color: var(--hf-text-sub); margin-top:5px;">보유한 포인트를 확인하고 안전하게 충전하세요.</p>
+</div>
+
+<div class="point-banner">
+    <div style="position: relative; z-index: 1;">
+        <div style="font-size: 15px; font-weight: 700; color: #e0e7ff;">현재 보유 포인트</div>
+        <h3>{{ "{:,}".format(user_info.get('points', 0)) }} <span style="font-size: 24px; font-weight: 600;">P</span></h3>
+        <p>포인트는 전문가 예약 시 현금처럼 사용됩니다</p>
+    </div>
+    <div style="font-size: 70px; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">🪙</div>
+</div>
+
+<div class="content-card" style="margin-bottom: 30px;">
+    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #1e293b;">💳 포인트 충전</h3>
+    <p style="font-size: 14px; color: #64748b; margin-bottom: 25px;">
+        충전할 금액을 선택하세요. 많이 충전할수록 보너스 포인트를 드립니다!
+    </p>
+
+    <div class="charge-grid">
+        {% for opt in charge_options %} 
+        <button type="button" class="charge-opt" onclick="selectCharge('{{ opt.amount }}', '{{ opt.points }}', this)">
+            {% if opt.points > opt.amount %} 
+            <div class="bonus-badge">+{{ "{:,}".format(opt.points - opt.amount) }}P</div>
+            {% endif %}
+            <div class="opt-points">{{ "{:,}".format(opt.points) }} P</div>
+            <div class="opt-price">{{ "{:,}".format(opt.amount) }}원</div>
+        </button>
+        {% endfor %}
+    </div>
+
+    <p id="select-hint" style="text-align: center; font-size: 14px; color: #94a3b8; margin: 0; font-weight: 500;">
+        <i class="fas fa-hand-pointer" style="margin-right: 5px;"></i> 위에서 충전할 금액을 먼저 선택해주세요.
+    </p>
+
+    <div id="payment-section" class="payment-section">
+        <div class="summary-row">
+            <span style="color: #64748b; font-weight: 600;">결제 하실 금액</span>
+            <span id="summary-amount" style="font-weight: 800; color: #1e293b; font-size: 17px;">-</span>
+        </div>
+        <div class="summary-row" style="margin-bottom: 20px; border-bottom: 1px solid #cbd5e1; padding-bottom: 15px;">
+            <span style="color: #64748b; font-weight: 600;">충전 될 포인트</span>
+            <span id="summary-points" style="font-weight: 900; color: var(--hf-primary); font-size: 20px;">-</span>
+        </div>
+
+        <button type="button" class="btn-toss" onclick="payWithToss()">
+            <i class="fas fa-credit-card"></i> 안전하게 결제하기
+        </button>
+    </div>
+</div>
+
+<div class="content-card" style="margin-bottom: 30px;">
+    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1e293b;"><i class="fas fa-info-circle" style="color: var(--hf-primary); margin-right: 6px;"></i> 포인트 이용 안내</h3>
+    <ul class="info-list">
+        <li>충전된 포인트는 <strong style="color: #1e293b;">전문가 예약 및 수리 서비스 결제</strong>에 사용할 수 있습니다.</li>
+        <li>예약 취소 시 사용한 포인트는 <strong style="color: #1e293b;">전액 자동 환불</strong> 처리됩니다.</li>
+        <li>수리 후기 작성 시 <strong style="color: var(--hf-primary);">1,000P 무료 적립</strong> 혜택을 받으실 수 있습니다.</li>
+        <li style="color: #ef4444;">결제 취소 및 포인트 환불은 고객센터를 통해 문의해 주세요.</li>
+    </ul>
+</div>
+
+<div style="text-align: center;">
+    <a href="/payment/history" style="color: #64748b; font-size: 15px; font-weight: 700; text-decoration: none; padding: 10px 20px; background: white; border-radius: 20px; border: 1px solid #e2e8f0; display: inline-block; transition: 0.2s;">
+        <i class="fas fa-receipt" style="margin-right: 5px;"></i> 결제 내역 보기 <i class="fas fa-chevron-right" style="margin-left: 5px; font-size: 12px;"></i>
+    </a>
+</div>
+
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<script>
+let selAmount = 0, selPoints = 0;
+
+function selectCharge(amount, points, el) {
+    let numAmount = Number(String(amount).replace(/,/g, ''));
+    let numPoints = Number(String(points).replace(/,/g, ''));
+
+    document.querySelectorAll('.charge-opt').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+
+    selAmount = numAmount; 
+    selPoints = numPoints;
+
+    document.getElementById('summary-amount').textContent = numAmount.toLocaleString() + '원';
+    document.getElementById('summary-points').textContent = numPoints.toLocaleString() + 'P';
+    
+    document.getElementById('payment-section').style.display = 'block';
+    document.getElementById('select-hint').style.display = 'none';
+}
+
+// ✨ 무거운 카카오페이 로직 완전 삭제 완료!
+
+async function payWithToss() {
+    if (!selAmount) return alert('충전 금액을 선택해주세요.');
+
+    const clientKey = '{{ toss_client_key }}';
+    if (!clientKey || clientKey === '') {
+        alert('토스페이먼츠 클라이언트 키가 설정되지 않았습니다.\n.env에 TOSS_CLIENT_KEY를 추가해주세요.');
+        return;
+    }
+
+    const orderId = 'TOS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    const baseUrl = '{{ base_url }}';  
+    const successUrl = baseUrl + '/payment/toss/success?point_amount=' + selPoints;
+    const failUrl = baseUrl + '/payment/toss/fail';
+
+    try {
+        const tossPayments = TossPayments(clientKey);
+        const payment = tossPayments.payment({ customerKey: 'homefix-guest' });
+
+        await payment.requestPayment({
+            method: 'CARD',
+            amount: { currency: 'KRW', value: selAmount },
+            orderId: orderId,
+            orderName: 'HomeFix 포인트 ' + selPoints.toLocaleString() + 'P 충전',
+            successUrl: successUrl,
+            failUrl: failUrl,
+            card: { useEscrow: false, flowMode: 'DEFAULT', useCardPoint: false, useAppCardOnly: false },
+        });
+    } catch (err) {
+        if (err.code !== 'USER_CANCEL') {
+            alert('결제 오류: ' + (err.message || '알 수 없는 오류'));
+        }
+    }
+}
+</script>
+{% endblock %}

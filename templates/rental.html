@@ -1,0 +1,355 @@
+{% extends "base.html" %} 
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 md:py-12 px-4 fade-in">
+    <div class="mb-8 md:mb-10">
+        <form action="/rental" method="GET" class="relative max-w-2xl mx-auto">
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                    <span class="text-slate-400 text-sm md:text-base">🔍</span>
+                </div>
+                <input
+                    type="text"
+                    name="query"
+                    placeholder="지역명이나 대여소 이름 (예: 성북구, 과천)"
+                    class="block w-full pl-9 pr-20 md:pl-11 md:pr-24 py-3 md:py-3.5 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-xs md:text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value="{{ request.args.get('query', '') }}"
+                />
+                <div class="absolute inset-y-1.5 right-1.5">
+                    <button
+                        type="submit"
+                        class="h-full px-3 md:px-5 bg-slate-800 text-white text-[10px] md:text-xs font-bold rounded-lg md:rounded-xl hover:bg-slate-700 transition"
+                    >
+                        찾기
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="mb-10 md:mb-12">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-4 gap-2 sm:gap-0">
+            <h2 class="text-xl md:text-2xl font-bold text-slate-800">
+                {% if request.args.get('query') %} '{{ request.args.get('query') }}' 검색 결과 {% else %} 📍 등록된 대여소 목록 {% endif %}
+            </h2>
+            <div class="flex gap-2 items-center">
+                 <span id="filterStatus" class="text-[9px] md:text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded animate-pulse hidden">
+                    주소 검증 중...
+                </span>
+                <span class="text-[10px] md:text-[12px] font-bold px-2 py-1 bg-slate-100 rounded text-slate-500"> 기관 안내 </span>
+            </div>
+        </div>
+
+        <div class="grid gap-3" id="rentalList">
+            {% if rentals %} 
+                {% for item in rentals %}
+                <div class="rental-item bg-white p-4 md:p-5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 transition overflow-hidden" 
+                     data-address="{{ item.location }}">
+                     
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-0">
+                        <div class="flex-1 w-full">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="font-bold text-sm md:text-base text-slate-800 truncate">🏠 {{ item.name }}</h4>
+                                <span class="bg-blue-50 text-blue-600 text-[9px] md:text-[10px] px-2 py-0.5 rounded-lg font-bold shrink-0">대여소</span>
+                            </div>
+                            
+                            <p class="text-[11px] md:text-xs text-slate-500 mt-1 break-keep">
+                                <i class="fas fa-map-marker-alt mr-1 w-3 text-center"></i> {{ item.location }}
+                            </p>
+
+                            {% if item.contact and item.contact != 'None' and item.contact != '정보없음' %}
+                            <div class="mt-1.5 md:mt-2 text-blue-600 text-xs md:text-sm font-bold">
+                                <i class="fas fa-phone-alt mr-1 w-3 text-center"></i> {{ item.contact }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto md:min-w-[110px] items-end md:ml-4">
+                            {% if item.link and item.link != 'None' and item.link != '' %}
+                            <a
+                                href="{{ item.link }}"
+                                target="_blank"
+                                class="flex-1 md:flex-none md:w-full text-center bg-blue-600 text-white px-3 py-2 rounded-lg md:rounded-xl text-[10px] font-black hover:bg-blue-700 transition"
+                            >
+                                🌐 홈페이지
+                            </a>
+                            {% endif %}
+
+                            <button
+                                type="button"
+                                data-location="{{ item.location }}"
+                                data-name="{{ item.name }}"
+                                onclick="showDirectMap(this)"
+                                class="flex-1 md:flex-none md:w-full text-center bg-slate-100 text-slate-600 px-3 py-2 rounded-lg md:rounded-xl text-[10px] font-bold hover:bg-slate-200 transition"
+                            >
+                                📍 위치 확인
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="direct-map-container hidden mt-4 border-t border-slate-100 pt-4">
+                        <div class="w-full h-48 md:h-64 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden relative">
+                             <div class="map-area w-full h-full"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %} 
+            {% else %}
+            <div class="text-center py-8 md:py-10 bg-slate-50 rounded-2xl md:rounded-3xl border border-dashed border-slate-200">
+                <p class="text-slate-400 text-xs md:text-sm">
+                    {% if request.args.get('query') %} 검색 결과가 없습니다. {% else %} 검색창에 동네 이름을 입력하여 대여소를 찾아보세요. {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl md:rounded-3xl border border-slate-200 p-4 md:p-6 shadow-sm mt-8 md:mt-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 mb-4 md:mb-6">
+            <div>
+                <h3 class="text-base md:text-lg font-bold text-slate-800">🧭 실시간 주변 찾기</h3>
+                <p class="text-[10px] md:text-xs text-slate-400 mt-1">
+                    현재 내 위치를 기준으로 실시간 주민센터 및 대여소를 검색합니다.
+                </p>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto mt-2 md:mt-0">
+                <button
+                    onclick="findToolRental()"
+                    class="flex-1 md:flex-none bg-blue-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[11px] md:text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition"
+                >
+                    내 주변 찾기
+                </button>
+                <button
+                    onclick="clearNearby()"
+                    class="bg-slate-100 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[11px] md:text-xs font-bold hover:bg-slate-200 transition shrink-0"
+                >
+                    초기화
+                </button>
+            </div>
+        </div>
+        
+        <div id="nearbySection" class="hidden space-y-4 md:space-y-6">
+            <div id="nearbyStatus" class="text-[11px] md:text-xs text-blue-600 font-bold text-center"></div>
+            <div class="bg-slate-50 p-1 rounded-xl md:rounded-2xl border border-slate-100">
+                <div id="map" class="w-full h-64 md:h-80 rounded-lg md:rounded-xl overflow-hidden shadow-inner"></div>
+            </div>
+            <div id="nearbyResult" class="grid gap-2 md:gap-3"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key }}&libraries=services"></script>
+
+<script>
+    // 기존 기능 100% 동일 유지 (JS 부분은 수정 없음)
+    window.onload = function() { filterInvalidAddresses(); };
+
+    function filterInvalidAddresses() {
+        const items = document.querySelectorAll('.rental-item');
+        const geocoder = new kakao.maps.services.Geocoder();
+        const statusBadge = document.getElementById('filterStatus');
+        
+        if(items.length > 0) statusBadge.classList.remove('hidden');
+
+        let checkedCount = 0;
+        items.forEach(item => {
+            const address = item.getAttribute('data-address');
+            if (!address || address.trim() === 'None' || address.trim() === '') {
+                item.remove();
+                checkedCount++;
+                checkFinish();
+                return;
+            }
+            geocoder.addressSearch(address, function(result, status) {
+                if (status !== kakao.maps.services.Status.OK) {
+                    item.remove();
+                }
+                checkedCount++;
+                checkFinish();
+            });
+        });
+
+        function checkFinish() {
+            if (checkedCount === items.length) {
+                statusBadge.classList.add('hidden');
+                const list = document.getElementById('rentalList');
+                if (list.children.length === 0) {
+                   list.innerHTML = '<div class="text-center py-10 text-slate-400 text-sm">유효한 주소를 가진 대여소가 없습니다.</div>';
+                }
+            }
+        }
+    }
+
+    function showDirectMap(btn) {
+        const address = btn.getAttribute('data-location');
+        const title = btn.getAttribute('data-name');
+        const card = btn.closest('.rental-item');
+        const container = card.querySelector('.direct-map-container');
+        const mapArea = card.querySelector('.map-area');
+
+        if (!container.classList.contains('hidden')) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        container.classList.remove('hidden');
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.addressSearch(address, function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                const dMap = new kakao.maps.Map(mapArea, { center: coords, level: 3 });
+                new kakao.maps.Marker({ map: dMap, position: coords });
+                
+                const iw = new kakao.maps.InfoWindow({
+                    content: `<div style="padding:5px; font-size:11px; font-weight:bold;">${title}</div>`
+                });
+                iw.open(dMap, new kakao.maps.Marker({ position: coords }));
+                setTimeout(() => dMap.relayout(), 100);
+            }
+        });
+    }
+
+    var map, markers = [], infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+    var myLocationMarker = null;
+
+    function clearNearby() {
+        document.getElementById('nearbyStatus').innerText = '';
+        document.getElementById('nearbyResult').innerHTML = '';
+        if(markers.length > 0) markers.forEach((m) => m.setMap(null));
+        if(myLocationMarker) myLocationMarker.setMap(null); 
+        markers = [];
+        myLocationMarker = null;
+    }
+
+    function findToolRental() {
+        const section = document.getElementById('nearbySection');
+        section.classList.remove('hidden');
+        clearNearby();
+        
+        var statusEl = document.getElementById('nearbyStatus');
+        
+        if (!navigator.geolocation) {
+            statusEl.innerText = '❌ 위치 정보를 지원하지 않는 브라우저입니다.';
+            return;
+        }
+
+        statusEl.innerText = '📡 현재 위치를 확인하고 있습니다...';
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            var lat = pos.coords.latitude,
+                lon = pos.coords.longitude;
+            var container = document.getElementById('map');
+            var centerLatLng = new kakao.maps.LatLng(lat, lon);
+            
+            map = new kakao.maps.Map(container, { center: centerLatLng, level: 4 });
+            
+            var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png'; 
+            var imageSize = new kakao.maps.Size(35, 39);
+            var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+            myLocationMarker = new kakao.maps.Marker({ 
+                position: centerLatLng, 
+                map: map,
+                image: markerImage 
+            });
+
+            var content = `
+                <div style="background: #2563eb; color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); border: 1px solid white; white-space: nowrap;">
+                    내 위치
+                </div>`;
+
+            var myLocationLabel = new kakao.maps.CustomOverlay({
+                content: content,
+                position: centerLatLng,
+                yAnchor: 2.6 
+            });
+
+            myLocationLabel.setMap(map);
+
+            var ps = new kakao.maps.services.Places();
+            var keywords = ['주민센터', '행정복지센터', '공구대여소'];
+            var combinedData = [];
+            var completed = 0;
+
+            statusEl.innerText = '🔎 실시간 데이터 검색 중...';
+
+            keywords.forEach(function (key) {
+                ps.keywordSearch(
+                    key,
+                    function (data, status) {
+                        if (status === kakao.maps.services.Status.OK) {
+                            combinedData = combinedData.concat(data);
+                        }
+                        completed++;
+                        if (completed === keywords.length) {
+                            renderRealtimeResults(combinedData, lat, lon);
+                        }
+                    },
+                    { location: centerLatLng, radius: 3000 }
+                );
+            });
+        });
+    }
+
+    function renderRealtimeResults(data, lat, lon) {
+        var statusEl = document.getElementById('nearbyStatus');
+        var resultEl = document.getElementById('nearbyResult');
+        
+        var unique = [];
+        var seen = new Set();
+        data.forEach((p) => {
+            if (!seen.has(p.id)) {
+                seen.add(p.id);
+                unique.push(p);
+            }
+        });
+        unique.sort((a, b) => a.distance - b.distance);
+
+        if (unique.length === 0) {
+            statusEl.innerText = '😢 주변 3km 이내에 검색된 장소가 없습니다.';
+            return;
+        }
+
+        statusEl.innerText = '✅ 주변 실시간 장소 ' + unique.length + '곳을 찾았습니다.';
+        var html = '';
+        var bounds = new kakao.maps.LatLngBounds();
+        
+        bounds.extend(new kakao.maps.LatLng(lat, lon));
+
+        unique.slice(0, 15).forEach(function (place) {
+            var placePos = new kakao.maps.LatLng(place.y, place.x);
+            var marker = new kakao.maps.Marker({ position: placePos, map: map });
+            markers.push(marker);
+            bounds.extend(placePos);
+
+            kakao.maps.event.addListener(marker, 'click', function () {
+                infowindow.setContent(
+                    '<div style="padding:8px;font-size:11px;font-weight:bold;">' + place.place_name + '</div>',
+                );
+                infowindow.open(map, marker);
+            });
+
+            var distKm = (place.distance / 1000).toFixed(1);
+
+            html += `
+            <div class="bg-blue-50/50 border border-blue-100 rounded-xl md:rounded-2xl p-3 md:p-4 flex justify-between items-center shadow-sm">
+                <div class="flex-1 pr-2 min-w-0">
+                    <div class="flex items-center">
+                        <b class="text-xs md:text-sm text-slate-800 truncate">${place.place_name}</b> 
+                        <span class="text-blue-600 text-[9px] md:text-[10px] ml-2 font-black whitespace-nowrap shrink-0">${distKm}km</span>
+                    </div>
+                    <div class="text-[10px] md:text-[11px] text-slate-500 mt-1 truncate">${place.road_address_name || place.address_name}</div>
+                    ${place.phone ? `<div class="text-[9px] md:text-[10px] text-slate-400 mt-0.5"><i class="fas fa-phone mr-1"></i>${place.phone}</div>` : ''}
+                </div>
+                <div class="flex-shrink-0 ml-2">
+                    <a href="${place.place_url}" target="_blank" class="bg-white border border-slate-200 px-2 md:px-3 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition block text-center min-w-[60px] md:min-w-[70px]">
+                        지도보기
+                    </a>
+                </div>
+            </div>`;
+        });
+
+        resultEl.innerHTML = html;
+        map.setBounds(bounds); 
+    }
+</script>
+{% endblock %}

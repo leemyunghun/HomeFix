@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-8 md:py-12 px-4 space-y-6 md:space-y-8 fade-in">
+
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-xl flex justify-between items-center text-white">
+        <div>
+            <p class="text-blue-100 font-bold mb-1 text-xs md:text-sm opacity-90">현재 보유 포인트</p>
+            <h3 class="text-3xl md:text-4xl font-black tracking-tight drop-shadow-md">
+                {{ "{:,}".format(user_info.get('points', 0)) }} <span class="text-lg md:text-xl font-medium opacity-80">P</span>
+            </h3>
+            <p class="text-blue-200 text-[11px] mt-2 opacity-80">포인트는 전문가 예약 시 현금처럼 사용됩니다</p>
+        </div>
+        <div class="text-5xl md:text-6xl drop-shadow-xl">🪙</div>
+    </div>
+
+    <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-lg md:text-xl font-bold mb-1 text-slate-800">💳 포인트 충전</h2>
+        <p class="text-[11px] md:text-xs text-slate-400 mb-6 font-medium">충전할 금액을 선택하세요. 많이 충전할수록 보너스 포인트를 드립니다!</p>
+
+        <div class="grid grid-cols-2 gap-3 md:gap-4 mb-6" id="charge-options">
+            {% for opt in charge_options %}
+            <button type="button"
+                onclick="selectCharge('{{ opt.amount }}', '{{ opt.points }}', this)"
+                class="charge-card relative text-left p-4 md:p-5 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 group">
+                <div class="text-xl md:text-2xl font-black text-slate-800 group-hover:text-blue-700">
+                    {{ "{:,}".format(opt.points) }}<span class="text-sm font-bold ml-1 text-slate-500">P</span>
+                </div>
+                <div class="text-xs text-slate-400 mt-1 font-medium">{{ "{:,}".format(opt.amount) }}원</div>
+                {% if opt.points > opt.amount %}
+                <span class="absolute top-2.5 right-2.5 bg-orange-400 text-white text-[9px] md:text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-sm">
+                    +{{ "{:,}".format(opt.points - opt.amount) }}P
+                </span>
+                {% endif %}
+            </button>
+            {% endfor %}
+        </div>
+
+        <div id="charge-summary" class="hidden mb-5 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-slate-500 font-medium">결제 금액</span>
+                <span class="font-black text-slate-800" id="summary-amount">-</span>
+            </div>
+            <div class="flex justify-between items-center text-sm mt-2">
+                <span class="text-slate-500 font-medium">충전 포인트</span>
+                <span class="font-black text-blue-600 text-base" id="summary-points">-</span>
+            </div>
+        </div>
+
+        <div id="payment-btns" class="hidden space-y-3">
+            <p class="text-[10px] md:text-xs font-bold text-slate-400 mb-2 ml-1">결제 수단 선택</p>
+            <button type="button" onclick="payWithKakao()"
+                class="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-slate-800 text-sm md:text-base transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-md hover:shadow-yellow-200"
+                style="background-color: #FEE500;">
+                <svg width="22" height="22" viewBox="0 0 38 38" fill="none">
+                    <ellipse cx="19" cy="17" rx="17" ry="14" fill="#3A1D1D"/>
+                    <rect x="12" y="21" width="3" height="7" rx="1.5" fill="#FEE500"/>
+                    <rect x="17.5" y="13" width="3" height="15" rx="1.5" fill="#FEE500"/>
+                    <rect x="23" y="18" width="3" height="10" rx="1.5" fill="#FEE500"/>
+                </svg>
+                카카오페이로 결제하기
+            </button>
+            <button type="button" onclick="payWithToss()"
+                class="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-white text-sm md:text-base bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-md shadow-blue-200">
+                <i class="fas fa-credit-card text-base"></i>
+                신용카드 / 토스페이로 결제하기
+            </button>
+        </div>
+
+        <p id="select-hint" class="text-center text-[11px] text-slate-400 mt-4">위에서 충전할 금액을 먼저 선택해주세요</p>
+    </div>
+
+    <div class="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] shadow-lg border border-slate-100">
+        <h2 class="text-base md:text-lg font-bold mb-4 text-slate-800">💡 포인트 이용 안내</h2>
+        <div class="space-y-3 text-xs md:text-sm text-slate-500">
+            <div class="flex gap-3 items-start">
+                <span class="text-blue-500 font-black shrink-0 mt-0.5">•</span>
+                충전된 포인트는 <strong class="text-slate-700">전문가 예약, 수리 서비스 결제</strong>에 사용할 수 있습니다.
+            </div>
+            <div class="flex gap-3 items-start">
+                <span class="text-blue-500 font-black shrink-0 mt-0.5">•</span>
+                예약 취소 시 사용한 포인트는 <strong class="text-slate-700">전액 자동 환불</strong>됩니다.
+            </div>
+            <div class="flex gap-3 items-start">
+                <span class="text-blue-500 font-black shrink-0 mt-0.5">•</span>
+                수리 후기 작성 시 <strong class="text-slate-700">1,000P 무료 적립</strong>도 받으실 수 있습니다.
+            </div>
+            <div class="flex gap-3 items-start">
+                <span class="text-orange-400 font-black shrink-0 mt-0.5">•</span>
+                <span class="text-orange-600">충전 포인트 환불은 고객센터로 문의해 주세요.</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="/payment/history"
+        class="block w-full text-center py-3.5 rounded-2xl border-2 border-slate-200 text-slate-500 text-sm font-bold hover:bg-slate-50 transition">
+        결제 내역 보기 →
+    </a>
+</div>
+
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<script>
+let selAmount = 0, selPoints = 0;
+
+function selectCharge(amount, points, el) {
+    document.querySelectorAll('.charge-card').forEach(c => {
+        c.classList.remove('border-blue-500', 'bg-blue-50', 'shadow-lg');
+        c.classList.add('border-slate-200', 'bg-slate-50');
+    });
+    el.classList.add('border-blue-500', 'bg-blue-50', 'shadow-lg');
+    el.classList.remove('border-slate-200', 'bg-slate-50');
+    selAmount = amount; selPoints = points;
+    document.getElementById('summary-amount').textContent = amount.toLocaleString() + '원';
+    document.getElementById('summary-points').textContent = points.toLocaleString() + 'P';
+    document.getElementById('charge-summary').classList.remove('hidden');
+    document.getElementById('payment-btns').classList.remove('hidden');
+    document.getElementById('select-hint').classList.add('hidden');
+}
+
+function payWithKakao() {
+    if (!selAmount) return alert('충전 금액을 선택해주세요.');
+    fetch('/payment/kakao/ready', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ purpose: 'point_charge', amount: selAmount, point_amount: selPoints })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.result === 'success') {
+            location.href = /Mobi|Android/i.test(navigator.userAgent)
+                ? data.next_redirect_mobile_url : data.next_redirect_pc_url;
+        } else { alert('결제 준비 실패: ' + data.message); }
+    })
+    .catch(() => alert('서버와 통신 중 오류가 발생했습니다.'));
+}
+
+async function payWithToss() {
+    if (!selAmount) return alert('충전 금액을 선택해주세요.');
+
+    const clientKey = '{{ toss_client_key }}';
+    if (!clientKey || clientKey === '') {
+        alert('토스페이먼츠 클라이언트 키가 설정되지 않았습니다.\n.env에 TOSS_CLIENT_KEY를 추가해주세요.');
+        return;
+    }
+
+    const orderId    = 'TOS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    const baseUrl    = '{{ base_url }}';  // Flask에서 주입 (예: http://localhost:5000)
+    const successUrl = baseUrl + '/payment/toss/success?point_amount=' + selPoints;
+    const failUrl    = baseUrl + '/payment/toss/fail';
+
+    try {
+        // ✅ v2 방식: loadTossPayments → async requestPayment
+        // CDN 환경에 맞춰 TossPayments 객체를 직접 호출하도록 수정했습니다.
+        const tossPayments = TossPayments(clientKey);
+        const payment = tossPayments.payment({ customerKey: 'homefix-guest' });
+
+        await payment.requestPayment({
+            method: 'CARD',
+            amount: { currency: 'KRW', value: selAmount },
+            orderId:   orderId,
+            orderName: 'HomeFix 포인트 ' + selPoints.toLocaleString() + 'P 충전',
+            successUrl: successUrl,
+            failUrl:    failUrl,
+            card: { useEscrow: false, flowMode: 'DEFAULT', useCardPoint: false, useAppCardOnly: false },
+        });
+    } catch (err) {
+        if (err.code !== 'USER_CANCEL') {
+            alert('결제 오류: ' + (err.message || '알 수 없는 오류'));
+        }
+    }
+}
+</script>
+{% endblock %}

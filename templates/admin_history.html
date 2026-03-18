@@ -1,0 +1,43 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-2 sm:px-0">
+    <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-6 md:mb-8">📊 AI 진단 로그</h2>
+
+    <div class="bg-white rounded-2xl md:rounded-[2rem] border border-slate-200 shadow-sm overflow-x-auto text-xs md:text-sm">
+        <table class="w-full text-left min-w-[600px]">
+            <thead class="bg-slate-50 border-b">
+                <tr>
+                    <th class="px-4 py-3 md:px-8 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] whitespace-nowrap">일시</th>
+                    <th class="px-4 py-3 md:px-8 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] whitespace-nowrap">사용자</th>
+                    <th class="px-4 py-3 md:px-8 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] whitespace-nowrap">유형</th>
+                    <th class="px-4 py-3 md:px-8 md:py-5 text-slate-400 font-bold uppercase text-[10px] md:text-[11px] whitespace-nowrap">진단 결과</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for log in logs_list %}
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-4 py-3 md:px-8 md:py-5 text-slate-400 whitespace-nowrap">{{ log[1] }}</td> 
+                    <td class="px-4 py-3 md:px-8 md:py-5 font-bold text-slate-700 whitespace-nowrap">{{ log[2] }}</td> 
+                    <td class="px-4 py-3 md:px-8 md:py-5 whitespace-nowrap">
+                        <span class="px-2 py-0.5 md:px-2 md:py-1 bg-blue-50 text-blue-600 font-bold rounded-md text-[10px] md:text-xs">
+                            {{ log[3] }} 
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 md:px-8 md:py-5 text-slate-600 truncate max-w-[200px] sm:max-w-xs md:max-w-md">
+                        {{ log[4] }}
+                    </td> 
+                </tr>
+                {% endfor %}
+                
+                {% if not logs_list %}
+                <tr>
+                    <td colspan="4" class="px-8 py-10 text-center text-slate-400">
+                        기록된 진단 로그가 없습니다.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

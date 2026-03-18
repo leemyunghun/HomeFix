@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>홈픽스 - 통합 수리 솔루션</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <style>
+            body {
+                font-family: 'Noto Sans KR', sans-serif;
+                background-color: #f5f7fa;
+            }
+            .fade-in {
+                animation: fadeIn 0.4s ease-out;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            /* ✨ 모바일 메뉴 트랜지션용 클래스 */
+            #mobile-menu {
+                transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+            }
+            #mobile-menu.open {
+                max-height: 500px;
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="bg-white/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
+            <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center relative z-20 bg-white/90 backdrop-blur-md">
+                
+                <a href="/" class="text-2xl font-black text-blue-600 tracking-tighter hover:opacity-80 transition flex-shrink-0">
+                    HomeFix
+                </a>
+
+                <div class="hidden xl:flex gap-8">
+                    <a
+                        href="/notice"
+                        class="text-sm font-bold text-slate-600 hover:text-blue-600 transition flex items-center gap-1"
+                    >
+                        <i class="fas fa-bullhorn"></i> 공지사항
+                    </a>
+                    <a
+                        href="/rental"
+                        class="text-sm font-bold text-slate-600 hover:text-blue-600 transition flex items-center gap-1"
+                    >
+                        <i class="fas fa-tools"></i> 공구 대여소
+                    </a>
+                    <a
+                        href="/expert"
+                        class="text-sm font-bold text-slate-600 hover:text-blue-600 transition flex items-center gap-1"
+                    >
+                        <i class="fas fa-hard-hat"></i> 전문가 매칭
+                    </a>
+                    <a
+                        href="/review"
+                        class="text-sm font-bold text-slate-600 hover:text-blue-600 transition flex items-center gap-1"
+                    >
+                        <i class="fas fa-comment-dots"></i> 수리 후기
+                    </a>
+                </div>
+
+                <div class="flex gap-2 sm:gap-3 items-center">
+                    {% if session.get('user') and session['user'].get('role') == 'admin' %}
+                    <a
+                        href="/admin/support"
+                        class="group relative flex items-center gap-2 px-2 sm:px-4 py-2 bg-slate-900 text-white rounded-xl font-bold text-[11px] hover:bg-indigo-600 transition-all duration-300 shadow-lg shadow-slate-200 overflow-hidden ml-1 sm:ml-2"
+                    >
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-shield-alt relative z-10 group-hover:rotate-12 transition-transform"></i>
+                        <span class="relative z-10 hidden sm:inline">문의 관리</span>
+                        <span class="relative z-10 flex h-1.5 w-1.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-500"></span>
+                        </span>
+                    </a>
+                    <a
+                        href="/admin_dashboard" 
+                        class="group relative inline-flex items-center gap-2 px-2 sm:px-4 py-2 bg-indigo-900 text-white rounded-xl font-bold text-[11px] hover:bg-indigo-800 transition-all duration-300 shadow-lg shadow-indigo-100 overflow-hidden ml-1 sm:ml-2"
+                    >
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-user-shield relative z-10"></i>
+                        <span class="relative z-10 hidden sm:inline">관리자 대시보드</span>
+                    </a>
+                    {% endif %} 
+                    
+                    {% if session.get('user') and session['user'].get('role') == 'landlord' %}
+                    <a
+                        href="/landlord_dashboard" 
+                        class="group relative inline-flex items-center gap-2 px-2 sm:px-4 py-2 bg-emerald-800 text-white rounded-xl font-bold text-[11px] hover:bg-emerald-700 transition-all duration-300 shadow-lg shadow-emerald-100 overflow-hidden ml-1 sm:ml-2"
+                    >
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-teal-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-building relative z-10"></i>
+                        <span class="relative z-10 hidden sm:inline">임대인 대시보드</span>
+                    </a>
+                    {% endif %}
+                    
+                    {% if session.get('user') and session['user'].get('role') == 'expert' %}
+                    <a
+                        href="/expert_dashboard" 
+                        class="group relative inline-flex items-center gap-2 px-2 sm:px-4 py-2 bg-orange-700 text-white rounded-xl font-bold text-[11px] hover:bg-orange-600 transition-all duration-300 shadow-lg shadow-orange-100 overflow-hidden ml-1 sm:ml-2"
+                    >
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <i class="fas fa-tools relative z-10"></i>
+                        <span class="relative z-10 hidden sm:inline">업체 대시보드</span>
+                    </a>
+                    {% endif %}
+
+                    {% if user_info %}
+                    <div class="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2">
+                        <span class="bg-blue-100 text-blue-600 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold">
+                            {{ user_info.name[0] }}
+                        </span>
+                        <span class="text-sm font-bold text-slate-700 hidden lg:inline">{{ user_info.name }}님</span>
+                    </div>
+                    <a href="/myinfo" class="hidden sm:inline text-xs font-bold text-slate-500 hover:text-blue-600 border border-slate-200 px-2 py-1 rounded transition">내 정보</a>
+                    <a href="/logout" class="hidden sm:inline text-xs font-bold text-slate-400 hover:text-red-500 ml-1 transition">로그아웃</a>
+                    {% else %}
+                    <a href="/login" class="hidden sm:inline text-sm font-bold text-slate-500 hover:text-blue-600 px-2 transition">로그인</a>
+                    <a href="/signup" class="hidden sm:inline bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md shadow-blue-200 hover:bg-blue-700 transition">회원가입</a>
+                    {% endif %}
+
+                    <button id="mobile-menu-btn" class="xl:hidden flex flex-col justify-center items-center w-8 h-8 rounded bg-slate-100 text-slate-500 hover:bg-slate-200 transition p-1.5 ml-1 focus:outline-none">
+                        <span class="bg-current block w-full h-0.5 rounded-sm mb-1"></span>
+                        <span class="bg-current block w-full h-0.5 rounded-sm mb-1"></span>
+                        <span class="bg-current block w-full h-0.5 rounded-sm"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="mobile-menu" class="xl:hidden absolute w-full left-0 top-16 bg-white/95 backdrop-blur-lg border-b border-slate-200 shadow-xl z-10">
+                <div class="px-4 py-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-3 pb-4 border-b border-slate-100">
+                        <a href="/notice" class="flex items-center gap-2 text-sm font-bold text-slate-600 bg-slate-50 p-3 rounded-xl active:bg-blue-50 active:text-blue-600"><i class="fas fa-bullhorn"></i> 공지사항</a>
+                        <a href="/rental" class="flex items-center gap-2 text-sm font-bold text-slate-600 bg-slate-50 p-3 rounded-xl active:bg-blue-50 active:text-blue-600"><i class="fas fa-tools"></i> 공구 대여</a>
+                        <a href="/expert" class="flex items-center gap-2 text-sm font-bold text-slate-600 bg-slate-50 p-3 rounded-xl active:bg-blue-50 active:text-blue-600"><i class="fas fa-hard-hat"></i> 전문가 매칭</a>
+                        <a href="/review" class="flex items-center gap-2 text-sm font-bold text-slate-600 bg-slate-50 p-3 rounded-xl active:bg-blue-50 active:text-blue-600"><i class="fas fa-comment-dots"></i> 수리 후기</a>
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-2">
+                        {% if user_info %}
+                            <div class="flex items-center gap-2">
+                                <span class="bg-blue-100 text-blue-600 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold">{{ user_info.name[0] }}</span>
+                                <a href="/myinfo" class="text-sm font-bold text-slate-700 underline">{{ user_info.name }}님 정보수정</a>
+                            </div>
+                            <a href="/logout" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">로그아웃</a>
+                        {% else %}
+                            <a href="/login" class="text-sm font-bold text-slate-600 px-4 py-2 border border-slate-200 rounded-xl w-[48%] text-center">로그인</a>
+                            <a href="/signup" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md shadow-blue-200 w-[48%] text-center">회원가입</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const mobileBtn = document.getElementById('mobile-menu-btn');
+                const mobileMenu = document.getElementById('mobile-menu');
+
+                mobileBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('open');
+                });
+            });
+        </script>
+
+        <main>{% block content %}{% endblock %}</main>
+    </body>
+</html>

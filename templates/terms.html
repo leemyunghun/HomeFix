@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 md:py-20 px-4 sm:px-6 fade-in">
+    <div class="text-center mb-10 md:mb-16">
+        <span class="text-blue-600 font-bold text-xs md:text-sm tracking-widest uppercase">Terms of Service</span>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mt-2">서비스 이용약관</h2>
+        <div class="w-10 md:w-12 h-1 bg-blue-600 mx-auto mt-3 md:mt-4"></div>
+    </div>
+
+    <div class="bg-white p-6 sm:p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8 md:space-y-10 text-slate-600">
+        
+        <section>
+            <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-3 md:mb-4 flex items-center gap-2">
+                <span class="w-5 h-5 md:w-6 md:h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-[10px] md:text-xs shrink-0">01</span>
+                총칙 및 용어의 정의
+            </h3>
+            <div class="pl-2 md:pl-8 space-y-3 text-xs md:text-sm leading-relaxed">
+                <p><strong>제 1 조 (목적)</strong> 본 약관은 HomeFix(이하 "회사")가 제공하는 인공지능 기반 집수리 진단 및 플랫폼 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무, 책임사항 및 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+                <div class="bg-slate-50/50 p-3 md:p-0 rounded-lg">
+                    <p><strong>제 2 조 (용어의 정의)</strong><br>
+                    1. "회원"이란 플랫폼에 접속하여 본 약관에 따라 가입을 완료하고 서비스를 이용하는 고객을 말하며, 역할에 따라 <strong>'일반 사용자(세입자)', '임대인', '전문가(업체)'</strong>로 구분됩니다.<br>
+                    2. "AI 진단"이란 회원이 입력한 텍스트와 사진을 바탕으로 인공지능이 예상 원인, 수리 방법, 위험도 및 예상 비용을 산출해 주는 기능을 말합니다.<br>
+                    3. "포인트"란 회원이 리뷰 작성 등의 활동을 통해 획득하고, 수리 예약 시 할인 등의 목적으로 사용할 수 있는 가상 데이터를 말합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-3 md:mb-4 flex items-center gap-2">
+                <span class="w-5 h-5 md:w-6 md:h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-[10px] md:text-xs shrink-0">02</span>
+                회원가입 및 서비스 내용
+            </h3>
+            <div class="pl-2 md:pl-8 space-y-3 text-xs md:text-sm leading-relaxed">
+                <p><strong>제 3 조 (회원가입 및 승인)</strong><br>
+                1. 회원은 회사가 정한 양식에 따라 정보를 기입함으로써 회원가입을 신청합니다.<br>
+                2. '임대인' 및 '전문가(업체)' 권한으로 가입하는 경우, 신원 및 자격 확인을 위해 신분증, 사업자등록증 등의 증빙 서류 제출을 요구할 수 있으며, <strong>관리자의 승인(Approval)이 완료된 후</strong> 서비스를 정상적으로 이용할 수 있습니다.</p>
+                <p><strong>제 4 조 (서비스의 내용)</strong> 회사는 다음의 서비스를 제공합니다.<br>
+                <span class="block mt-1 pl-2 border-l-2 border-slate-100 italic">
+                - AI 이미지/텍스트 분석을 통한 집수리 진단 및 가이드 제공<br>
+                - 일반 사용자의 임대인 대상 수리 접수 연동 시스템<br>
+                - 임대인의 수리 업체 배정 및 관리(대시보드) 시스템<br>
+                - 전문가(업체)의 수리 내역 관리 및 영수증(사진) 제출 시스템
+                </span></p>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-3 md:mb-4 flex items-center gap-2">
+                <span class="w-5 h-5 md:w-6 md:h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-[10px] md:text-xs shrink-0">03</span>
+                면책 조항 및 거래의 한계
+            </h3>
+            <div class="pl-2 md:pl-8 space-y-4 text-xs md:text-sm leading-relaxed">
+                <p><strong>제 5 조 (면책 조항)</strong><br>
+                1. <strong>[AI 진단의 한계]</strong> 회사가 제공하는 'AI 진단 결과(예상 비용, 수리 방법 등)'는 참고용 데이터이며, 실제 수리 현장의 상황에 따라 달라질 수 있습니다. 회사는 결과의 완벽한 정확성이나 법적 효력을 보증하지 않습니다.<br>
+                2. <strong>[당사자 간 거래]</strong> 회사는 임대인-세입자-업체 간의 매칭 시스템을 제공할 뿐이며, 실제 수리 계약, 비용 결제, 수리 품질 등에 대한 분쟁은 거래 당사자 간에 해결해야 합니다.</p>
+                <div class="bg-amber-50 p-4 md:p-5 rounded-xl md:rounded-2xl border border-amber-100 text-amber-800 text-[11px] md:text-sm leading-relaxed break-keep">
+                    <strong>⚠️ 고위험 작업 주의 고지:</strong> AI 진단 결과 위험도(Risk Level)가 4 이상으로 분류된 고위험 작업(전기, 가스, 주요 배관 등)은 반드시 전문가에게 의뢰해야 하며, 회원의 무리한 직접 수리로 인해 발생한 신체적/재산적 피해에 대해 회사는 책임지지 않습니다.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-3 md:mb-4 flex items-center gap-2">
+                <span class="w-5 h-5 md:w-6 md:h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-[10px] md:text-xs shrink-0">04</span>
+                포인트 정책
+            </h3>
+            <div class="pl-2 md:pl-8 space-y-3 text-xs md:text-sm leading-relaxed">
+                <p><strong>제 6 조 (포인트의 적립 및 소멸)</strong><br>
+                1. 회원은 서비스 내 진단 후기(리뷰) 작성 시 명시된 포인트를 지급받습니다. 단, '진단 불가' 항목은 작성이 제한됩니다.<br>
+                2. 포인트는 전문가 예약 및 수리 시 할인 용도로 사용될 수 있으며, 예약 취소 시 환불(복구)됩니다.<br>
+                3. 회원이 부정한 방법으로 포인트를 적립한 경우, 관리자 직권으로 이를 회수하거나 조정을 진행할 수 있습니다.<br>
+                4. 회원 탈퇴 시 보유한 포인트는 즉시 소멸되며 복구되지 않습니다.</p>
+            </div>
+        </section>
+
+        <div class="pt-8 md:pt-10 border-t border-slate-50 text-[10px] md:text-sm text-slate-400 leading-tight">
+            공고일자: 2026년 2월 25일<br>
+            시행일자: 2026년 2월 25일
+        </div>
+    </div>
+</div>
+{% endblock %}

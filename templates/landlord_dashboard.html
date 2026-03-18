@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeFix Admin | 통합 관리 시스템</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --hf-primary: #2563eb;       /* 메인 블루 */
+            --hf-sidebar-bg: #ffffff;    /* 밝은 사이드바 배경 */
+            --hf-bg: #f8fafc;            /* 연한 그레이 배경 */
+            --hf-text-main: #1e293b;
+            --hf-text-sub: #64748b;
+            --hf-border: #e2e8f0;
+        }
+
+        body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; background-color: var(--hf-bg); }
+
+        /* [1] 사이드바 디자인 */
+        .sidebar {
+            width: 260px; height: 100vh; background: var(--hf-sidebar-bg);
+            color: var(--hf-text-main); position: fixed; padding: 30px 20px; 
+            box-sizing: border-box; border-right: 1px solid var(--hf-border);
+            display: flex; flex-direction: column; z-index: 1000;
+        }
+        
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .sidebar-logo { 
+            font-size: 24px; font-weight: 900; color: var(--hf-primary); 
+            margin-bottom: 40px; text-align: left; padding-left: 10px;
+            letter-spacing: -1px; text-decoration: none; display: block;
+            transition: opacity 0.2s;
+        }
+        .sidebar-logo:hover { opacity: 0.7; }
+        
+        /* 모바일용 햄버거 버튼 */
+        .mobile-menu-btn {
+            display: none; background: none; border: none; font-size: 24px;
+            color: var(--hf-text-main); cursor: pointer; padding: 5px;
+        }
+        
+        .menu-label {
+            font-size: 11px; font-weight: 800; color: var(--hf-text-sub);
+            margin: 20px 0 10px 10px; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 15px;
+            border-radius: 12px; cursor: pointer; transition: 0.2s; margin-bottom: 5px;
+            color: var(--hf-text-main); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .menu-item i { width: 20px; color: var(--hf-text-sub); transition: 0.2s; }
+        .menu-item:hover { background: #eff6ff; color: var(--hf-primary); }
+        .menu-item:hover i { color: var(--hf-primary); }
+        .menu-item.active { background: #eff6ff; color: var(--hf-primary); border: 1px solid #dbeafe; }
+        .menu-item.active i { color: var(--hf-primary); }
+
+        /* [2] 메인 콘텐츠 영역 */
+        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; box-sizing: border-box; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
+        .header h2 { margin: 0; font-size: 24px; font-weight: 800; }
+
+        /* 상단 카드 */
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 35px; }
+        .stat-card { background: white; padding: 25px; border-radius: 20px; border: 1px solid var(--hf-border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-card label { font-size: 14px; color: var(--hf-text-sub); font-weight: 600; }
+        .stat-card .value { font-size: 28px; font-weight: 800; margin-top: 8px; color: var(--hf-text-main); }
+
+        /* 테이블 카드 */
+        .content-card { 
+            background: white; border-radius: 24px; padding: 30px; 
+            border: 1px solid var(--hf-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        }
+        
+        /* 반응형 테이블을 위한 스크롤 래퍼 */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 15px; color: var(--hf-text-sub); border-bottom: 2px solid #f1f5f9; font-size: 13px; white-space: nowrap; }
+        td { padding: 18px 15px; border-bottom: 1px solid #f8fafc; font-size: 14px; white-space: nowrap; }
+
+        .room-badge { background: #eff6ff; color: var(--hf-primary); padding: 5px 10px; border-radius: 8px; font-weight: 700; font-size: 12px; }
+        .building-tag { font-weight: 700; color: var(--hf-text-main); }
+
+        /* 버튼 호버 애니메이션 */
+        .btn-assign:hover { background-color: #1d4ed8 !important; transform: scale(1.05); }
+
+        /* ✨ 모바일 반응형 처리 (768px 이하) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            
+            /* 사이드바 -> 상단 네비게이션 변환 */
+            .sidebar {
+                width: 100%; height: auto; position: sticky; top: 0; padding: 0;
+                border-right: none; border-bottom: 1px solid var(--hf-border);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+            .sidebar-header {
+                padding: 15px 20px; background: var(--hf-sidebar-bg);
+            }
+            .sidebar-logo { margin-bottom: 0; padding-left: 0; font-size: 22px; }
+            .mobile-menu-btn { display: block; }
+            
+            /* 모바일 메뉴 영역 */
+            .sidebar-menu {
+                display: none; background: var(--hf-sidebar-bg); padding: 0 20px 20px 20px;
+                border-top: 1px solid #f1f5f9;
+            }
+            .sidebar-menu.active { display: block; }
+            
+            /* 메인 콘텐츠 여백 및 레이아웃 수정 */
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 25px; }
+            .header h2 { font-size: 20px; }
+            
+            /* 요약 카드 1줄 배치 */
+            .stat-grid { grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
+            .stat-card { padding: 20px; }
+            .stat-card .value { font-size: 24px; }
+            
+            .content-card { padding: 20px; border-radius: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-logo">HomeFix</a>
+            <button id="mobile-menu-btn" class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+        
+        <div id="sidebar-menu" class="sidebar-menu">
+            <div class="menu-label">Main Menu</div>
+            
+            <a href="/landlord_dashboard" class="menu-item {% if request.path == '/landlord_dashboard' %}active{% endif %}"> 
+                <i class="fas fa-chart-pie"></i> 대시보드 홈
+            </a>
+            
+            <a href="/landlord/tenants" class="menu-item {% if request.path == '/landlord/tenants' %}active{% endif %}">
+                <i class="fas fa-users"></i> 세입자 현황
+            </a>
+            
+            <a href="/landlord/repairs" class="menu-item {% if request.path == '/landlord/repairs' %}active{% endif %}">
+                <i class="fas fa-clipboard-list"></i> 전체 수리 내역
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h2>{{ building.building_name }}</h2>
+                <p style="color: var(--hf-text-sub); margin: 5px 0 0;">{{ building.address }}</p>
+            </div>
+            <div style="font-size: 14px; font-weight: 700;">
+                <span style="color: var(--hf-text-sub);">임대인</span> {{ user_info.get('name', landlord_name) }}님
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <label>전체 세입자 수</label>
+                <div class="value">{{ tenant_count if tenant_count else 0 }}명</div>
+            </div>
+            <div class="stat-card">
+                <label>전체 미처리 요청</label>
+                <div class="value" style="color: #ef4444;">{{ pending_requests if pending_requests else 0 }}건</div>
+            </div>
+            <div class="stat-card">
+                <label>전체 누적 수리비용</label>
+                <div class="value">{{ "{:,}".format(total_spend) if total_spend else 0 }}원</div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3 style="margin-bottom: 25px; margin-top: 0; font-size: 18px;">통합 최근 수리 내역 (전체 건물)</h3>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>건물명</th> 
+                            <th>호실</th>
+                            <th>세입자</th>
+                            <th>항목</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if logs %}
+                            {% for log in logs %}
+                            <tr>
+                                <td style="color: var(--hf-text-sub);">{{ log.created_at if log.created_at else '-' }}</td>
+                                <td class="building-tag">{{ log.building_name }}</td> 
+                                <td><span class="room-badge">{{ log.room_number }}</span></td>
+                                <td style="font-weight: 600;">{{ log.tenant_name if log.tenant_name else '미지정' }}</td>
+                                <td>{{ log.problem_name }}</td>
+                                <td>
+                                    {% if log.status == '요청됨' %}
+                                        <span style="color: #ef4444; font-weight: 700; margin-right: 10px;">● 요청됨</span>
+                                        <button class="btn-assign" onclick="openAssignModal('{{ log.id }}', '{{ log.problem_name }}')" style="background: var(--hf-primary); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                                            업체 배정
+                                        </button>
+                                    {% elif log.status == '수리중' %}
+                                        <span style="color: #f59e0b; font-weight: 700;">● 수리 진행중</span>
+                                    {% else %}
+                                        <span style="color: #10b981; font-weight: 700;">● 수리 완료</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="6" style="text-align:center; padding: 60px; color: var(--hf-text-sub);">조회된 통합 수리 내역이 없습니다.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="assignModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(2px);">
+        <div style="background: white; width: 400px; max-width: 90%; margin: 100px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box;">
+            <h3 style="margin-top: 0;">🛠️ 수리 업체 배정</h3>
+            <p id="modalRepairTask" style="color: var(--hf-text-sub); font-size: 14px; margin-bottom: 20px;"></p>
+            
+            <form action="/landlord/assign_expert" method="POST">
+                <input type="hidden" name="repair_id" id="modalRepairId">
+                
+                <select name="expert_id" required style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--hf-border); margin-bottom: 20px; outline: none; font-size: 14px; box-sizing: border-box;">
+                    <option value="">수리 업체를 선택하세요</option>
+                    {% if experts %}
+                        {% for expert in experts %}
+                            <option value="{{ expert.userid }}">{{ expert.name }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">등록된 업체가 없습니다</option>
+                    {% endif %}
+                </select>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="closeAssignModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #f1f5f9; font-weight: bold; cursor: pointer;">취소</button>
+                    <button type="submit" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: var(--hf-primary); color: white; font-weight: bold; cursor: pointer;">배정하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAssignModal(id, taskName) {
+            document.getElementById('modalRepairId').value = id;
+            document.getElementById('modalRepairTask').innerText = "요청 항목: " + taskName;
+            document.getElementById('assignModal').style.display = 'block';
+        }
+        function closeAssignModal() {
+            document.getElementById('assignModal').style.display = 'none';
+        }
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('assignModal')) {
+                closeAssignModal();
+            }
+        }
+
+        // ✨ 모바일 햄버거 메뉴 동작 스크립트
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const sidebarMenu = document.getElementById('sidebar-menu');
+
+            menuBtn.addEventListener('click', function() {
+                sidebarMenu.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>

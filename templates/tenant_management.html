@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeFix | 세입자 현황</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --hf-primary: #2563eb; 
+            --hf-bg: #f8fafc; 
+            --hf-border: #e2e8f0; 
+            --hf-text: #1e293b; 
+            --hf-text-sub: #64748b; 
+        }
+        body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; background: var(--hf-bg); }
+        
+        /* [1] 사이드바 */
+        .sidebar { 
+            width: 260px; height: 100vh; background: white; border-right: 1px solid var(--hf-border); 
+            position: fixed; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; 
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .sidebar-logo { 
+            font-size: 24px; font-weight: 900; color: var(--hf-primary); 
+            margin-bottom: 40px; text-decoration: none; display: block; 
+            transition: opacity 0.2s; padding-left: 10px; letter-spacing: -1px;
+        }
+        .sidebar-logo:hover { opacity: 0.7; }
+
+        /* 모바일 햄버거 버튼 */
+        .mobile-menu-btn {
+            display: none; background: none; border: none; font-size: 24px;
+            color: var(--hf-text); cursor: pointer; padding: 5px;
+        }
+
+        .menu-label { font-size: 11px; font-weight: 800; color: var(--hf-text-sub); margin: 20px 0 10px 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 12px; color: var(--hf-text); text-decoration: none; font-weight: 600; margin-bottom: 5px; font-size: 14px; transition: 0.2s; }
+        .menu-item:hover, .menu-item.active { background: #eff6ff; color: var(--hf-primary); }
+        .menu-item i { width: 20px; color: var(--hf-text-sub); transition: 0.2s; }
+        .menu-item:hover i, .menu-item.active i { color: var(--hf-primary); }
+        
+        /* [2] 메인 콘텐츠 */
+        .main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; box-sizing: border-box; }
+        
+        /* 타이틀 영역 */
+        .header-area { margin-bottom: 30px; text-align: left; }
+        .header-area h2 { margin: 0; font-size: 26px; font-weight: 800; color: var(--hf-text); }
+        .header-area p { color: var(--hf-text-sub); margin-top: 5px; }
+        
+        /* 중앙 직사각형 검색창 */
+        .search-container { display: flex; justify-content: center; margin-bottom: 40px; width: 100%; }
+        .search-wrapper { position: relative; width: 550px; max-width: 100%; } 
+        .search-wrapper i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .search-input { 
+            width: 100%; padding: 15px 15px 15px 50px; box-sizing: border-box;
+            border-radius: 8px; border: 1px solid var(--hf-border); outline: none; font-size: 15px; 
+            transition: all 0.2s; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .search-input:focus { border-color: var(--hf-primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+        /* 테이블 카드 */
+        .tenant-card { background: white; border-radius: 20px; padding: 30px; border: 1px solid var(--hf-border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        /* 표 가로 스크롤 래퍼 */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 15px; color: #64748b; border-bottom: 2px solid #f1f5f9; font-size: 14px; white-space: nowrap; }
+        td { padding: 18px 15px; border-bottom: 1px solid #f8fafc; font-size: 15px; white-space: nowrap; }
+        
+        /* 호실 배지 강조 */
+        .room-badge { background: #eff6ff; color: var(--hf-primary); padding: 5px 12px; border-radius: 8px; font-weight: 700; font-size: 14px; display: inline-block; }
+        .no-result { display: none; text-align: center; padding: 60px; color: #94a3b8; font-size: 14px; }
+
+        /* ✨ 모바일 반응형 처리 (768px 이하) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            
+            /* 사이드바 -> 상단 네비게이션 변환 */
+            .sidebar {
+                width: 100%; height: auto; position: sticky; top: 0; padding: 0;
+                border-right: none; border-bottom: 1px solid var(--hf-border);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+            .sidebar-header {
+                padding: 15px 20px; background: white;
+            }
+            .sidebar-logo { margin-bottom: 0; padding-left: 0; font-size: 22px; }
+            .mobile-menu-btn { display: block; }
+            
+            /* 모바일 메뉴 열기/닫기 영역 */
+            .sidebar-menu {
+                display: none; background: white; padding: 0 20px 20px 20px;
+                border-top: 1px solid #f1f5f9; flex-direction: column;
+            }
+            .sidebar-menu.active { display: flex; }
+            
+            /* 메인 콘텐츠 여백 및 레이아웃 수정 */
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            .header-area h2 { font-size: 22px; }
+            .search-container { margin-bottom: 25px; }
+            .tenant-card { padding: 20px; border-radius: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-logo">HomeFix</a>
+            <button id="mobile-menu-btn" class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+        
+        <div id="sidebar-menu" class="sidebar-menu">
+            <div class="menu-label">Main Menu</div>
+            <a href="/landlord_dashboard" class="menu-item {% if request.path == '/landlord_dashboard' %}active{% endif %}"> <i class="fas fa-chart-pie"></i> 대시보드 홈 </a>
+            <a href="/landlord/tenants" class="menu-item {% if request.path == '/landlord/tenants' %}active{% endif %}"> <i class="fas fa-users"></i> 세입자 현황 </a>
+            <a href="/landlord/repairs" class="menu-item {% if request.path == '/landlord/repairs' %}active{% endif %}"> <i class="fas fa-clipboard-list"></i> 전체 수리 내역 </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-area">
+            <h2>세입자 현황</h2>
+            <p>{{ user_info.name }} 임대인님 소속 세입자 (총 {{ tenants|length }}명)</p>
+        </div>
+
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="tenantSearch" class="search-input" placeholder="이름, 연락처, 건물명으로 검색하세요" onkeyup="filterTenants()">
+            </div>
+        </div>
+
+        <div class="tenant-card">
+            <div class="table-responsive">
+                <table id="tenantTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">건물명</th>
+                            <th style="width: 20%;">호실</th>
+                            <th style="width: 25%;">세입자명 (ID)</th>
+                            <th style="width: 25%;">연락처</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantBody">
+                        {% if tenants %}
+                            {% for t in tenants %}
+                            <tr class="tenant-row">
+                                <td class="search-building" style="font-weight: 600;">{{ t.building_name }}</td>
+                                <td><span class="room-badge">{{ t.room_number }}</span></td>
+                                <td class="search-name">{{ t.name }} <span style="color: #94a3b8; font-size: 12px;">({{ t.userid }})</span></td>
+                                <td class="search-phone">{{ t.phone if t.phone else t.email }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="4" style="text-align: center; padding: 60px; color: #94a3b8;">등록된 세입자가 없습니다.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="noResultMessage" class="no-result">
+                <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                <p>일치하는 세입자 정보가 없습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ✨ 검색 기능 유지
+    function filterTenants() {
+        const filter = document.getElementById('tenantSearch').value.toLowerCase();
+        const rows = document.getElementsByClassName('tenant-row');
+        const noResult = document.getElementById('noResultMessage');
+        let hasVisibleRow = false;
+
+        for (let i = 0; i < rows.length; i++) {
+            const building = rows[i].querySelector('.search-building').textContent.toLowerCase();
+            const name = rows[i].querySelector('.search-name').textContent.toLowerCase();
+            const phone = rows[i].querySelector('.search-phone').textContent.toLowerCase();
+
+            if (building.includes(filter) || name.includes(filter) || phone.includes(filter)) {
+                rows[i].style.display = "";
+                hasVisibleRow = true;
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+        noResult.style.display = (hasVisibleRow || filter === "") ? "none" : "block";
+    }
+
+    // ✨ 모바일 햄버거 메뉴 동작 스크립트 추가
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const sidebarMenu = document.getElementById('sidebar-menu');
+
+        menuBtn.addEventListener('click', function() {
+            sidebarMenu.classList.toggle('active');
+        });
+    });
+    </script>
+</body>
+</html>

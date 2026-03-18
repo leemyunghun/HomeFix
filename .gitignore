@@ -1,0 +1,60 @@
+# [Python / Flask / AI]
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+bin/
+lib/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.installed.cfg
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+.pip-wheel-metadata/
+
+# [JavaScript / React / Node.js]
+node_modules/
+/build
+/dist
+.eslintcache
+.stylelintcache
+.npm
+/out
+.parcel-cache
+.cache/
+
+# [Database / Environment Variables]
+# 보안을 위해 API 키와 DB 접속 정보가 담긴 .env는 반드시 제외합니다.
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.db
+*.sqlite3
+dump.sql
+*.sql.gz
+
+# [OS / IDE Settings]
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.bak
+*.tmp
+.history
+
+# [HomeFix Project Specific]
+# 만약 프로젝트 내에 대용량 PDF 매뉴얼이나 RAG용 벡터 데이터가 있다면 추가하세요.
+/data/*.pdf
+/vector_storage/
