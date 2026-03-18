@@ -388,7 +388,7 @@ def rental_page():
         cursor.close(); conn.close()
     return render_template('rental.html', rentals=rentals, query=query, kakao_js_key=KAKAO_JS_KEY)
 
-# [전문가] 전문가 목록 조회 — 카테고리/지역 필터 지원
+# [전문가] 전문가 목록 조회, 카테고리/지역 필터 지원
 @app.route('/expert')
 def expert_matching():
     query = request.args.get('query', '').strip()
