@@ -39,19 +39,16 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 카카오 JavaScript 키
-KAKAO_JS_KEY = os.getenv("KAKAO_JS_KEY", "")
 
 # ✨ [결제 시스템] 추가 환경변수
 # .env에 아래 항목을 추가해주세요:
-#   KAKAO_ADMIN_KEY=발급받은_카카오_Admin_키
 #   TOSS_SECRET_KEY=test_sk_...
 #   TOSS_CLIENT_KEY=test_ck_...
 #   BASE_URL=http://localhost:5000
-KAKAO_ADMIN_KEY = os.getenv("KAKAO_ADMIN_KEY", "")
 TOSS_SECRET_KEY = os.getenv("TOSS_SECRET_KEY", "")
 TOSS_CLIENT_KEY = os.getenv("TOSS_CLIENT_KEY", "")
 BASE_URL        = os.getenv("BASE_URL", "http://localhost:5000")
+KAKAO_JS_KEY = os.getenv("KAKAO_JS_KEY", "")
 
 # TiDB 연결 설정
 TIDB_CONFIG = {
@@ -63,11 +60,10 @@ TIDB_CONFIG = {
     'ssl_verify_cert': False
 }
 
-print(f"🚀 HomeFix 서비스 가동 중... 카카오 키: {'로드 완료' if KAKAO_JS_KEY else '미설정'}")
+print(f"🚀 HomeFix 서비스 가동 중...")
 
 def get_db_connection():
     try:
-        # ✨ buffered=True 옵션을 추가합니다.
         conn = mysql.connector.connect(**TIDB_CONFIG, buffered=True)
         return conn
     except Error as e:
@@ -267,6 +263,7 @@ def inject_user():
 # [1] 메인, 후기, 전문가 등 일반 유저 라우트
 # ==========================================
 
+# [메인] 서비스 홈 — AI 진단 입력 화면 렌더링
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -297,6 +294,7 @@ def update_last_seen():
         except Exception as e:
             print(f"활동 시간 기록 오류: {e}")
 
+# [리뷰] 전체 리뷰 목록 조회 및 렌더링
 @app.route('/review')
 def review_page():
     conn = get_db_connection()
@@ -314,6 +312,7 @@ def review_page():
 
     return render_template('review.html', reviews=reviews)
 
+# [리뷰] 새 리뷰 작성 — DB 저장 + 포인트 적립 + Supabase AI 학습 동기화
 @app.route('/add_review', methods=['POST'])
 def add_review():
     if 'user' not in session: return "<script>alert('로그인이 필요합니다.'); history.back();</script>"
@@ -335,7 +334,6 @@ def add_review():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # ✨ 버그 수정: reward_points 값을 먼저 선언해야 INSERT 시 오류가 나지 않습니다.
     reward_points = 1000
     
     # 1. 리뷰 데이터 저장
@@ -368,6 +366,7 @@ def add_review():
     
     return f"<script>alert('소중한 후기가 등록되어 {reward_points} 포인트가 지급되었습니다!'); location.href='/review';</script>"
 
+# [공구 대여] 공구 목록 조회 및 렌더링
 @app.route('/rental')
 def rental_page():
     query = request.args.get('query', '').strip()
@@ -389,6 +388,7 @@ def rental_page():
         cursor.close(); conn.close()
     return render_template('rental.html', rentals=rentals, query=query, kakao_js_key=KAKAO_JS_KEY)
 
+# [전문가] 전문가 목록 조회 — 카테고리/지역 필터 지원
 @app.route('/expert')
 def expert_matching():
     query = request.args.get('query', '').strip()
@@ -414,6 +414,7 @@ def expert_matching():
         cursor.close(); conn.close()
     return render_template('expert.html', experts=experts, query=query, kakao_js_key=KAKAO_JS_KEY)
 
+# [전문가] 전문가 예약 처리 — 예약 DB 저장 + 포인트 차감
 @app.route('/reserve_expert', methods=['POST'])
 def reserve_expert():
     if 'user' not in session: return "<script>alert('로그인이 필요합니다.'); location.href='/login';</script>"
@@ -449,6 +450,7 @@ def reserve_expert():
     return "<script>alert('포인트를 사용하여 할인이 적용된 예약이 접수되었습니다!'); location.href='/myinfo';</script>"
 
 # --- 공지사항 ---
+# [공지사항] 전체 공지 목록 조회
 @app.route('/notice')
 def notice_list():
     conn = get_db_connection()
@@ -464,6 +466,7 @@ def notice_list():
         cursor.close(); conn.close()
     return render_template('notice.html', notices=notices)
 
+# [공지사항] 특정 공지 상세 내용 조회
 @app.route('/notice/<int:notice_id>')
 def notice_detail(notice_id):
     conn = get_db_connection()
@@ -484,6 +487,7 @@ def notice_detail(notice_id):
         cursor.close(); conn.close()
     return render_template('notice_detail.html', notice=notice_data, is_edit=False)
 
+# [공지사항] 공지 작성 — 관리자 전용 (GET: 작성 폼 / POST: 저장)
 @app.route('/notice/write', methods=['GET', 'POST'])
 def notice_write():
     user_info = session.get('user')
@@ -509,6 +513,7 @@ def notice_write():
         cursor.close(); conn.close()
     return render_template('notice_write.html', is_edit=False)
 
+# [공지사항] 공지 수정 — 관리자 전용 (GET: 수정 폼 / POST: 저장)
 @app.route('/notice/edit/<int:notice_id>', methods=['GET', 'POST'])
 def notice_edit(notice_id):
     if session.get('user', {}).get('role') != 'admin': return "<script>alert('관리자 권한이 없습니다.'); history.back();</script>"
@@ -524,6 +529,7 @@ def notice_edit(notice_id):
     conn.close()
     return render_template('notice_write.html', notice=notice, is_edit=True)
 
+# [공지사항] 공지 삭제 — 관리자 전용
 @app.route('/notice/delete/<int:notice_id>')
 def notice_delete(notice_id):
     if session.get('user', {}).get('role') != 'admin': return "<script>alert('관리자 권한이 없습니다.'); history.back();</script>"
@@ -535,6 +541,7 @@ def notice_delete(notice_id):
     return redirect(url_for('notice_list'))
 
 # --- AI 진단 및 유저 라우트 ---
+# [AI 진단] 사용자 입력(텍스트+이미지)을 GPT-4o에 전달 — RAG 검색 + 진단 결과 DB 저장
 @app.route('/diagnose', methods=['POST'])
 def diagnose():
     if 'user' not in session: return jsonify({"status": "invalid", "message": "로그인이 필요합니다."}), 401
@@ -595,10 +602,8 @@ def diagnose():
 
         messages_content = [{"type": "text", "text": text_content}]
         
-        # ✨ [핵심 1] 화면에 뿌려줄 사진 리스트 초기화
         encoded_images = [] 
         
-        # ✨ [핵심 2] 글의 유무와 상관없이, 사진이 있으면 무조건 인코딩해서 리스트에 추가
         if has_images:
             for image_file in image_files:
                 if image_file and image_file.filename != '':
@@ -613,8 +618,6 @@ def diagnose():
         
         result['risk_level'] = result.get('risk_level', 1)
         result['warning'] = result.get('warning', '주의사항 없음')
-        
-        # ✨ [핵심 3] 결과 객체에 내가 올린 사진 리스트 합치기
         result['images'] = encoded_images
 
         # DB 저장
@@ -635,6 +638,7 @@ def diagnose():
         print(f"❌ 진단 프로세스 오류: {e}")
         return jsonify({"status": "error", "message": "오류가 발생했습니다."}), 500
 
+# [AI 진단] 특정 진단 기록 상세 조회
 @app.route('/history/<int:history_id>')
 def history_detail(history_id):
     if 'user' not in session: return redirect('/login')
@@ -652,6 +656,7 @@ def history_detail(history_id):
     }
     return render_template('result.html', result_data=result_data)
 
+# [인증] 회원가입 시 아이디 중복 여부 실시간 확인 (AJAX)
 @app.route('/check_id', methods=['POST'])
 def check_id():
     uid = request.get_json().get('userid')
@@ -664,6 +669,7 @@ def check_id():
     if user: return jsonify({"result": "exists", "message": "이미 사용 중인 아이디입니다."})
     return jsonify({"result": "success", "message": "사용 가능한 아이디입니다."})
 
+# [인증] 로그인 처리 — 역할(일반/전문가/임대인/관리자)에 따라 세션 생성
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -684,7 +690,6 @@ def login():
             if user.get('approval_status') == 'pending':
                 return "<script>alert('가입 서류 심사 중입니다. 관리자 승인 후 서비스 이용이 가능합니다.'); history.back();</script>"
             
-            # 세션 정보 저장
             session['user'] = user 
             session['userid'] = user['userid']
             session['name'] = user.get('name', '고객')
@@ -692,9 +697,6 @@ def login():
             user_role = str(user.get('role', '')).strip().lower()
             session['role'] = user_role
             
-            # ✨ [수정 완료] 
-            # 전문가, 임대인, 일반 사용자 모두 로그인 성공 시 메인 화면(index)으로 이동합니다.
-            # 대시보드는 상단 바의 버튼을 통해서만 진입하게 됩니다.
             return redirect(url_for('index'))
                 
         return "<script>alert('틀린 정보입니다.'); history.back();</script>"
@@ -739,6 +741,7 @@ def reject_user(userid):
         cursor.close()
         conn.close()
 
+# [인증] 회원가입 처리 — 역할별 서류(자격증/사업자등록증) 업로드 포함
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -792,6 +795,7 @@ def signup():
             
     return render_template('signup.html')
 
+# [인증] 아이디 찾기 — 이름 + 이메일로 userid 조회
 @app.route('/find-id', methods=['GET', 'POST'])
 def find_id():
     if request.method == 'POST':
@@ -804,6 +808,7 @@ def find_id():
         else: return "<script>alert('일치하는 정보가 없습니다.'); history.back();</script>"
     return render_template('find_id.html')
 
+# [인증] 비밀번호 재설정 — 이메일 인증 후 새 비밀번호 등록
 @app.route('/reset-password', methods=['GET', 'POST'])
 def reset_password():
     if request.method == 'POST':
@@ -822,6 +827,7 @@ def reset_password():
             
     return render_template('reset_password.html')
 
+# [인증] 마이페이지에서 현재 비밀번호 확인 후 새 비밀번호로 변경
 @app.route('/change_password', methods=['POST'])
 def change_password():
     if 'user' not in session: return redirect('/login')
@@ -841,7 +847,7 @@ def change_password():
         cursor.close(); conn.close()
         return "<script>alert('현재 비밀번호가 틀렸습니다.'); history.back();</script>"
         
-# 1. 전문가 대시보드 홈 (stats와 tasks 데이터를 가져옵니다)
+# [전문가 대시보드] 로그인한 전문가의 배정 작업 현황 및 통계 조회
 @app.route('/expert_dashboard')
 def expert_dashboard():
     if 'userid' not in session or session.get('role') != 'expert':
@@ -852,19 +858,15 @@ def expert_dashboard():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # 통계 데이터 가져오기
         cursor.execute("""
     SELECT 
-        -- ✨ 수리 완료/결제 완료가 아닌 것만 '진행 중'으로 카운트
         COUNT(CASE WHEN status NOT IN ('수리완료', '결제완료') THEN 1 END) as pending_count,
-        -- ✨ 결제가 완료된 금액만 총 수입으로 합산
         COALESCE(SUM(CASE WHEN status = '결제완료' THEN actual_cost ELSE 0 END), 0) as total_income
     FROM repair_logs 
     WHERE expert_id = %s
 """, (expert_id,))
         stats = cursor.fetchone()
 
-        # ✨ 수정된 쿼리: r.building_id 대신 u.building_id를 사용해 JOIN 합니다.
         cursor.execute("""
             SELECT r.id, b.building_name, r.room_number, r.problem_name, r.status, 
                    DATE_FORMAT(r.created_at, '%Y-%m-%d') as created_at
@@ -885,7 +887,7 @@ def expert_dashboard():
 
     return render_template('expert_dashboard.html', user_info=session.get('user'), stats=stats, tasks=tasks)
 
-# 2. 수리 대기 목록(expert_tasks) 수정
+# [전문가] 배정된 수리 작업 목록 조회 (AJAX용)
 @app.route('/expert/tasks')
 def expert_tasks():
     if 'userid' not in session or session.get('role') != 'expert':
@@ -896,7 +898,6 @@ def expert_tasks():
     cursor = conn.cursor(dictionary=True)
     
     try:
-        # ✨ 수정된 쿼리: JOIN 구조를 변경하여 에러를 방지합니다.
         cursor.execute("""
             SELECT r.id, b.building_name, r.room_number, r.problem_name, r.status, 
                    DATE_FORMAT(r.created_at, '%Y-%m-%d %H:%i') as created_at
@@ -915,6 +916,7 @@ def expert_tasks():
 
     return render_template('expert_tasks.html', tasks=tasks, user_info=session.get('user'))
 
+# [전문가] 수리 완료 후 영수증 사진 업로드 및 상태 변경
 @app.route('/expert/submit_receipt', methods=['POST'])
 def submit_receipt():
     if 'userid' not in session: 
@@ -927,12 +929,8 @@ def submit_receipt():
     filename = ""
     if image_file and image_file.filename != '':
         filename = secure_filename(f"receipt_{order_id}_{image_file.filename}")
-        
-        # ✨ [핵심 해결책] 사진을 저장할 폴더 경로를 지정하고, 폴더가 없으면 자동으로 만듭니다!
         upload_folder = os.path.join('static', 'uploads', 'reviews')
         os.makedirs(upload_folder, exist_ok=True) 
-        
-        # 이제 폴더가 무조건 존재하므로 안전하게 저장됩니다.
         image_file.save(os.path.join(upload_folder, filename))
 
     conn = get_db_connection()
@@ -953,6 +951,7 @@ def submit_receipt():
 
     return f"<script>alert('영수증이 성공적으로 제출되었습니다.'); location.href='/expert/tasks';</script>"
 
+# [임대인 대시보드] 건물별 수리 현황, 세입자 수, 전문가 배정 통계 조회
 @app.route('/landlord_dashboard')
 def landlord_dashboard():
     if 'userid' not in session or session.get('role') != 'landlord':
@@ -965,7 +964,6 @@ def landlord_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 기본값 세팅
     tenant_count, pending_requests, total_spend = 0, 0, 0
     logs, experts_list = [], []
     building = {
@@ -974,12 +972,9 @@ def landlord_dashboard():
     }
 
     try:
-        # 💡 [안전장치 1] 전문가 목록부터 무조건 먼저 가져옵니다!
         cursor.execute("SELECT userid, name FROM users WHERE role = 'expert'")
         experts_list = cursor.fetchall()
-        print(f"✅ 불러온 전문가 수: {len(experts_list)}명") # 터미널에서 몇 명인지 확인해보세요
 
-        # 💡 [안전장치 2] 나머지 통계 데이터 가져오기
         cursor.execute("""
             SELECT COUNT(*) as count 
             FROM users u
@@ -1000,7 +995,6 @@ def landlord_dashboard():
         pending_requests = stats_raw['pending_requests'] if stats_raw else 0
         total_spend = stats_raw['total_cost'] if stats_raw else 0
 
-        # 💡 SELECT 부분에 r.receipt_image 를 추가했습니다!
         cursor.execute("""
             SELECT 
                 r.id, DATE_FORMAT(r.created_at, '%Y-%m-%d') as created_at, 
@@ -1008,7 +1002,7 @@ def landlord_dashboard():
                 b.building_name, u.name as tenant_name
             FROM repair_logs r
             LEFT JOIN users u ON r.tenant_id = u.userid
-            LEFT JOIN buildings b ON u.building_id = b.id  /* ✨ r.building_id ➔ u.building_id 로 수정됨! */
+            LEFT JOIN buildings b ON u.building_id = b.id
             WHERE r.landlord_id = %s 
             ORDER BY r.created_at DESC LIMIT 10
         """, (landlord_id,))
@@ -1023,7 +1017,6 @@ def landlord_dashboard():
         cursor.close()
         conn.close()
 
-    # HTML 템플릿으로 전송
     return render_template('landlord_dashboard.html', 
                            user_info=session,
                            landlord_name=landlord_name,
@@ -1032,22 +1025,23 @@ def landlord_dashboard():
                            pending_requests=pending_requests, 
                            total_spend=total_spend,      
                            logs=logs,
-                           experts=experts_list) # 모달창을 위해 전송!
+                           experts=experts_list)
 
+# [인증] 로그아웃 — 세션 초기화 후 메인으로 리다이렉트
 @app.route('/logout')
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
+# [마이페이지] 최근 AI 진단 결과 조회 및 렌더링
 @app.route('/result')
 def result_page():
     res = session.get('last_result')
     if not res: return redirect('/')
     
-    # ✨ 세션에 저장된 'images'를 안전하게 꺼내서 템플릿으로 전달합니다.
     safe_data = {
         'problem_name': res.get('problem_name', '진단 결과'),
-        'images': res.get('images', []),  # 👈 핵심 포인트
+        'images': res.get('images', []),
         'steps': res.get('steps', []),
         'tools': res.get('tools', []),
         'estimated_cost': res.get('estimated_cost', '비용 정보 없음'),
@@ -1056,6 +1050,7 @@ def result_page():
     }
     return render_template('result.html', result_data=safe_data)
 
+# [마이페이지] 내 정보 조회 — 포인트·예약·진단 이력·리뷰 통합 표시
 @app.route('/myinfo')
 def myinfo():
     if 'user' not in session: 
@@ -1077,7 +1072,6 @@ def myinfo():
     my_reviews = cursor.fetchall()
     reviews_dict = {r['repair_item']: r for r in my_reviews}
 
-    # 내 포인트 내역 최신순으로 가져오기
     cursor.execute('SELECT * FROM point_history WHERE userid = %s ORDER BY created_at DESC', (session['user']['userid'],))
     point_logs = cursor.fetchall()
     
@@ -1095,15 +1089,14 @@ def myinfo():
                            history=history, 
                            reviews_dict=reviews_dict, 
                            point_logs=point_logs,
-                           all_buildings=all_buildings) # ✨ 템플릿으로 전달!
+                           all_buildings=all_buildings)
 
-# ✨ [신규] 거주지 정보 및 개인정보 동의 업데이트 라우트
+# [마이페이지] 거주지 정보(건물/호실) 업데이트
 @app.route('/update_residence', methods=['POST'])
 def update_residence():
     if 'user' not in session: return redirect('/login')
     
     userid = session['user']['userid']
-    # ✨ landlord_id 대신 building_id를 받습니다.
     building_id = request.form.get('building_id') 
     room_number = request.form.get('room_number')
     privacy_consent = request.form.get('privacy_consent')
@@ -1114,14 +1107,10 @@ def update_residence():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # ✨ users 테이블의 building_id를 업데이트
         cursor.execute("""
             UPDATE users SET building_id = %s, room_number = %s 
             WHERE userid = %s
         """, (building_id, room_number, userid))
-        
-        # (선택) 만약 users 테이블에 landlord_id도 따로 저장해야 한다면
-        # UPDATE users SET building_id = %s, landlord_id = (SELECT landlord_id FROM buildings WHERE id = %s), ... 형태로 작성할 수도 있습니다.
         
         conn.commit()
         return "<script>alert('거주지 정보가 성공적으로 저장되었습니다.'); location.href='/myinfo';</script>"
@@ -1132,7 +1121,7 @@ def update_residence():
         cursor.close()
         conn.close()
 
-# ✨ [수정됨] 임대인 전용 건물 등록 라우트 (개인정보 동의 확인 포함)
+# [마이페이지] 임대인 건물 신규 등록
 @app.route('/register_building', methods=['POST'])
 def register_building():
     if 'user' not in session or session['user']['role'] != 'landlord':
@@ -1141,16 +1130,14 @@ def register_building():
     landlord_id = session['user']['userid']
     building_name = request.form.get('building_name')
     address = request.form.get('address')
-    privacy_consent = request.form.get('privacy_consent') # ✨ 폼에서 동의 여부 가져오기
+    privacy_consent = request.form.get('privacy_consent')
     
-    # ✨ 유효성 검사 (하나라도 비어있거나 동의 안 하면 차단)
     if not building_name or not address or not privacy_consent:
         return "<script>alert('건물 정보 입력 및 정보 공개 동의가 필요합니다.'); history.back();</script>"
         
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # buildings 테이블에 새 건물 저장
         cursor.execute("""
             INSERT INTO buildings (landlord_id, building_name, address)
             VALUES (%s, %s, %s)
@@ -1164,6 +1151,7 @@ def register_building():
         cursor.close()
         conn.close()
 
+# [리뷰] 기존 리뷰 내용 수정
 @app.route('/edit_review', methods=['POST'])
 def edit_review():
     if 'user' not in session: return "<script>alert('로그인이 필요합니다.'); history.back();</script>"
@@ -1199,6 +1187,7 @@ def edit_review():
     
     return "<script>alert('후기가 성공적으로 수정되었습니다!'); location.href='/review';</script>"
 
+# [AI 진단] 특정 진단 기록 삭제
 @app.route('/delete_history/<int:history_id>', methods=['POST'])
 def delete_history(history_id):
     if 'user' not in session: return jsonify({'status':'error'}), 401
@@ -1208,6 +1197,7 @@ def delete_history(history_id):
     conn.commit(); cursor.close(); conn.close()
     return jsonify({"status": "success"})
 
+# [고객센터] 1:1 문의 — GET: 문의 목록 / POST: 새 문의 작성
 @app.route('/support', methods=['GET', 'POST'])
 def support():
     if request.method == 'POST':
@@ -1220,6 +1210,7 @@ def support():
         return redirect('/support/my')
     return render_template('support.html')
 
+# [고객센터] 내가 작성한 문의 내역 조회
 @app.route('/support/my')
 def support_my():
     if 'user' not in session: return redirect('/login')
@@ -1230,6 +1221,7 @@ def support_my():
     cursor.close(); conn.close()
     return render_template('support_my.html', supports=my_supports)
 
+# [인증] 회원 탈퇴 — 본인 확인 후 계정 및 관련 데이터 삭제
 @app.route('/delete_account', methods=['POST'])
 def delete_account():
     user_session = session.get('user')
@@ -1260,7 +1252,6 @@ def delete_account():
                     if os.path.exists(file_path):
                         try:
                             os.remove(file_path)
-                            print(f"✅ 삭제 완료: {file_path}")
                         except Exception as e:
                             print(f"❌ 삭제 에러: {e}")
 
@@ -1278,9 +1269,11 @@ def delete_account():
         cursor.close()
         conn.close()
 
+# [약관] 이용약관 페이지 렌더링
 @app.route('/terms')
 def terms(): return render_template('terms.html')
 
+# [약관] 개인정보처리방침 페이지 렌더링
 @app.route('/privacy')
 def privacy(): return render_template('privacy.html')
 
@@ -1288,6 +1281,7 @@ def privacy(): return render_template('privacy.html')
 # [2] 👑 관리자(Admin) 전용 라우트
 # ==========================================
 
+# [관리자] 관리자 메인 대시보드 — 가입 승인 대기, 전체 통계 조회
 @app.route('/admin_dashboard')
 def admin_dashboard_view():
     if session.get('user', {}).get('role') != 'admin': 
@@ -1297,7 +1291,6 @@ def admin_dashboard_view():
         conn = get_db_connection()
         cursor = conn.cursor() 
         
-        # 1. 기본 카운트 통계
         cursor.execute("SELECT COUNT(*) FROM users")
         total_users = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM history")
@@ -1307,7 +1300,6 @@ def admin_dashboard_view():
         cursor.execute("SELECT COUNT(*) FROM support WHERE status != '답변완료'")
         pending_support = cursor.fetchone()[0]
         
-        # 2. 유저 역할별 분포
         cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'admin'")
         admin_users = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'expert'")
@@ -1317,13 +1309,11 @@ def admin_dashboard_view():
         cursor.execute("SELECT COUNT(*) FROM users WHERE role NOT IN ('admin', 'expert', 'landlord')")
         general_users = cursor.fetchone()[0]
 
-        # 3. 항목별 진단 분포 (TOP 5)
         cursor.execute("SELECT problem_name, COUNT(*) as cnt FROM history GROUP BY problem_name ORDER BY cnt DESC LIMIT 5")
         stats = cursor.fetchall()
         labels = [s[0] for s in stats] if stats else ["데이터없음"]
         counts = [s[1] for s in stats] if stats else [0]
 
-        # 4. ✨ [신규] 최근 7일간 일별 진단 건수 추이
         cursor.execute("""
             SELECT DATE_FORMAT(created_at, '%m-%d') as date, COUNT(*) 
             FROM history 
@@ -1353,6 +1343,7 @@ def admin_dashboard_view():
     except Exception as e:
         return f"대시보드 로드 실패: {e}"
     
+# [관리자] 전체 회원 목록 조회 — 역할/상태별 필터
 @app.route('/admin/users')
 def admin_user_management():
     if session.get('user', {}).get('role') != 'admin': 
@@ -1404,7 +1395,7 @@ def admin_user_management():
     except Exception as e:
         return f"회원관리 로드 실패: {e}"
 
-# ✨ [업데이트 됨] 관리자 포인트 변경 및 내역 자동 기록
+# [관리자] 특정 회원 포인트 수동 조정 (지급/차감)
 @app.route('/admin/update_points', methods=['POST'])
 def admin_update_points():
     if session.get('user', {}).get('role') != 'admin': 
@@ -1417,7 +1408,6 @@ def admin_update_points():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        # 1. 기존 포인트를 확인하여 차액 계산
         cursor.execute("SELECT points FROM users WHERE userid = %s", (target_userid,))
         user_data = cursor.fetchone()
         
@@ -1425,10 +1415,8 @@ def admin_update_points():
             current_points = user_data.get('points') or 0
             point_diff = new_points - current_points
             
-            # 2. 포인트 업데이트
             cursor.execute("UPDATE users SET points = %s WHERE userid = %s", (new_points, target_userid))
             
-            # 3. 변동이 있을 때만 내역(History) 기록
             if point_diff != 0:
                 description = "관리자 직권 조정"
                 cursor.execute(
@@ -1443,6 +1431,7 @@ def admin_update_points():
     except Exception as e: 
         return f"<script>alert('포인트 변경 실패: {e}'); history.back();</script>"
 
+# [관리자] 탈퇴 또는 비활성 계정 복구
 @app.route('/admin/restore_user/<string:user_id>', methods=['POST'])
 def admin_restore_user(user_id):
     if session.get('user', {}).get('role') != 'admin': return jsonify({"result": "fail", "message": "권한이 없습니다."})
@@ -1457,6 +1446,7 @@ def admin_restore_user(user_id):
         return jsonify({"result": "fail", "message": "사용자를 찾을 수 없습니다."})
     except Exception as e: return jsonify({"result": "fail", "message": str(e)})
 
+# [관리자] 회원 계정 강제 삭제
 @app.route('/admin/delete_user/<string:user_id>', methods=['POST'])
 def admin_delete_user(user_id):
     if session.get('user', {}).get('role') != 'admin': return jsonify({"result": "fail", "message": "권한이 없습니다."})
@@ -1470,6 +1460,7 @@ def admin_delete_user(user_id):
         return jsonify({"result": "success", "message": "즉시 탈퇴 처리되었습니다. (데이터는 30일 후 자동 파기)"})
     except Exception as e: return jsonify({"result": "fail", "message": str(e)})
 
+# [관리자] 전체 AI 진단 이력 조회
 @app.route('/admin/history')
 def admin_diagnosis_history():
     if session.get('user', {}).get('role') != 'admin': return redirect('/')
@@ -1483,6 +1474,7 @@ def admin_diagnosis_history():
     except Exception as e:
         return f"진단 로그 로드 오류: {e}"
 
+# [관리자] 전문가 목록 관리 — 승인/반려 처리
 @app.route('/admin/experts')
 def admin_expert_management():
     if session.get('user', {}).get('role') != 'admin': return redirect('/')
@@ -1496,6 +1488,7 @@ def admin_expert_management():
     except Exception as e:
         return f"업체관리 로드 실패: {e}"
 
+# [관리자] 고객센터 문의 전체 목록 조회
 @app.route('/admin/support')
 def admin_support_manage():
     if session.get('user', {}).get('role') != 'admin': return "<script>alert('관리자만 접근 가능합니다.'); history.back();</script>"
@@ -1508,6 +1501,7 @@ def admin_support_manage():
         cursor.close(); conn.close()
     return render_template('admin_support.html', supports=all_supports)
 
+# [관리자] 고객센터 문의에 답변 등록
 @app.route('/admin/support/answer/<int:post_id>', methods=['POST'])
 def admin_support_answer(post_id):
     if session.get('user', {}).get('role') != 'admin': return "<script>alert('권한이 없습니다.'); history.back();</script>"
@@ -1520,6 +1514,7 @@ def admin_support_answer(post_id):
         cursor.close(); conn.close()
     return "<script>alert('답변이 등록되었습니다.'); location.href='/admin/support';</script>"
 
+# [관리자] 전체 예약 현황 조회
 @app.route('/admin/reservations')
 def admin_reservations():
     if session.get('user', {}).get('role') != 'admin': return redirect('/')
@@ -1532,9 +1527,8 @@ def admin_reservations():
         return render_template('admin_reservations.html', reservations=res_list)
     except Exception as e:
         return f"예약 관리 로드 실패: {e}"
-    
 
-# ✨ [업데이트 됨] 예약 취소 시 환불 내역 기록 및 맞춤형 알림 메시지 추가
+# [관리자] 예약 상태 변경 (확정/취소 등)
 @app.route('/admin/update_reservation', methods=['POST'])
 def admin_update_reservation():
     if session.get('user', {}).get('role') != 'admin': 
@@ -1556,20 +1550,15 @@ def admin_update_reservation():
             
         cursor.execute("UPDATE reservations SET status = %s WHERE id = %s", (new_status, res_id))
         
-        # 💡 기본 알림 메시지 설정 (예약대기, 예약완료 등의 경우 이 메시지만 출력됨)
         success_msg = f"상태가 '{new_status}'(으)로 변경되었습니다."
         
-        # 예약이 취소되었을 때 포인트 환불 및 내역 기록
         if new_status == '예약취소' and res_info['status'] != '예약취소':
             cursor.execute("UPDATE users SET points = IFNULL(points, 0) + %s WHERE userid = %s", 
                            (res_info['used_points'], res_info['userid']))
             
-            # 포인트 환불 내역 기록 (실제로 사용한 포인트가 있을 때만)
             if res_info['used_points'] > 0:
                 cursor.execute("INSERT INTO point_history (userid, amount, description) VALUES (%s, %s, %s)",
                                (res_info['userid'], res_info['used_points'], "예약 취소로 인한 포인트 환불"))
-                
-                # 💡 취소이면서 환불된 포인트가 있을 때만 알림 메시지에 내용 추가
                 success_msg += f" (사용된 {res_info['used_points']}P 환불 완료)"
             
             if session['user']['userid'] == res_info['userid']:
@@ -1579,12 +1568,11 @@ def admin_update_reservation():
         conn.commit()
         cursor.close(); conn.close()
         
-        # 유동적으로 변한 success_msg를 HTML로 전달
         return jsonify({"result": "success", "message": success_msg})
     except Exception as e:
         return jsonify({"result": "fail", "message": str(e)})
 
-# [세입자 현황 페이지 로직]
+# [임대인] 건물별 세입자 목록 및 입주 정보 조회
 @app.route('/landlord/tenants')
 def tenant_management():
     if 'user' not in session: 
@@ -1595,16 +1583,13 @@ def tenant_management():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
-    # ✨ [핵심 해결책] 에러가 나더라도 터지지 않도록 미리 빈 리스트를 만들어 둡니다.
     tenants_list = []
     buildings_list = []
     
     try:
-        # 1. 사이드바용 건물 목록 가져오기
         cursor.execute("SELECT id, building_name FROM buildings WHERE landlord_id = %s", (landlord_id,))
         buildings_list = cursor.fetchall()
 
-        # 2. 세입자 목록 가져오기 (연결된 건물의 주인이 나인 사람)
         query = """
             SELECT u.userid, u.name, u.phone, u.email, u.room_number, b.building_name 
             FROM users u
@@ -1615,7 +1600,6 @@ def tenant_management():
         tenants_list = cursor.fetchall()
 
     except Exception as e:
-        # 에러가 발생하면 터미널에 원인을 붉은 글씨로 출력합니다.
         print(f"🚨 세입자 목록 DB 에러: {e}")
         
     finally:
@@ -1627,9 +1611,7 @@ def tenant_management():
                            buildings_list=buildings_list, 
                            user_info=session['user'])
 
-# ==========================================
-# [전체 수리 내역 페이지 로직] 추가됨!
-# ==========================================
+# [임대인] 전체 수리 요청 내역 조회 — 상태별 필터 및 결제 처리
 @app.route('/landlord/repairs')
 def landlord_repairs():
     if 'user' not in session: 
@@ -1641,11 +1623,9 @@ def landlord_repairs():
     cursor = conn.cursor(dictionary=True)
     
     try:
-        # 1. 사이드바용 건물 리스트 가져오기
         cursor.execute("SELECT id, building_name FROM buildings WHERE landlord_id = %s", (landlord_id,))
         buildings_list = cursor.fetchall()
         
-        # 2. 전체 수리 내역 가져오기 (이미 작성하신 쿼리 그대로 사용)
         query = """
             SELECT 
                 r.id, 
@@ -1674,15 +1654,14 @@ def landlord_repairs():
         cursor.close()
         conn.close()
     
-    # ✨ [중요] 토스 결제에 필요한 키와 URL을 템플릿으로 보냅니다.
     return render_template('landlord_repairs.html', 
                            repairs=repairs_list, 
                            buildings_list=buildings_list, 
                            user_info=session['user'],
-                           toss_client_key=TOSS_CLIENT_KEY,  # ← 추가
-                           base_url=BASE_URL)               # ← 추가
+                           toss_client_key=TOSS_CLIENT_KEY,
+                           base_url=BASE_URL)
 
-# ✨ [신규] 세입자가 AI 진단 후 임대인에게 수리를 요청하는 라우트
+# [세입자] 임대인에게 수리 요청 접수 — repair_logs에 신규 건 생성
 @app.route('/user/request_landlord', methods=['POST'])
 def request_landlord():
     if 'user' not in session: 
@@ -1696,7 +1675,6 @@ def request_landlord():
     problem_name = request.form.get('problem_name')
     estimated_cost = request.form.get('estimated_cost')
 
-    # 1. 거주지(건물) 등록 여부 검사
     if not building_id:
         return "<script>alert('먼저 마이페이지에서 현재 거주 중인 건물을 등록해주세요.'); location.href='/myinfo';</script>"
 
@@ -1704,7 +1682,6 @@ def request_landlord():
     cursor = conn.cursor(dictionary=True)
     
     try:
-        # 2. 해당 건물의 임대인(landlord_id) 정보 찾기
         cursor.execute("SELECT landlord_id FROM buildings WHERE id = %s", (building_id,))
         building = cursor.fetchone()
         
@@ -1713,7 +1690,6 @@ def request_landlord():
             
         landlord_id = building['landlord_id']
 
-        # 3. repair_logs에 데이터 삽입! (landlord_id 포함 ✅)
         cursor.execute("""
             INSERT INTO repair_logs 
             (tenant_id, landlord_id, room_number, problem_name, ai_estimated_cost, status) 
@@ -1730,7 +1706,7 @@ def request_landlord():
         cursor.close()
         conn.close()
 
-# ✨ [신규] 임대인이 특정 수리 건을 업체(전문가)에게 배정하는 기능
+# [임대인] 수리 요청 건에 전문가 배정 및 상태 변경
 @app.route('/landlord/assign_expert', methods=['POST'])
 def assign_expert():
     if 'userid' not in session or session.get('role') != 'landlord':
@@ -1745,7 +1721,6 @@ def assign_expert():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # 수리 내역(repair_logs)에 전문가 아이디를 넣고, 상태를 '수리중'으로 변경
         cursor.execute("""
             UPDATE repair_logs 
             SET expert_id = %s, status = '수리중' 
@@ -1760,7 +1735,7 @@ def assign_expert():
         cursor.close(); conn.close()
 
 # ==========================================
-# ✨ [결제 시스템] 카카오페이 · 토스페이먼츠 · 포인트충전 · 구독
+# ✨ [결제 시스템] 토스페이먼츠 · 포인트충전 · 구독
 # ==========================================
 
 def generate_order_id(prefix="ORD"):
@@ -1772,7 +1747,7 @@ def _process_payment_success(cursor, payment):
     """
     결제 완료 후 목적에 따라 포인트 지급 / 예약 확정 / 구독 처리
     cursor: DB 커서 (conn.commit()은 외부에서 수행)
-    payment: payments 테이블 row (dict)
+    payment: dict (DB row 또는 직접 생성한 딕셔너리)
     """
     userid       = payment['userid']
     purpose      = payment['purpose']
@@ -1814,18 +1789,17 @@ def _process_payment_success(cursor, payment):
         ''', (userid, plan, start, end))
 
 
-# --- [포인트 충전 페이지] ---
+# [결제] 포인트 충전 페이지 렌더링
 @app.route('/payment/charge')
 def payment_charge():
     if 'user' not in session:
         return redirect('/login')
 
-    # 사업성 고려한 현실적인 충전 옵션 세팅
     charge_options = [
-        {'amount': 10000,  'points': 10000},  # 기본
-        {'amount': 30000,  'points': 31000},  # +1,000P
-        {'amount': 50000,  'points': 52000},  # +3,000P
-        {'amount': 100000, 'points': 105000}  # +10,000P (최대 10%)
+        {'amount': 10000,  'points': 10000},
+        {'amount': 30000,  'points': 31000},
+        {'amount': 50000,  'points': 52000},
+        {'amount': 100000, 'points': 105000}
     ]
 
     return render_template('payment_charge.html', 
@@ -1835,165 +1809,7 @@ def payment_charge():
                            base_url=BASE_URL)
 
 
-# --- [카카오페이] 결제 준비 ---
-@app.route('/payment/kakao/ready', methods=['POST'])
-def kakao_pay_ready():
-    if 'user' not in session:
-        return jsonify({"result": "fail", "message": "로그인이 필요합니다."}), 401
-
-    data         = request.get_json()
-    purpose      = data.get('purpose', 'point_charge')
-    amount       = int(data.get('amount', 0))
-    point_amount = int(data.get('point_amount', amount))
-    ref_id       = data.get('ref_id')
-    userid       = session['user']['userid']
-    order_id     = generate_order_id("KKO")
-
-    if amount <= 0:
-        return jsonify({"result": "fail", "message": "결제 금액이 올바르지 않습니다."}), 400
-
-    item_name_map = {
-        "point_charge":   f"HomeFix 포인트 {point_amount:,}P 충전",
-        "expert_reserve": "전문가 예약",
-        "repair_service": "수리 서비스 결제",
-        "subscription":   "HomeFix 구독권",
-    }
-    item_name = item_name_map.get(purpose, "HomeFix 결제")
-
-    headers = {
-        "Authorization": f"KakaoAK {KAKAO_ADMIN_KEY}",
-        "Content-type":  "application/x-www-form-urlencoded;charset=utf-8",
-    }
-    params = {
-        "cid":              "TC0ONETIME",
-        "partner_order_id": order_id,
-        "partner_user_id":  userid,
-        "item_name":        item_name,
-        "quantity":         1,
-        "total_amount":     amount,
-        "vat_amount":       amount // 11,
-        "tax_free_amount":  0,
-        "approval_url":     f"{BASE_URL}/payment/kakao/success?order_id={order_id}",
-        "cancel_url":       f"{BASE_URL}/payment/kakao/cancel?order_id={order_id}",
-        "fail_url":         f"{BASE_URL}/payment/kakao/fail?order_id={order_id}",
-    }
-
-    try:
-        res = http_requests.post(
-            "https://kapi.kakao.com/v1/payment/ready",
-            headers=headers, data=params, timeout=10
-        )
-        res.raise_for_status()
-        kakao_data = res.json()
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO payments (userid, order_id, payment_type, purpose, amount, point_amount, status, pg_tid, ref_id)
-            VALUES (%s, %s, 'kakao', %s, %s, %s, '대기', %s, %s)
-        ''', (userid, order_id, purpose, amount, point_amount, kakao_data.get('tid', ''), ref_id))
-        conn.commit()
-        cursor.close(); conn.close()
-
-        session['kakao_tid']      = kakao_data['tid']
-        session['kakao_order_id'] = order_id
-        session.modified = True
-
-        return jsonify({
-            "result": "success",
-            "next_redirect_pc_url":     kakao_data.get('next_redirect_pc_url'),
-            "next_redirect_mobile_url": kakao_data.get('next_redirect_mobile_url'),
-            "order_id": order_id,
-        })
-
-    except Exception as e:
-        print(f"❌ 카카오페이 준비 오류: {e}")
-        return jsonify({"result": "fail", "message": "결제 준비 중 오류가 발생했습니다."}), 500
-
-
-# --- [카카오페이] 결제 성공 콜백 ---
-@app.route('/payment/kakao/success')
-def kakao_pay_success():
-    if 'user' not in session:
-        return redirect('/login')
-
-    pg_token = request.args.get('pg_token')
-    order_id = request.args.get('order_id', session.get('kakao_order_id', ''))
-    tid      = session.get('kakao_tid', '')
-    userid   = session['user']['userid']
-
-    if not pg_token or not tid:
-        return "<script>alert('결제 정보가 올바르지 않습니다.'); location.href='/payment/charge';</script>"
-
-    headers = {
-        "Authorization": f"KakaoAK {KAKAO_ADMIN_KEY}",
-        "Content-type":  "application/x-www-form-urlencoded;charset=utf-8",
-    }
-    params = {
-        "cid":              "TC0ONETIME",
-        "tid":              tid,
-        "partner_order_id": order_id,
-        "partner_user_id":  userid,
-        "pg_token":         pg_token,
-    }
-
-    try:
-        res = http_requests.post(
-            "https://kapi.kakao.com/v1/payment/approve",
-            headers=headers, data=params, timeout=10
-        )
-        res.raise_for_status()
-
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM payments WHERE order_id = %s AND userid = %s", (order_id, userid))
-        payment = cursor.fetchone()
-
-        if not payment:
-            cursor.close(); conn.close()
-            return "<script>alert('결제 정보를 찾을 수 없습니다.'); location.href='/';</script>"
-
-        cursor.execute("UPDATE payments SET status = '완료' WHERE order_id = %s", (order_id,))
-        _process_payment_success(cursor, payment)
-        conn.commit()
-
-        if payment['purpose'] == 'point_charge':
-            session['user']['points'] = session['user'].get('points', 0) + payment['point_amount']
-            session.modified = True
-
-        cursor.close(); conn.close()
-        return redirect('/payment/success?order_id=' + order_id)
-
-    except Exception as e:
-        print(f"❌ 카카오페이 승인 오류: {e}")
-        return "<script>alert('결제 승인 중 오류가 발생했습니다.'); location.href='/payment/charge';</script>"
-
-
-@app.route('/payment/kakao/cancel')
-def kakao_pay_cancel():
-    order_id = request.args.get('order_id', '')
-    if order_id:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("UPDATE payments SET status = '취소' WHERE order_id = %s", (order_id,))
-        conn.commit()
-        cursor.close(); conn.close()
-    return "<script>alert('결제가 취소되었습니다.'); location.href='/payment/charge';</script>"
-
-
-@app.route('/payment/kakao/fail')
-def kakao_pay_fail():
-    order_id = request.args.get('order_id', '')
-    if order_id:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("UPDATE payments SET status = '실패' WHERE order_id = %s", (order_id,))
-        conn.commit()
-        cursor.close(); conn.close()
-    return "<script>alert('결제에 실패했습니다. 다시 시도해주세요.'); location.href='/payment/charge';</script>"
-
-
-# --- [토스페이먼츠] 결제 승인 ---
+# ✅ [핵심 수정] 토스페이먼츠 결제 승인 — SELECT 타이밍 버그 수정
 @app.route('/payment/toss/confirm', methods=['POST'])
 def toss_pay_confirm():
     if 'user' not in session:
@@ -2003,7 +1819,7 @@ def toss_pay_confirm():
     payment_key  = data.get('paymentKey')
     order_id     = data.get('orderId')
     amount       = int(data.get('amount', 0))
-    point_amount = int(data.get('point_amount', amount))
+    point_amount = int(data.get('point_amount', amount))  # 프론트에서 명시적으로 보내야 함
     purpose      = data.get('purpose', 'point_charge')
     ref_id       = data.get('ref_id')
     userid       = session['user']['userid']
@@ -2029,17 +1845,27 @@ def toss_pay_confirm():
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+
+        # 1. payments 테이블에 결제 기록 저장
         cursor.execute('''
             INSERT INTO payments (userid, order_id, payment_type, purpose, amount, point_amount, status, pg_tid, ref_id)
             VALUES (%s, %s, 'toss', %s, %s, %s, '완료', %s, %s)
             ON DUPLICATE KEY UPDATE status = '완료', pg_tid = VALUES(pg_tid)
         ''', (userid, order_id, purpose, amount, point_amount, toss_data.get('paymentKey', ''), ref_id))
 
-        cursor.execute("SELECT * FROM payments WHERE order_id = %s AND userid = %s", (order_id, userid))
-        payment = cursor.fetchone()
-        _process_payment_success(cursor, payment)
+        # ✅ [핵심 수정] SELECT로 다시 읽지 않고, 프론트에서 받은 값으로 직접 딕셔너리 생성
+        # ON DUPLICATE KEY UPDATE 이후 SELECT 시 point_amount가 0으로 읽히는 버그 방지
+        payment_dict = {
+            'userid':       userid,
+            'purpose':      purpose,
+            'amount':       amount,
+            'point_amount': point_amount,
+            'ref_id':       ref_id,
+        }
+        _process_payment_success(cursor, payment_dict)
         conn.commit()
 
+        # 세션 포인트 즉시 반영
         if purpose == 'point_charge':
             session['user']['points'] = session['user'].get('points', 0) + point_amount
             session.modified = True
@@ -2052,55 +1878,97 @@ def toss_pay_confirm():
         return jsonify({"result": "fail", "message": "결제 승인 중 오류가 발생했습니다."}), 500
 
 
+# [결제] 토스페이먼츠 결제 성공 리다이렉트 수신 + confirm + 포인트 지급 통합 처리
 @app.route('/payment/toss/success')
 def toss_success():
-    payment_key = request.args.get('paymentKey')
-    order_id = request.args.get('orderId')
-    amount = request.args.get('amount')
-    purpose = request.args.get('purpose')
-    repair_id_raw = request.args.get('ref_id') # URL에서 받은 원본 값
+    payment_key   = request.args.get('paymentKey')
+    order_id      = request.args.get('orderId')
+    amount_str    = request.args.get('amount', '0')
+    purpose       = request.args.get('purpose', 'point_charge')
+    point_amount  = int(request.args.get('point_amount', amount_str) or amount_str)
+    repair_id_raw = request.args.get('ref_id')
+    amount        = int(amount_str)
 
-    print(f"🔍 결제 성공 데이터 확인 -> 목적: {purpose}, 수리ID: {repair_id_raw}")
+    print(f"🔍 결제 성공 -> 목적: {purpose}, 금액: {amount}, 포인트: {point_amount}, 수리ID: {repair_id_raw}")
 
-    if purpose == 'repair_service' and repair_id_raw:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        try:
-            # ✨ 핵심: ID를 안전하게 숫자로 변환합니다.
-            repair_id = int(repair_id_raw)
-            
-            # ✨ paid_at 컬럼이 없으므로 status만 업데이트하도록 수정했습니다.
-            update_query = """
-                UPDATE repair_logs 
-                SET status = '결제완료' 
-                WHERE id = %s
-            """
-            cursor.execute(update_query, (repair_id,))
-            conn.commit()
-            
-            # 쿼리가 실제로 몇 줄이나 영향을 줬는지 확인 (0이면 ID가 틀린 것)
-            if cursor.rowcount > 0:
-                print(f"✅ [HomeFix] DB 업데이트 성공! 수리 ID {repair_id} -> 결제완료")
-            else:
-                print(f"⚠️ [HomeFix] 업데이트 실패: ID {repair_id}와 일치하는 데이터가 없습니다.")
+    # ✅ [핵심1] 토스 서버에 confirm 요청 (서버 사이드에서 직접 처리)
+    try:
+        import base64 as b64
+        secret_b64 = b64.b64encode(f"{TOSS_SECRET_KEY}:".encode()).decode()
+        headers = {
+            "Authorization": f"Basic {secret_b64}",
+            "Content-Type": "application/json",
+        }
+        res = http_requests.post(
+            "https://api.tosspayments.com/v1/payments/confirm",
+            headers=headers,
+            json={"paymentKey": payment_key, "orderId": order_id, "amount": amount},
+            timeout=10
+        )
+        res.raise_for_status()
+        toss_data = res.json()
+        print(f"✅ 토스 confirm 성공: {order_id}")
+    except Exception as e:
+        print(f"❌ 토스 confirm 실패: {e}")
+        return render_template('payment_success.html',
+                               message=f"결제 승인 중 오류가 발생했습니다. 고객센터에 문의해주세요.")
 
-        except Exception as e:
-            conn.rollback()
-            print(f"❌ [HomeFix] DB 업데이트 에러 발생: {e}")
-        finally:
-            cursor.close()
-            conn.close()
+    # ✅ [핵심2] DB 저장 + 포인트 지급
+    try:
+        userid = session['user']['userid'] if 'user' in session else None
+        if not userid:
+            return redirect('/login')
 
-    return render_template('payment_success.html', 
-                           message="수리비 결제가 성공적으로 완료되었습니다!")
+        conn   = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        ref_id = int(repair_id_raw) if repair_id_raw else None
 
+        # payments 테이블 기록
+        cursor.execute('''
+            INSERT INTO payments
+                (userid, order_id, payment_type, purpose, amount, point_amount, status, pg_tid, ref_id)
+            VALUES (%s, %s, 'toss', %s, %s, %s, '완료', %s, %s)
+            ON DUPLICATE KEY UPDATE status = '완료', pg_tid = VALUES(pg_tid)
+        ''', (userid, order_id, purpose, amount, point_amount,
+              toss_data.get('paymentKey', ''), ref_id))
+
+        # ✅ SELECT 없이 직접 딕셔너리로 전달 (point_amount 유실 버그 방지)
+        payment_dict = {
+            'userid':       userid,
+            'purpose':      purpose,
+            'amount':       amount,
+            'point_amount': point_amount,
+            'ref_id':       ref_id,
+        }
+        _process_payment_success(cursor, payment_dict)
+        conn.commit()
+
+        # 세션 포인트 즉시 반영
+        if purpose == 'point_charge':
+            session['user']['points'] = session['user'].get('points', 0) + point_amount
+            session.modified = True
+            print(f"✅ 포인트 {point_amount:,}P 지급 완료 → {userid}")
+
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        print(f"❌ DB 처리 오류: {e}")
+        return render_template('payment_success.html',
+                               message=f"결제는 완료됐으나 처리 중 오류가 발생했습니다. 고객센터에 문의해주세요.")
+
+    message = f"포인트 {point_amount:,}P 충전이 완료되었습니다!" if purpose == 'point_charge' else "결제가 성공적으로 완료되었습니다!"
+    return render_template('payment_success.html', message=message)
+
+
+# [결제] 토스페이먼츠 결제 실패/취소 리다이렉트 수신
 @app.route('/payment/toss/fail')
 def toss_pay_fail_redirect():
     error_msg = request.args.get('message', '결제에 실패했습니다.')
     return f"<script>alert('{error_msg}'); location.href='/payment/charge';</script>"
 
 
-# --- [환불 처리] ---
+# [결제] 환불 처리
 @app.route('/payment/refund', methods=['POST'])
 def payment_refund():
     if 'user' not in session:
@@ -2127,20 +1995,7 @@ def payment_refund():
         return jsonify({"result": "fail", "message": "환불 가능한 결제가 아닙니다."}), 400
 
     try:
-        if payment['payment_type'] == 'kakao':
-            headers = {
-                "Authorization": f"KakaoAK {KAKAO_ADMIN_KEY}",
-                "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
-            }
-            http_requests.post(
-                "https://kapi.kakao.com/v1/payment/cancel",
-                headers=headers,
-                data={"cid": "TC0ONETIME", "tid": payment['pg_tid'],
-                      "cancel_amount": payment['amount'], "cancel_tax_free_amount": 0},
-                timeout=10
-            ).raise_for_status()
-
-        elif payment['payment_type'] == 'toss':
+        if payment['payment_type'] == 'toss':
             import base64 as b64
             secret_b64 = b64.b64encode(f"{TOSS_SECRET_KEY}:".encode()).decode()
             http_requests.post(
@@ -2172,7 +2027,7 @@ def payment_refund():
         return jsonify({"result": "fail", "message": "환불 처리 중 오류가 발생했습니다."}), 500
 
 
-# --- [결제 완료 페이지] ---
+# [결제] 결제 완료 안내 페이지 렌더링
 @app.route('/payment/success')
 def payment_success_page():
     if 'user' not in session:
@@ -2191,7 +2046,7 @@ def payment_success_page():
     return render_template('payment_success.html', payment=payment, user_info=session['user'])
 
 
-# --- [내 결제 내역] ---
+# [결제] 내 결제 내역 조회
 @app.route('/payment/history')
 def payment_history():
     if 'user' not in session:
@@ -2211,7 +2066,7 @@ def payment_history():
     return render_template('payment_history.html', payments=payments, user_info=session['user'])
 
 
-# --- [전문가 예약 + 결제 연동] ---
+# [결제] 전문가 예약 + 추가 결제 통합 처리
 @app.route('/payment/reserve_with_payment', methods=['POST'])
 def reserve_with_payment():
     if 'user' not in session:
@@ -2220,7 +2075,7 @@ def reserve_with_payment():
     expert_name  = request.form.get('expert_name', '')
     use_points   = int(request.form.get('use_points', 0))
     pay_amount   = int(request.form.get('pay_amount', 0))
-    payment_type = request.form.get('payment_type', 'kakao')
+    payment_type = request.form.get('payment_type', 'toss')
     userid       = session['user']['userid']
     cur_points   = session['user'].get('points', 0)
 
@@ -2267,7 +2122,6 @@ def reserve_with_payment():
             payment_type=payment_type,
             reservation_id=reservation_id,
             toss_client_key=TOSS_CLIENT_KEY,
-            kakao_js_key=KAKAO_JS_KEY,
             user_info=session['user']
         )
 
@@ -2278,7 +2132,7 @@ def reserve_with_payment():
         return "<script>alert('예약 중 오류가 발생했습니다.'); history.back();</script>"
 
 
-# --- [관리자] 결제 현황 대시보드 ---
+# [관리자] 결제 현황 대시보드
 @app.route('/admin/payments')
 def admin_payment_dashboard():
     if 'user' not in session or session['user'].get('role') != 'admin':
@@ -2317,17 +2171,14 @@ def admin_payment_dashboard():
     )
 
 
-# =====================================================
-# [포트원 V2] 임대인 수리비 결제 완료 검증 라우트
-# landlord_repairs.html의 requestTossPayment() 에서 호출
-# =====================================================
+# [결제] 포트원 V2 수리비 결제 검증
 @app.route('/payment/complete', methods=['POST'])
 def payment_complete():
     if 'user' not in session:
         return jsonify({'status': 'error', 'message': '로그인이 필요합니다.'}), 401
 
     data      = request.get_json()
-    imp_uid   = data.get('imp_uid')    # 포트원 결제 ID (paymentId)
+    imp_uid   = data.get('imp_uid')
     repair_id = data.get('repair_id')
     amount    = data.get('amount')
 
@@ -2338,7 +2189,6 @@ def payment_complete():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # 1. 포트원 V2 서버 API로 결제 검증
         portone_secret = os.environ.get('PORTONE_API_SECRET', '')
         verify_res = http_requests.get(
             f'https://api.portone.io/payments/{imp_uid}',
@@ -2349,14 +2199,12 @@ def payment_complete():
         paid_amount = payment_data.get('amount', {}).get('paid', 0)
         pay_status  = payment_data.get('status', '')
 
-        # 2. 금액 위변조 검증
         if pay_status != 'PAID' or int(paid_amount) != int(amount):
             return jsonify({
                 'status': 'error',
                 'message': f'결제 검증 실패 (서버금액: {paid_amount}, 요청금액: {amount})'
             })
 
-        # 3. repair_logs 상태 업데이트
         cursor.execute("""
             UPDATE repair_logs
             SET status = '결제완료', actual_cost = %s
@@ -2377,5 +2225,4 @@ def payment_complete():
 
 
 if __name__ == '__main__':
-    # 메인 포트인 5000에서 통합 실행됩니다.
     app.run(debug=True, host='0.0.0.0', port=5000)
